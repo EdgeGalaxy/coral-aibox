@@ -5,14 +5,14 @@ from typing import Dict
 from coral import CoralNode, BaseParamsModel, NodeType, RawPayload, PTManager
 from coral.metrics import init_mqtt, mqtt
 
-from .algrothms.gpio import GPIOSignal
+from algrothms.gpio import GPIOSignal
 
 
 class MQTTParamsModel(BaseParamsModel):
-    broker: str
-    port: int
-    username: str
-    password: str
+    broker: str = '127.0.0.1'
+    port: int = 1883
+    username: str = 'admin'
+    password: str = 'admin'
 
 
 class GpioParamsModel(BaseParamsModel):
@@ -22,7 +22,7 @@ class GpioParamsModel(BaseParamsModel):
 
 @PTManager.register()
 class AIboxReportParamsModel(BaseParamsModel):
-    mqtt: MQTTParamsModel
+    mqtt: MQTTParamsModel = MQTTParamsModel()
     gpio: GpioParamsModel = GpioParamsModel()
     report_image: bool = True
 
@@ -41,8 +41,9 @@ class AIboxReport(CoralNode):
 
         :param context: 上下文参数
         """
-        gpio_trigger = GPIOSignal(self.params.gpio)
-        mqtt_client = init_mqtt(self.params.mqtt.model_dump())
+        data = self.params.model_dump()
+        gpio_trigger = GPIOSignal(**data['gpio'])
+        mqtt_client = init_mqtt(data['mqtt'])
         context['mqtt'] = mqtt_client
         context['gpio'] = gpio_trigger
     

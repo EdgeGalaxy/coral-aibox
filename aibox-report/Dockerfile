@@ -21,6 +21,7 @@ RUN python3 -m pip install -U pip setuptools wheel && \
     poetry config virtualenvs.create false
 
 COPY poetry.lock pyproject.toml /workspace
+ADD libs/* /workspace/libs/
 RUN poetry install --only main && \
     rm -rf /root/.cache && \
     rm -rf /root/.local

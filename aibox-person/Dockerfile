@@ -1,4 +1,4 @@
-FROM cash2020/ubuntu1804_cuda102_onnx180_tensorrt713
+FROM cash2020/ubuntu1804_tensorrt7_ros2_service:v1.1
 
 ENV TZ="Asia/Shanghai"
 ENV LC_ALL=C.UTF-8
@@ -21,7 +21,8 @@ RUN python3 -m pip install -U pip setuptools wheel && \
     poetry config virtualenvs.create false
 
 COPY poetry.lock pyproject.toml /workspace
-RUN poetry install --only main && \
+ADD libs/* /workspace/libs/
+RUN poetry install --with rt && \
     rm -rf /root/.cache && \
     rm -rf /root/.local
 RUN cp aarch64/usr/bin/* /usr/bin && cp aarch64/usr/lib/* /usr/lib && restart_rknn.sh

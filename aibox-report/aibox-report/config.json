@@ -3,5 +3,12 @@
     "meta": {
         "receivers": [{ "node_id": "aibox_face" }]
     },
-    "params": {}
+    "params": {
+        "mqtt": {
+            "broker": "47.116.14.85",
+            "port": 9022,
+            "username": "admin",
+            "password": "admin"
+        }
+    }
 }

@@ -1,4 +1,4 @@
-FROM cash2020/ubuntu1804_tensorrt7_ros2_service:v1.1
+FROM cash2020/ubuntu2004_rknn152_ros2_service:v1.0
 
 ENV TZ="Asia/Shanghai"
 ENV LC_ALL=C.UTF-8
@@ -21,10 +21,12 @@ RUN python3 -m pip install -U pip setuptools wheel && \
     poetry config virtualenvs.create false
 
 COPY poetry.lock pyproject.toml /workspace
-RUN poetry install --with rt && \
+ADD libs/* /workspace/libs/
+RUN poetry install --with rknn && \
     rm -rf /root/.cache && \
     rm -rf /root/.local
+RUN cp aarch64/usr/bin/* /usr/bin && cp aarch64/usr/lib/* /usr/lib && restart_rknn.sh
 
 COPY . .
 
-CMD cd aibox-face && python3 node.py
+CMD cd aibox-person && python3 node.py

@@ -17,7 +17,7 @@ services:
   person_node:
     build:
       context: ./aibox-person
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_rknn
     privileged: true
     depends_on:
       - camera_node
@@ -34,7 +34,7 @@ services:
   face_node:
     build:
       context: ./aibox-face
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_rknn
     privileged: true
     depends_on:
       - person_node
@@ -53,15 +53,15 @@ services:
       context: ./aibox-report
       dockerfile: Dockerfile
     privileged: true
-    depends_on:
-      - face_node
-      - person_node
+    # depends_on:
+    #   - face_node
+    #   - person_node
     network_mode: host
     environment:
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
     volumes:
       - /dev:/dev
       # 非树莓派类边缘设备没有改路径，需要注释掉
-      - /proc/device-tree/compatible:/proc/device-tree/compatible
+      # - /proc/device-tree/compatible:/proc/device-tree/compatible
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
