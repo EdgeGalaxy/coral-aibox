@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  camera_node:
+    build:
+      dockerfile: aibox-camera/Dockerfile
+    privileged: true
+    network_mode: host
+    volumes:
+      - /dev:/dev
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped # 如果服务退出，则除非手动停止，否则总是重启
+
+  person_node:
+    build:
+      dockerfile: aibox-person/Dockerfile
+    privileged: true
+    depends_on:
+      - camera_node
+    network_mode: host
+    volumes:
+      - /dev:/dev
+      # 非树莓派类边缘设备没有改路径，需要注释掉
+      - /proc/device-tree/compatible:/proc/device-tree/compatible
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped
+
+  face_node:
+    build:
+      dockerfile: aibox-face/Dockerfile
+    privileged: true
+    depends_on:
+      - person_node
+    network_mode: host
+    volumes:
+      - /dev:/dev
+      # 非树莓派类边缘设备没有改路径，需要注释掉
+      - /proc/device-tree/compatible:/proc/device-tree/compatible
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped
+
+  report_node:
+    build:
+      dockerfile: aibox-report/Dockerfile
+    privileged: true
+    depends_on:
+      - face_node
+      - person_node
+    network_mode: host
+    volumes:
+      - /dev:/dev
+      # 非树莓派类边缘设备没有改路径，需要注释掉
+      - /proc/device-tree/compatible:/proc/device-tree/compatible
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped

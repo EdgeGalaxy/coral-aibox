@@ -1,0 +1,7 @@
+{
+    "node_id": "aibox_report",
+    "meta": {
+        "receivers": [{ "node_id": "aibox_face" }]
+    },
+    "params": {}
+}

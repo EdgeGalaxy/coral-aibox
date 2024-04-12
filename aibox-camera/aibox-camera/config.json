@@ -1,0 +1,25 @@
+{
+    "node_id": "aibox_camera",
+    "meta": {
+        "sender": { "node_id": "aibox_camera" }
+    },
+    "process": {
+        "enable_parallel": true,
+        "count": 1
+    },
+    "generic": {
+        "enable_shared_memory": true
+    },
+    "params": {
+        "cameras": [
+            {
+                "name": "camera01",
+                "url": "0",
+                "params": {
+                    "iou_scale": 0.03,
+                    "points": [[153, 128], [4, 176], [1, 357], [349, 357], [154, 129]]
+                }
+            }
+        ]
+    }
+}

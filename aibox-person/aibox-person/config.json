@@ -1,0 +1,15 @@
+{
+    "node_id": "aibox_person",
+    "meta": {
+        "receivers": [{ "node_id": "aibox_camera" }],
+        "sender": { "node_id": "aibox_person" }
+    },
+    "params": {
+        "detection": {
+            "weight_path": "bytetrack_s.rt"
+        }, 
+        "featuredb": {
+            "weight_path": "resnet18-f37072fd.rt"
+        }
+    }
+}

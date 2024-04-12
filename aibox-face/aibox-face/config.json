@@ -1,0 +1,15 @@
+{
+    "node_id": "aibox_face",
+    "meta": {
+        "receivers": [{ "node_id": "aibox_person" }],
+        "sender": { "node_id": "aibox_face" }
+    },
+    "params": {
+        "detection": {
+            "weight_path": "face_detection.rt"
+        },
+        "featuredb": {
+            "weight_path": "face_recognition.rt"
+        }
+    }
+}

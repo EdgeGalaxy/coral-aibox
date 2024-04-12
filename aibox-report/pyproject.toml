@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "aibox-report"
+version = "0.1.0"
+description = ""
+authors = ["zhaokefei <zhaokefei@tezign.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+loop-pycoral = {version = "^0.1.3", source = "looptech"}
+gpio-control = {path = "libs/gpio_control-0.2.0-cp38-cp38-linux_aarch64.whl"}
+
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "looptech"
+url = "http://47.116.14.85:9000/simple"
+priority = "supplemental"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

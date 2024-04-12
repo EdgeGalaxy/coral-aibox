@@ -1,0 +1,80 @@
+name: Build and Push Docker Image on Tag
+
+on:
+  push:
+    tags:
+      - 'base-*'
+      - 'rknn-*'
+      - 'jeston-*'
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+  
+    - name: Extract repo name
+      id: repo
+      run: echo "REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2 | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+    - name: Extract tag name
+      id: extract_tag
+      run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ vars.DOCKER_USERNAME }}/${{ steps.repo.outputs.REPO_NAME }}:${{ steps.extract_tag.outputs.TAG_NAME }}
+
+  setup-runner:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    outputs:
+      runner_label: ${{ steps.set-runner.outputs.runner_label }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Determine Runner Type
+        id: set-runner
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          if [[ $TAG_NAME == base-* ]]; then
+            echo "RUNNER=ubuntu-latest" >> $GITHUB_OUTPUT
+          elif [[ $TAG_NAME == rknn-* ]]; then
+            echo "RUNNER=ubuntu-latest" >> $GITHUB_OUTPUT
+          elif [[ $TAG_NAME == jeston-* ]]; then
+            echo "RUNNER=ubuntu-latest" >> $GITHUB_OUTPUT
+          fi
+
+  run_and_register:
+    needs: setup-runner
+    runs-on: ubuntu-latest
+    steps:
+    - name: Extract repo name
+      id: repo
+      run: echo "REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2 | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+    - name: Extract tag name
+      id: extract_tag
+      run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Run Docker build
+      run: |
+        docker pull ${{ vars.DOCKER_USERNAME }}/${{ steps.repo.outputs.REPO_NAME }}:${{ steps.extract_tag.outputs.TAG_NAME }}
+
+    - name: Run Docker container
+      run: |
+        docker run -e CORAL_NODE_RUN_TYPE=register -e CORAL_NODE_REGISTER_URL=${{ vars.NODE_REGISTER_URL }} -e CORAL_NODE_NAME=${{ steps.repo.outputs.REPO_NAME }} -e CORAL_NODE_VERSION=${{ steps.extract_tag.outputs.TAG_NAME }} -e CORAL_NODE_DOCKER_IMAGE=${{ vars.DOCKER_USERNAME }}/${{ steps.repo.outputs.REPO_NAME }}:${{ steps.extract_tag.outputs.TAG_NAME }} ${{ vars.DOCKER_USERNAME }}/${{ steps.repo.outputs.REPO_NAME }}:${{ steps.extract_tag.outputs.TAG_NAME }}
