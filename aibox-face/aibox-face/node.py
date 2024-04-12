@@ -43,7 +43,7 @@ class ModelParamsModel(BaseModel):
                 logger.warning(f'file {_file} download success!')
             else:
                 raise ValueError(f'file {_file} not exists, download from {url} error: {r.text}!')
-        return os.path.join(MOUNT_NODE_PATH, v)
+        return _file
 
 
 class DetectionParamsModel(ModelParamsModel):

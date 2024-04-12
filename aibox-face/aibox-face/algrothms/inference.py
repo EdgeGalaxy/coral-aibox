@@ -20,7 +20,7 @@ class Inference:
         device_id: int,
         class_names: List[str] = ["person"],
         nms_thresh: float = 0.4,
-        use_processing: bool = True,
+        use_preprocess: bool = True,
         confidence_thresh: float = 0.5,
     ):
         meta = get_import_meta(model_type)
@@ -28,7 +28,7 @@ class Inference:
             model_path=weight_path,
             input_height=height,
             input_width=width,
-            use_processing=use_processing,
+            use_preprocess=use_preprocess,
             device_id=device_id,
             class_names=class_names,
             nms_thresh=nms_thresh,

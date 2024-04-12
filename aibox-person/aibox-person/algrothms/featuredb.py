@@ -18,7 +18,7 @@ class FeatureDB:
         model_type: str,
         device_id: int,
         db_path: str,
-        use_processing: bool = True,
+        use_preprocess: bool = True,
         db_size: int = 1000,
         sim_threshold: float = 0.9,
     ):
@@ -27,7 +27,7 @@ class FeatureDB:
             model_path=weight_path,
             input_height=height,
             input_width=width,
-            use_processing=use_processing,
+            use_preprocess=use_preprocess,
             device_id=device_id,
         )
         if platform.machine() == "x86_64" and model_type == "rknn":
