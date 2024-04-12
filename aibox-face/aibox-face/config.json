@@ -6,10 +6,10 @@
     },
     "params": {
         "detection": {
-            "weight_path": "face_detection.rt"
+            "weight_path": "face_detection"
         },
         "featuredb": {
-            "weight_path": "face_recognition.rt"
+            "weight_path": "face_recognition"
         }
     }
 }

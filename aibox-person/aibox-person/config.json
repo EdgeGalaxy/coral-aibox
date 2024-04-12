@@ -6,10 +6,10 @@
     },
     "params": {
         "detection": {
-            "weight_path": "bytetrack_s.rt"
+            "weight_path": "bytetrack_s"
         }, 
         "featuredb": {
-            "weight_path": "resnet18-f37072fd.rt"
+            "weight_path": "resnet18-f37072fd"
         }
     }
 }

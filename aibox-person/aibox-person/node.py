@@ -18,7 +18,7 @@ from algrothms.inference import Inference
 
 MOUNT_NODE_PATH = os.path.join(MOUNT_PATH, "aibox")
 os.makedirs(MOUNT_NODE_PATH, exist_ok=True)
-WEIGHTS_REMOTE_HOST = os.environ.get('WEIGHTS_REMOTE_HOST', 'https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/')
+WEIGHTS_REMOTE_HOST = os.environ['WEIGHTS_REMOTE_HOST']
 
 
 class ModelParamsModel(BaseModel):
@@ -32,6 +32,7 @@ class ModelParamsModel(BaseModel):
     @field_validator('weight_path')
     @classmethod
     def validate_model_path(cls, v: str):
+        v = '.'.join([v, MOUNT_PATH])
         _dir = os.path.join(MOUNT_NODE_PATH, 'weights')
         os.makedirs(_dir, exist_ok=True)
         _file = os.path.join(_dir, v)
