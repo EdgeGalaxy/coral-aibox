@@ -6,6 +6,8 @@ services:
       dockerfile: aibox-camera/Dockerfile
     privileged: true
     network_mode: host
+    environment:
+      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
     volumes:
       - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
@@ -18,6 +20,8 @@ services:
     depends_on:
       - camera_node
     network_mode: host
+    environment:
+      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
     volumes:
       - /dev:/dev
       # 非树莓派类边缘设备没有改路径，需要注释掉
@@ -32,6 +36,8 @@ services:
     depends_on:
       - person_node
     network_mode: host
+    environment:
+      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
     volumes:
       - /dev:/dev
       # 非树莓派类边缘设备没有改路径，需要注释掉
@@ -47,6 +53,8 @@ services:
       - face_node
       - person_node
     network_mode: host
+    environment:
+      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
     volumes:
       - /dev:/dev
       # 非树莓派类边缘设备没有改路径，需要注释掉

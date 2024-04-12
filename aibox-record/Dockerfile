@@ -2,6 +2,7 @@ FROM python:3.8.6
 
 # opencv 相关安装so文件
 RUN apt-get update && apt-get install -y libgl1
+ENV TZ=Asia/Shanghai
 
 WORKDIR /workspace
 
