@@ -62,6 +62,6 @@ services:
     volumes:
       - /dev:/dev
       # 非树莓派类边缘设备没有改路径，需要注释掉
-      # - /proc/device-tree/compatible:/proc/device-tree/compatible
+      - /proc/device-tree/compatible:/proc/device-tree/compatible
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
