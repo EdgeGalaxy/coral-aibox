@@ -7,59 +7,61 @@ import numpy as np
 from loguru import logger
 from fastapi import FastAPI, APIRouter
 
-from .algrothms.inference import Inference
-from .schema import RecordFeatureModel, ImageReqModel
+from algrothms.inference import Inference
+from schema import RecordFeatureModel, ImageReqModel
+
+# 全局变量
+node_id = None
+contexts = {}
 
 
-class WebBackGroundTask(Thread):
-    """
-    =========
-    web接口实现
-    =========
-    """
+"""
+=========
+web接口实现
+=========
+"""
 
-    router = APIRouter()
+router = APIRouter()
 
-    def __init__(
-        self, node_id: str, contexts: Dict[str, Any], port: int, *args, **kwargs
-    ) -> None:
-        super().__init__(*args, **kwargs)
-        self.node_id = node_id
-        self.contexts = contexts
-        self.port = port
 
-    def run(self):
-        app = FastAPI()
-        app.include_router(self.router, prefix=f"/api/{self.node_id}")
-        uvicorn.run(self.router, host="0.0.0.0", port=self.port)
+def async_run(_node_id: str) -> None:
+    app = FastAPI()
+    app.include_router(router, prefix=f"/api/{_node_id}")
+    logger.info(f"{_node_id} start web server")
+    Thread(
+        target=uvicorn.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 8030}
+    ).start()
 
-    @router.post("/record")
-    def record_feature(self, item: RecordFeatureModel):
-        context = self.contexts[0]
-        params = context["params"]
-        # params 为 AIboxPersonParamsModel
-        params.is_record = item.is_record
-        if item.is_record:
-            logger.info(f"{self.node_id} start record feature!!")
-        else:
-            logger.info(f"{self.node_id} stop record feature!!")
-        return params.model_dump()
 
-    @router.get("/config")
-    def _get_params(self):
-        return self.contexts[0]["params"].model_dump()
+@router.post("/record")
+def record_feature(item: RecordFeatureModel):
+    context = contexts[0]
+    params = context["params"]
+    # params 为 AIboxPersonParamsModel
+    params.is_record = item.is_record
+    if item.is_record:
+        logger.info(f"{node_id} start record feature!!")
+    else:
+        logger.info(f"{node_id} stop record feature!!")
+    return params.model_dump()
 
-    @router.post("/predict")
-    def predict(self, item: ImageReqModel):
-        from .node import AIboxFace
 
-        face_objects = []
-        model: Inference = self.contexts[0]["context"]["model"]
-        frame = np.frombuffer(base64.b64decode(item.image), np.uint8)
-        for box in item.boxes:
-            # base64 image to ndarray
-            person_frame = frame[box.x1 : box.x2, box.y1 : box.y2, :]
-            objects = model.predict(person_frame)
-            similar_object = AIboxFace.get_max_face(objects)
-            face_objects.append(similar_object)
-        return face_objects
+@router.get("/config")
+def get_params():
+    return contexts[0]["params"].model_dump()
+
+
+@router.post("/predict")
+def predict(self, item: ImageReqModel):
+    from .node import AIboxFace
+
+    face_objects = []
+    model: Inference = contexts[0]["context"]["model"]
+    frame = np.frombuffer(base64.b64decode(item.image), np.uint8)
+    for box in item.boxes:
+        # base64 image to ndarray
+        person_frame = frame[box.x1 : box.x2, box.y1 : box.y2, :]
+        objects = model.predict(person_frame)
+        similar_object = AIboxFace.get_max_face(objects)
+        face_objects.append(similar_object)
+    return face_objects

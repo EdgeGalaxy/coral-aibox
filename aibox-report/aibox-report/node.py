@@ -83,11 +83,4 @@ class AIboxReport(CoralNode):
 
 
 if __name__ == "__main__":
-    # 脚本入口，包括注册和启动
-    import os
-
-    run_type = os.getenv("CORAL_NODE_RUN_TYPE", "run")
-    if run_type == "register":
-        AIboxReport.node_register()
-    else:
-        AIboxReport().run()
+    AIboxReport().run()

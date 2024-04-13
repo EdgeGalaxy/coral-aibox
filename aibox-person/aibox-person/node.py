@@ -15,10 +15,10 @@ from coral import (
     RawPayload,
 )
 
-from .web import WebBackGroundTask
-from .algrothms.featuredb import FeatureDB
-from .algrothms.inference import Inference
-from .schema import DetectionParamsModel, FeatureDBParamsModel
+import web
+from algrothms.featuredb import FeatureDB
+from algrothms.inference import Inference
+from schema import DetectionParamsModel, FeatureDBParamsModel
 
 
 @PTManager.register()
@@ -28,7 +28,6 @@ class AIboxPersonParamsModel(BaseParamsModel):
     is_record: bool = Field(
         default=False, description="是否记录当前获取的图像信息和特征"
     )
-    port: int = Field(default=8020, description="端口号")
 
 
 class AIboxPerson(CoralNode):
@@ -41,12 +40,9 @@ class AIboxPerson(CoralNode):
 
     def __init__(self):
         super().__init__()
-        self.contexts = {}
-        # 启动web服务
-        web_task = WebBackGroundTask(
-            self.config.node_id, self.contexts, self.params.port
-        )
-        web_task.start()
+        # 更新node_id变量，并启动web服务
+        web.node_id = self.config.node_id
+        web.async_run(self.config.node_id)
 
     def init(self, index: int, context: dict):
         """
@@ -60,7 +56,7 @@ class AIboxPerson(CoralNode):
         inference = Inference(featuredb=featuredb, **data["detection"])
         context["model"] = inference
         # 更新contexts
-        self.contexts[str(index)] = {"context": context, "params": self.params}
+        web.contexts[str(index)] = {"context": context, "params": self.params}
 
     def sender(self, payload: RawPayload, context: Dict) -> ObjectsPayload:
         """
@@ -105,8 +101,4 @@ class AIboxPerson(CoralNode):
 
 
 if __name__ == "__main__":
-    run_type = os.getenv("CORAL_NODE_RUN_TYPE", "run")
-    if run_type == "register":
-        AIboxPerson.node_register()
-    else:
-        AIboxPerson().run()
+    AIboxPerson().run()

@@ -10,14 +10,13 @@ from coral import (
     NodeType,
 )
 
-from .schema import CameraParamsModel
-from .web import WebBackGroundTask
+import web
+from schema import CameraParamsModel
 
 
 @PTManager.register()
 class AIboxCameraParamsModel(BaseParamsModel):
     cameras: List[CameraParamsModel]
-    port: int = 8010
 
 
 class AIboxCamera(CoralNode):
@@ -30,12 +29,9 @@ class AIboxCamera(CoralNode):
 
     def __init__(self):
         super().__init__()
-        self.contexts = {}
-        # 启动web服务
-        web_task = WebBackGroundTask(
-            self.config.node_id, self.contexts, self.params.port
-        )
-        web_task.start()
+        # 更新node_id变量，并启动web服务
+        web.node_id = self.config.node_id
+        web.async_run(self.config.node_id)
 
     def init(self, index: int, context: dict):
         """
@@ -64,7 +60,8 @@ class AIboxCamera(CoralNode):
         context["vc"] = vc
         context["name"] = camera["name"]
         context["params"] = camera["params"]
-        self.contexts[camera["name"]] = context
+        # 更新web的全局变量
+        web.contexts[camera["name"]] = context
 
     def sender(self, payload: RawPayload, context: Dict) -> FirstPayload:
         """
@@ -85,11 +82,4 @@ class AIboxCamera(CoralNode):
 
 
 if __name__ == "__main__":
-    # 脚本入口，包括注册和启动
-    import os
-
-    run_type = os.getenv("CORAL_NODE_RUN_TYPE", "run")
-    if run_type == "register":
-        AIboxCamera.node_register()
-    else:
-        AIboxCamera().run()
+    AIboxCamera().run()

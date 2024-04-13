@@ -13,10 +13,10 @@ from coral import (
     ObjectPayload,
 )
 
-from .algrothms.featuredb import FeatureDB
-from .algrothms.inference import Inference
-from .schema import DetectionParamsModel, FeatureDBParamsModel
-from .web import WebBackGroundTask
+import web
+from algrothms.featuredb import FeatureDB
+from algrothms.inference import Inference
+from schema import DetectionParamsModel, FeatureDBParamsModel
 
 
 @PTManager.register()
@@ -26,7 +26,6 @@ class AIboxPersonParamsModel(BaseParamsModel):
     is_record: bool = Field(
         default=False, description="是否记录当前获取的图像信息和特征"
     )
-    port: int = Field(default=8030, description="端口号")
 
 
 class AIboxFace(CoralNode):
@@ -39,12 +38,9 @@ class AIboxFace(CoralNode):
 
     def __init__(self):
         super().__init__()
-        self.contexts = {}
-        # 启动web服务
-        web_task = WebBackGroundTask(
-            self.config.node_id, self.contexts, self.params.port
-        )
-        web_task.start()
+        # 更新node_id变量，并启动web服务
+        web.node_id = self.config.node_id
+        web.async_run(self.config.node_id)
 
     def init(self, index: int, context: dict):
         """
@@ -57,7 +53,7 @@ class AIboxFace(CoralNode):
         inference = Inference(featuredb=featuredb, **data["detection"])
         context["model"] = inference
         # 更新contexts
-        self.contexts[str(index)] = {"context": context, "params": self.params}
+        web.contexts[str(index)] = {"context": context, "params": self.params}
 
     @classmethod
     def get_max_face(objects: List[Dict[str, Any]]):
@@ -96,9 +92,4 @@ class AIboxFace(CoralNode):
 
 
 if __name__ == "__main__":
-
-    run_type = os.getenv("CORAL_NODE_RUN_TYPE", "run")
-    if run_type == "register":
-        AIboxFace.node_register()
-    else:
-        AIboxFace().run()
+    AIboxFace().run()
