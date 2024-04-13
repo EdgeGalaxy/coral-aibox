@@ -7,7 +7,7 @@
     "params": {
         "detection": {
             "weight_path": "bytetrack_s"
-        }, 
+        },
         "featuredb": {
             "weight_path": "resnet18-f37072fd"
         }

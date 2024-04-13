@@ -14,12 +14,14 @@ class GPIOSignal:
 
     def init(self):
         import gpio_control as gpio
+
         logger.info("gpio start init")
         gpio.gpio_setup()  # 初始化
 
     def trigger(self):
         if self.enable:
             import gpio_control as gpio
+
             if time.time() < (self._recv_on_signal_at + self.on_signal_duration):
                 logger.info("trigger gpio on")
                 gpio.gpio_on()
