@@ -83,7 +83,7 @@ class FeatureDB:
 
         return None
 
-    def predict(self, image: np.ndarray, save=False) -> bool:
+    def predict(self, image: np.ndarray, save: bool = False) -> bool:
         feature = self.model.predict(image)
         match_key = self.compare(feature)
         if match_key:
@@ -93,7 +93,7 @@ class FeatureDB:
             self.save(image, feature)
         return True
 
-    def save(self, image, feature):
+    def save(self, image: np.ndarray, feature: np.ndarray):
         if len(self.features) > self.db_size:
             return
 

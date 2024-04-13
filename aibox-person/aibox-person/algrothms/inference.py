@@ -46,7 +46,7 @@ class Inference:
 
         self.featuredb = featuredb
 
-    def predict(self, image: np.ndarray):
+    def predict(self, image: np.ndarray, is_record: bool = False):
         defects = []
         dets, det_scores, det_labels = self.model.predict(image)
         for det, conf, cls in zip(dets[0], det_scores[0], det_labels[0]):
@@ -58,7 +58,7 @@ class Inference:
                     is_person = True
                 else:
                     # todo 先匹配坐标IOU
-                    is_person = self.featuredb.predict(person_img)
+                    is_person = self.featuredb.predict(person_img, is_record)
 
                 defect = {
                     "label": (
@@ -71,7 +71,7 @@ class Inference:
                         "y1": ymin,
                         "x2": xmax,
                         "y2": ymax,
-                    }
+                    },
                 }
                 defects.append(defect)
             except Exception as e:
