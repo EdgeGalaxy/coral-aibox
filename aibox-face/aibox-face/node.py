@@ -1,4 +1,3 @@
-import os
 from typing import Dict, List, Any
 
 from pydantic import Field
@@ -87,6 +86,9 @@ class AIboxFace(CoralNode):
             similar_face_object = self.get_max_face(face_objects)
             if similar_face_object:
                 object.objects = [ObjectPayload(**similar_face_object)]
+
+        # 传输当前RawPayload的复制对象到frames_queue中，供web页面展示
+        web.append_payload_to_web_queue(payload.model_copy(deep=True))
 
         return ObjectsPayload(objects=payload.objects, mode=InterfaceMode.OVERWRITE)
 

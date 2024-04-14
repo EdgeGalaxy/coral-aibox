@@ -8,9 +8,10 @@ import requests
 import uvicorn
 import numpy as np
 from loguru import logger
+from coral import ObjectPayload
 from fastapi import FastAPI, APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from coral import ObjectPayload
+from fastapi.middleware.cors import CORSMiddleware
 
 from algrothms.inference import Inference
 from algrothms.utils import draw_image_with_boxes
@@ -33,6 +34,13 @@ router = APIRouter()
 
 def async_run(_node_id: str) -> None:
     app = FastAPI()
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.include_router(router, prefix=f"/api/{_node_id}")
     logger.info(f"{_node_id} start web server")
     Thread(
@@ -40,7 +48,7 @@ def async_run(_node_id: str) -> None:
     ).start()
 
 
-@router.post("/record")
+@router.post("/record/featuredb")
 def record_feature(item: RecordFeatureModel):
     context = contexts[0]
     params = context["params"]
