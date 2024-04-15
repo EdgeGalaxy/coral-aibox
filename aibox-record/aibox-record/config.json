@@ -1,8 +1,7 @@
 {
     "node_id": "aibox_record",
     "meta": {
-        "receivers": [{ "node_id": "aibox_person" }],
-        "sender": { "node_id": "aibox_record" }
+        "receivers": [{ "node_id": "aibox_person" }]
     },
     "params": {}
 }
