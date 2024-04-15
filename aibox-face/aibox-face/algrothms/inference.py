@@ -55,7 +55,7 @@ class Inference:
                 xmin, ymin, xmax, ymax = det
                 align_img = F.norm_crop(image, np.array(kps))
                 # 正常模式下，如果背景特征库为空时，不调用特征匹配
-                if len(self.featuredb.features) == 0:
+                if len(self.featuredb.features) == 0 and not is_record:
                     person = None
                 else:
                     # ! 此处需要确认逻辑是否正确

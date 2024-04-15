@@ -1,5 +1,6 @@
 import io
 import json
+from pydantic import BaseModel
 import uvicorn
 
 from typing import List, Dict
@@ -9,7 +10,7 @@ import cv2
 import numpy as np
 from loguru import logger
 from fastapi import FastAPI, APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from schema import ParamsModel
@@ -108,4 +109,24 @@ def get_camera_params(camera_id: str):
 def change_camera_params(camera_id: str, item: ParamsModel):
     context = contexts[camera_id]
     context["params"] = item.model_dump()
-    return context[camera_id]["params"]
+    return context["params"]
+
+
+d = {"is_record": False}
+
+
+@router.get("/config")
+def person_face_mock_config():
+    print("ddd", d)
+    return d
+
+
+class MockModel(BaseModel):
+    is_record: bool
+
+
+@router.post("/record/featuredb")
+def record_feature(item: MockModel):
+    d["is_record"] = item.is_record
+    print("featuredb", d)
+    return d

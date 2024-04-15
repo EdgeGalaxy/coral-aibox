@@ -91,7 +91,9 @@ def predict(item: ImageReqModel, with_face_detect: bool = False):
         if r.ok:
             face_objects = r.json()
         else:
-            raise ValueError(f"get face objects error: {r.text}!")
+            raise HTTPException(
+                status_code=500, detail=f"get face objects error: {r.text}!"
+            )
 
         for object, face_object in zip(objects, face_objects):
             if not face_object:
