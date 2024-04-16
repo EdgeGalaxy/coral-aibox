@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["zhaokefei <zhaokefei@tezign.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -30,6 +31,10 @@ rknn-toolkit-lite2 = {path = "libs/rknn_toolkit_lite2-1.6.0-cp38-cp38-linux_aarc
 
 [tool.poetry.group.rt.dependencies]
 meta-rt = "^0.1.4"
+
+
+[tool.poetry.group.onnx.dependencies]
+meta-onnx = "^0.1.2"
 
 [build-system]
 requires = ["poetry-core"]

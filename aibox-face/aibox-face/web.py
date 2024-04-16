@@ -20,7 +20,7 @@ from schema import RecordFeatureModel, ImageReqModel
 # 全局变量
 node_id = None
 contexts = {}
-cameras_queue: Dict[str, deque] = defaultdict(deque(maxlen=5))
+cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=5))
 
 
 """

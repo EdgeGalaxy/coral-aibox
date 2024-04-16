@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  camera_node:
+    build:
+      context: ./aibox-camera
+      dockerfile: Dockerfile
+    privileged: true
+    network_mode: host
+    environment:
+      - MODEL_TYPE=rt
+    volumes:
+      - /dev:/dev
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped # 如果服务退出，则除非手动停止，否则总是重启
+
+  person_node:
+    build:
+      context: ./aibox-person
+      dockerfile: Dockerfile_rt
+    privileged: true
+    depends_on:
+      - camera_node
+    network_mode: host
+    environment:
+      - MODEL_TYPE=rt
+      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
+    volumes:
+      - /dev:/dev
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped
+
+  face_node:
+    build:
+      context: ./aibox-face
+      dockerfile: Dockerfile_rt
+    privileged: true
+    depends_on:
+      - person_node
+    network_mode: host
+    environment:
+      - MODEL_TYPE=rt
+      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
+    volumes:
+      - /dev:/dev
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped
+
+  record_node:
+    build:
+      context: ./aibox-record
+      dockerfile: Dockerfile
+    privileged: true
+    depends_on:
+      - person_node
+    network_mode: host
+    environment:
+      - MODEL_TYPE=rt
+    volumes:
+      - /dev:/dev
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped
+
+  report_node:
+    build:
+      context: ./aibox-report
+      dockerfile: Dockerfile
+    privileged: true
+    environment:
+      - MODEL_TYPE=rt
+    depends_on:
+      - face_node
+      - person_node
+    network_mode: host
+    volumes:
+      - /dev:/dev
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped

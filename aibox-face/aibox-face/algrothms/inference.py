@@ -34,6 +34,10 @@ class Inference:
             nms_thresh=nms_thresh,
             confidence_thresh=confidence_thresh,
             pad=True,
+            normal=None if model_type == "rknn" else True,
+            mean=None if model_type == "rknn" else [0.485, 0.456, 0.406],
+            std=None if model_type == "rknn" else [0.229, 0.224, 0.225],
+            swap=None if model_type == "rknn" else (2, 0, 1),
         )
         if platform.machine() == "x86_64" and model_type == "rknn":
             self.model.convert_and_load(

@@ -14,7 +14,7 @@ class FeatureDB:
         self,
         width: int,
         height: int,
-        weigth_path: str,
+        weight_path: str,
         model_type: str,
         device_id: int,
         db_path: str,
@@ -24,7 +24,7 @@ class FeatureDB:
     ):
         meta = get_import_meta(model_type)
         self.model = meta.FaceEmbedding(
-            model_path=weigth_path,
+            model_path=weight_path,
             input_height=height,
             input_width=width,
             use_preprocess=use_preprocess,

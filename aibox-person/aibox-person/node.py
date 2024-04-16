@@ -68,7 +68,7 @@ class AIboxPerson(CoralNode):
         """
         model: Inference = context["model"]
         # 获取mask
-        if not context.get("mask"):
+        if context.get("mask") is None:
             mask = self.gen_mask(payload.raw, payload.raw_params)
             # 更新context内容，供web侧获取最新值
             context["mask"] = mask
@@ -82,13 +82,13 @@ class AIboxPerson(CoralNode):
         return ObjectsPayload(objects=objects, mode=InterfaceMode.APPEND)
 
     @classmethod
-    def gen_mask(raw: np.ndarray, raw_params: Dict[str, Any]):
+    def gen_mask(cls, raw: np.ndarray, raw_params: Dict[str, Any]):
         mask = np.zeros_like(raw)
         return cv2.fillPoly(mask, [np.array(raw_params["points"])], 1)
 
     @classmethod
     def filter_objects(
-        mask: np.ndarray, objects: List[ObjectPayload], iou_thresh: float
+        cls, mask: np.ndarray, objects: List[ObjectPayload], iou_thresh: float
     ):
         filter_objects = []
         for object in objects:

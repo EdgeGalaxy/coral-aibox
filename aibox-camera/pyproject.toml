@@ -4,11 +4,13 @@ version = "0.1.0"
 description = ""
 authors = ["zhaokefei <zhaokefei@tezign.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.8"
-loop-pycoral = {version = "^0.1.3", source = "looptech"}
 fastapi = "^0.110.1"
+loop-pycoral = {version = "^0.1.5", source = "looptech"}
+uvicorn = "^0.29.0"
 
 [[tool.poetry.source]]
 name = "tsinghua"

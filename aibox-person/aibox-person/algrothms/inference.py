@@ -1,6 +1,7 @@
 import platform
 from typing import List
 
+import cv2
 from loguru import logger
 import numpy as np
 
@@ -33,6 +34,8 @@ class Inference:
             nms_thresh=nms_thresh,
             confidence_thresh=confidence_thresh,
             pad=True,
+            normal=None if model_type == "rknn" else True,
+            swap=None if model_type == "rknn" else (2, 0, 1),
         )
         if platform.machine() == "x86_64" and model_type == "rknn":
             self.model.convert_and_load(

@@ -8,7 +8,7 @@ services:
     privileged: true
     network_mode: host
     environment:
-      - MODEL_TYPE=rt
+      - MODEL_TYPE=onnx
     volumes:
       - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
@@ -23,12 +23,10 @@ services:
       - camera_node
     network_mode: host
     environment:
-      - MODEL_TYPE=rt
-      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
+      - MODEL_TYPE=onnx
+      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/onnx/weights/
     volumes:
       - /dev:/dev
-      # 非树莓派类边缘设备没有改路径，需要注释掉
-      - /proc/device-tree/compatible:/proc/device-tree/compatible
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
 
@@ -41,11 +39,10 @@ services:
       - person_node
     network_mode: host
     environment:
-      - MODEL_TYPE=rt
-      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
+      - MODEL_TYPE=onnx
+      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/onnx/weights/
     volumes:
       - /dev:/dev
-      - /proc/device-tree/compatible:/proc/device-tree/compatible
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
 
@@ -58,7 +55,7 @@ services:
       - person_node
     network_mode: host
     environment:
-      - MODEL_TYPE=rt
+      - MODEL_TYPE=onnx
     volumes:
       - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
@@ -70,13 +67,12 @@ services:
       dockerfile: Dockerfile
     privileged: true
     environment:
-      - MODEL_TYPE=rt
+      - MODEL_TYPE=onnx
     depends_on:
       - face_node
       - person_node
     network_mode: host
     volumes:
       - /dev:/dev
-      - /proc/device-tree/compatible:/proc/device-tree/compatible
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped

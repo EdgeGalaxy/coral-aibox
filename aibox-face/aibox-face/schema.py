@@ -12,10 +12,10 @@ from pydantic import BaseModel, computed_field, field_validator, Field
 
 MOUNT_NODE_PATH = os.path.join(MOUNT_PATH, "aibox")
 os.makedirs(MOUNT_NODE_PATH, exist_ok=True)
-MODEL_TYPE = os.environ.get("MODEL_TYPE", "rt")
+MODEL_TYPE = os.environ.get("MODEL_TYPE", "onnx")
 WEIGHTS_REMOTE_HOST = os.environ.get(
     "WEIGHTS_REMOTE_HOST",
-    "https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/",
+    "https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/onnx/weights/",
 )
 
 
@@ -62,7 +62,7 @@ class FeatureDBParamsModel(ModelParamsModel):
     width: int = 112
     height: int = 112
     device_id: int = 0
-    db_path: str = "db/face"
+    db_path: str
     db_size: int = 1000
     sim_threshold: float = 0.9
 

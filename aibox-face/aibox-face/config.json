@@ -9,7 +9,8 @@
             "weight_path": "face_detection"
         },
         "featuredb": {
-            "weight_path": "face_recognition"
+            "weight_path": "face_recognition",
+            "db_path": "db/face"
         }
     }
 }

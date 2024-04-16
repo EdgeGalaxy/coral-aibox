@@ -48,6 +48,7 @@ class AIboxFace(CoralNode):
         :param context: 上下文参数
         """
         data = self.params.model_dump()
+        print(data)
         featuredb = FeatureDB(**data["featuredb"])
         inference = Inference(featuredb=featuredb, **data["detection"])
         context["model"] = inference
@@ -55,7 +56,7 @@ class AIboxFace(CoralNode):
         web.contexts[str(index)] = {"context": context, "params": self.params}
 
     @classmethod
-    def get_max_face(objects: List[Dict[str, Any]]):
+    def get_max_face(cls, objects: List[Dict[str, Any]]):
         if len(objects) == 0:
             return None
 

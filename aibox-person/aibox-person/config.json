@@ -1,5 +1,9 @@
 {
     "node_id": "aibox_person",
+    "process": {
+        "enable_parallel": true,
+        "count": 3
+    },
     "meta": {
         "receivers": [{ "node_id": "aibox_camera" }],
         "sender": { "node_id": "aibox_person" }
@@ -9,7 +13,8 @@
             "weight_path": "bytetrack_s"
         },
         "featuredb": {
-            "weight_path": "resnet18-f37072fd"
+            "weight_path": "resnet18-f37072fd",
+            "db_path": "db/person"
         }
     }
 }

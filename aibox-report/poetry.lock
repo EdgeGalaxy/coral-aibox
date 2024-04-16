@@ -345,13 +345,13 @@ reference = "tsinghua"
 
 [[package]]
 name = "loop-pycoral"
-version = "0.1.5"
+version = "0.1.6"
 description = ""
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "loop_pycoral-0.1.5-py3-none-any.whl", hash = "sha256:fce376c9edfd15dd523a07e59d4922b10ebc62fd6ac38be8b6b3fef90c98ac44"},
-    {file = "loop_pycoral-0.1.5.tar.gz", hash = "sha256:088cb8607a5d708f72b77a6fe9bf7dec1bc345cf8d31cd9673677a8d0ea4865a"},
+    {file = "loop_pycoral-0.1.6-py3-none-any.whl", hash = "sha256:4a78fd2a1337be142efab77d6f6e3160d91bbb1191eb9a82ca8c3627af28eb42"},
+    {file = "loop_pycoral-0.1.6.tar.gz", hash = "sha256:de3889219ae8ccfe7d40f739dc0c531443e8d7a6693da188b29103e5a842391e"},
 ]
 
 [package.dependencies]

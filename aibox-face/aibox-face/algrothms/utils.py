@@ -10,6 +10,8 @@ def get_import_meta(model_type: str):
         import metart as meta
     elif model_type == "rknn":
         import metarknn as meta
+    elif model_type == "onnx":
+        import metaonnx as meta
     else:
         raise ValueError(f"未知的模型类型: {model_type}")
     return meta
