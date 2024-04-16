@@ -65,7 +65,7 @@ class AIboxReport(CoralNode):
         frame_msg = {
             "uuid": payload.raw_id,
             "source": payload.source_id,
-            # docker部署需要设置 network=host模式
+            # !docker部署需要设置 network=host模式
             "mac_address": self.mac_addr,
             "objects": data["objects"],
             # 单位: ms

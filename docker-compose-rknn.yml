@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile
     privileged: true
     network_mode: host
+    environment:
+      - MODEL_TYPE=rknn
     volumes:
       - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
@@ -48,14 +50,33 @@ services:
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
 
+  record_node:
+    build:
+      context: ./aibox-record
+      dockerfile: Dockerfile
+    privileged: true
+    depends_on:
+      - person_node
+    network_mode: host
+    environment:
+      - MODEL_TYPE=rknn
+    volumes:
+      - /dev:/dev
+      # 非树莓派类边缘设备没有改路径，需要注释掉
+      - /proc/device-tree/compatible:/proc/device-tree/compatible
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped
+
   report_node:
     build:
       context: ./aibox-report
       dockerfile: Dockerfile
     privileged: true
-    # depends_on:
-    #   - face_node
-    #   - person_node
+    environment:
+      - MODEL_TYPE=rknn
+    depends_on:
+      - face_node
+      - person_node
     network_mode: host
     volumes:
       - /dev:/dev

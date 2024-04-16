@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile
     privileged: true
     network_mode: host
+    environment:
+      - MODEL_TYPE=rt
     volumes:
       - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
@@ -43,8 +45,22 @@ services:
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
     volumes:
       - /dev:/dev
-      # 非树莓派类边缘设备没有改路径，需要注释掉
       - /proc/device-tree/compatible:/proc/device-tree/compatible
+      - $HOME/.coral/aibox:/root/.coral
+    restart: unless-stopped
+
+  record_node:
+    build:
+      context: ./aibox-record
+      dockerfile: Dockerfile
+    privileged: true
+    depends_on:
+      - person_node
+    network_mode: host
+    environment:
+      - MODEL_TYPE=rt
+    volumes:
+      - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
 
@@ -53,13 +69,14 @@ services:
       context: ./aibox-report
       dockerfile: Dockerfile
     privileged: true
+    environment:
+      - MODEL_TYPE=rt
     depends_on:
       - face_node
       - person_node
     network_mode: host
     volumes:
       - /dev:/dev
-      # 非树莓派类边缘设备没有改路径，需要注释掉
       - /proc/device-tree/compatible:/proc/device-tree/compatible
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
