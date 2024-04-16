@@ -84,3 +84,8 @@ class RecordFeatureModel(BaseModel):
 
 class ImageReqModel(BaseModel):
     image: str = Field(description="base64 image")
+
+
+class WebNodeParams(BaseModel):
+    detection: DetectionParamsModel
+    featuredb: FeatureDBParamsModel

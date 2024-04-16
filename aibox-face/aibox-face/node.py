@@ -19,7 +19,7 @@ from schema import DetectionParamsModel, FeatureDBParamsModel
 
 
 @PTManager.register()
-class AIboxPersonParamsModel(BaseParamsModel):
+class AIboxFaceParamsModel(BaseParamsModel):
     detection: DetectionParamsModel
     featuredb: FeatureDBParamsModel
     is_record: bool = Field(

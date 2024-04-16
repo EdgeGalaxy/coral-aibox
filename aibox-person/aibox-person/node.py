@@ -67,23 +67,26 @@ class AIboxPerson(CoralNode):
         :return: 数据
         """
         model: Inference = context["model"]
+        iou_thresh = payload.raw_params["iou_scale"]
         # 获取mask
         if context.get("mask") is None:
             mask = self.gen_mask(payload.raw, payload.raw_params)
             # 更新context内容，供web侧获取最新值
             context["mask"] = mask
-            context["iou_thresh"] = payload.raw_params["iou_scale"]
+            context["iou_thresh"] = iou_thresh
         else:
             mask = context["mask"]
         defects = model.predict(payload.raw, self.params.is_record)
         objects = [ObjectPayload(**defect) for defect in defects]
-        print("detect objects", objects)
         # 过滤与mask不重合的objects
-        objects = self.filter_objects(mask, objects, payload.raw_params["iou_scale"])
+        if mask is not None:
+            objects = self.filter_objects(mask, objects, iou_thresh)
         return ObjectsPayload(objects=objects, mode=InterfaceMode.APPEND)
 
     @classmethod
     def gen_mask(cls, raw: np.ndarray, raw_params: Dict[str, Any]):
+        if not raw_params.get("points"):
+            return None
         mask = np.zeros_like(raw)
         return cv2.fillPoly(mask, [np.array(raw_params["points"])], 1)
 

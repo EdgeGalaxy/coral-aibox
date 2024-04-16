@@ -1,23 +1,23 @@
 import io
 import json
-from pydantic import BaseModel
 import uvicorn
 
-from typing import List, Dict
+from typing import List
 from threading import Thread
 
 import cv2
 import numpy as np
 from loguru import logger
 from fastapi import FastAPI, APIRouter, HTTPException
-from fastapi.responses import StreamingResponse, Response
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from schema import ParamsModel
+from schema import ParamsModel, CameraParamsModel, CameraOps
 
 # 全局变量
 node_id = None
 contexts = {}
+restart = False
 
 
 """
@@ -45,9 +45,43 @@ def async_run(_node_id: str) -> None:
     ).start()
 
 
+def restart_main_thread():
+    global restart
+    restart = True
+
+
 def draw_mask_lines(frame, points: List[List[int]]):
     points = np.array(points, dtype=np.int32)
     cv2.polylines(frame, [points], isClosed=True, color=(0, 0, 255), thickness=2)
+
+
+# 持久化配置文件
+def durable_config(
+    camera_id: str, camera: CameraParamsModel = None, ops: str = CameraOps.DELETE
+):
+    from node import CoralNode
+
+    config_fp, _ = CoralNode.get_config()
+    with open(config_fp, "r") as f:
+        data = json.load(f)
+
+    cameras: List = data["params"]["cameras"]
+    camera_ids = {camera["name"]: idx for idx, camera in enumerate(cameras)}
+    if ops == CameraOps.CHANGE:
+        idx = camera_ids[camera_id]
+        cameras[idx] = camera.model_dump()
+    elif ops == CameraOps.DELETE:
+        idx = camera_ids[camera_id]
+        del cameras[idx]
+    elif ops == CameraOps.ADD:
+        # 新增数据
+        cameras.append(camera.model_dump())
+        data["process"]["count"] = len(cameras)
+    else:
+        raise ValueError(f"不支持的操作 {ops}")
+
+    with open(config_fp, "w") as f:
+        json.dump(data, f, indent=4)
 
 
 @router.get("/cameras")
@@ -109,24 +143,24 @@ def get_camera_params(camera_id: str):
 def change_camera_params(camera_id: str, item: ParamsModel):
     context = contexts[camera_id]
     context["params"] = item.model_dump()
+    # 持久化配置
+    durable_config(camera_id, CameraParamsModel(**context), ops=CameraOps.CHANGE)
     return context["params"]
 
 
-d = {"is_record": False}
+@router.post("/cameras/add")
+def add_camera(item: CameraParamsModel):
+    # 持久化
+    durable_config(item.name, item, ops=CameraOps.ADD)
+    # 重启服务
+    restart_main_thread()
+    return item.model_dump()
 
 
-@router.get("/config")
-def person_face_mock_config():
-    print("ddd", d)
-    return d
-
-
-class MockModel(BaseModel):
-    is_record: bool
-
-
-@router.post("/record/featuredb")
-def record_feature(item: MockModel):
-    d["is_record"] = item.is_record
-    print("featuredb", d)
-    return d
+@router.delete("/cameras/{camera_id}")
+def delete_camera(camera_id: str):
+    # 持久化
+    durable_config(camera_id, ops=CameraOps.ADD)
+    # 重启服务
+    restart_main_thread()
+    return {"name": camera_id}

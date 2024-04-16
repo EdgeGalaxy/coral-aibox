@@ -1,4 +1,5 @@
 import io
+import json
 import base64
 from typing import Dict, List
 from threading import Thread
@@ -15,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from algrothms.inference import Inference
 from algrothms.utils import draw_image_with_boxes
-from schema import RecordFeatureModel, ImageReqModel
+from schema import RecordFeatureModel, ImageReqModel, WebNodeParams
 
 
 # 全局变量
@@ -48,6 +49,19 @@ def async_run(_node_id: str) -> None:
     ).start()
 
 
+def durable_config(node_params: WebNodeParams):
+    from node import CoralNode
+
+    config_fp, _ = CoralNode.get_config()
+    with open(config_fp, "r") as f:
+        data = json.load(f)
+
+    data["params"].update(node_params.model_dump())
+
+    with open(config_fp, "w") as f:
+        json.dump(data, f, indent=4)
+
+
 @router.post("/record/featuredb")
 def record_feature(item: RecordFeatureModel):
     context = contexts[0]
@@ -63,7 +77,19 @@ def record_feature(item: RecordFeatureModel):
 
 @router.get("/config")
 def get_params():
-    return contexts[0]["params"].model_dump()
+    return WebNodeParams(**contexts[0]["params"].model_dump()).model_dump()
+
+
+@router.post("/config")
+def change_params(item: WebNodeParams):
+    from node import AIboxPersonParamsModel
+
+    context = contexts[0]
+    params = context["params"].model_dump()
+    params.update(item.model_dump())
+    context["params"] = AIboxPersonParamsModel(**params)
+    durable_config(item)
+    return item.model_dump()
 
 
 @router.post("/predict")

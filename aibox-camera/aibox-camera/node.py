@@ -71,6 +71,10 @@ class AIboxCamera(CoralNode):
         :param context: 上下文参数
         :return: 数据
         """
+        # 此处控制线程退出
+        if web.restart:
+            self.shutdown()
+
         vc: cv2.VideoCapture = context["vc"]
         ret, frame = vc.read()
         if not ret:
