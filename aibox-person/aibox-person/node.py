@@ -77,6 +77,7 @@ class AIboxPerson(CoralNode):
             mask = context["mask"]
         defects = model.predict(payload.raw, self.params.is_record)
         objects = [ObjectPayload(**defect) for defect in defects]
+        print("detect objects", objects)
         # 过滤与mask不重合的objects
         objects = self.filter_objects(mask, objects, payload.raw_params["iou_scale"])
         return ObjectsPayload(objects=objects, mode=InterfaceMode.APPEND)

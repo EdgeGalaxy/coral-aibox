@@ -64,7 +64,7 @@ services:
   report_node:
     build:
       context: ./aibox-report
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_rt
     privileged: true
     environment:
       - MODEL_TYPE=rt

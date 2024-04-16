@@ -321,6 +321,21 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "jetson-gpio"
+version = "2.1.6"
+description = "A module to control Jetson GPIO channels"
+optional = false
+python-versions = "*"
+files = [
+    {file = "Jetson.GPIO-2.1.6.tar.gz", hash = "sha256:af8ff56b554e1f36662d19fff3d23e7c5ac261ac51ce7b1894447e64746760a2"},
+]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "loguru"
 version = "0.7.2"
 description = "Python logging made (stupidly) simple"
@@ -1045,4 +1060,4 @@ reference = "tsinghua"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "1c841fa06b6225539a1af6d947caa81a1456d84630e4527f80a05212f8052dbd"
+content-hash = "1e9373f01d61b5627e6da54de37d0aab65c0b6fd1a9ee09a07cc6c2799184a3b"

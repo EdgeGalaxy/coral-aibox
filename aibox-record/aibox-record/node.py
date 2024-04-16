@@ -20,7 +20,7 @@ os.makedirs(MOUNT_NODE_PATH, exist_ok=True)
 
 @PTManager.register()
 class AIboxRecordParamsModel(BaseParamsModel):
-    save_dir: str = Field(default="record", description="保存路径")
+    save_dir: str = Field(description="保存路径")
     interval: int = Field(default=600, description="间隔时间")
     enable: bool = Field(default=True, description="是否开启")
     max_gb: int = Field(default=2, description="最大存储空间")

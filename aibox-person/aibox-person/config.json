@@ -2,7 +2,8 @@
     "node_id": "aibox_person",
     "process": {
         "enable_parallel": true,
-        "count": 3
+        "count": 3,
+        "max_qsize": 5
     },
     "meta": {
         "receivers": [{ "node_id": "aibox_camera" }],

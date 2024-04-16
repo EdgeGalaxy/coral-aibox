@@ -1,33 +1,47 @@
-import time
+import os
 
 from loguru import logger
 
+from .utils import get_import_gpio
 
-class GPIOSignal:
+model_type = os.getenv("MODEL_TYPE", "onnx")
+GPIO = get_import_gpio(model_type)
 
-    def __init__(self, enable=True, on_signal_duration=0):
-        self.init_ret = -1
-        self.enable = enable
-        self.on_signal_duration = on_signal_duration
-        self.init()
-        self._recv_on_signal_at = 0
 
-    def init(self):
-        import gpio_control as gpio
+class Gpio:
+    def __init__(self, pins: list, enable: bool = True):
+        try:
+            self.enable = enable
+            self.pins = pins
+            GPIO.setwarnings(False)
+            GPIO.setmode(GPIO.BOARD)
+            GPIO.setup(self.pins, GPIO.OUT, initial=GPIO.LOW)
+        except Exception as e:
+            logger.error(f"gpio init error: {e}")
 
-        logger.info("gpio start init")
-        gpio.gpio_setup()  # 初始化
-
-    def trigger(self):
-        if self.enable:
-            import gpio_control as gpio
-
-            if time.time() < (self._recv_on_signal_at + self.on_signal_duration):
-                logger.info("trigger gpio on")
-                gpio.gpio_on()
+    def run(self, value=True):
+        try:
+            if not self.enable:
+                logger.warning("gpio not enable, run!")
             else:
-                # logger.info("trigger gpio off")
-                gpio.gpio_off()
+                GPIO.output(self.pins, GPIO.HIGH if value else GPIO.LOW)
+        except Exception as e:
+            logger.error(f"gpio run error: {e}")
 
-    def gpio_on(self):
-        self._recv_on_signal_at = time.time()
+    def cleanup(self):
+        if not self.enable:
+            logger.warning("gpio not enable, cleanup!")
+        else:
+            GPIO.cleanup()
+
+
+class GpioControl:
+    def __init__(self, pins: list, enable: bool = True):
+        self.enable = enable
+        self.gpio = Gpio(pins)
+
+    def __enter__(self):
+        return self.gpio
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.gpio.cleanup()
