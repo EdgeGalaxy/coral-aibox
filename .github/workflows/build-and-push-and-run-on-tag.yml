@@ -21,14 +21,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /var/lib/docker
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
+
       - name: Extract tag name
         id: extract_tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker images for rknn
         run: |
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rknn.yml build face_node person_node
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rknn.yml push face_node person_node
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rknn.yml build
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rknn.yml push
         env:
           IMAGE_TAG: ${{ steps.extract_tag.outputs.TAG_NAME }}
           USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -45,6 +51,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /var/lib/docker
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -54,8 +66,8 @@ jobs:
 
       - name: Build and push Docker images for rt
         run: |
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rt.yml build face_node person_node
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rt.yml push face_node person_node
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rt.yml build
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rt.yml push
         env:
           IMAGE_TAG: ${{ steps.extract_tag.outputs.TAG_NAME }}
           USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
