@@ -22,7 +22,7 @@ services:
     image: ${USERNAME}/aibox-person:rknn-${IMAGE_TAG}
     privileged: true
     depends_on:
-      - camera_node
+      - aibox-camera
     network_mode: host
     environment:
       - MODEL_TYPE=rknn
@@ -41,7 +41,7 @@ services:
     image: ${USERNAME}/aibox-face:rknn-${IMAGE_TAG}
     privileged: true
     depends_on:
-      - person_node
+      - aibox-person
     network_mode: host
     environment:
       - MODEL_TYPE=rknn
@@ -60,7 +60,7 @@ services:
     image: ${USERNAME}/aibox-record:${IMAGE_TAG}
     privileged: true
     depends_on:
-      - person_node
+      - aibox-person
     network_mode: host
     environment:
       - MODEL_TYPE=rknn
@@ -80,8 +80,8 @@ services:
     environment:
       - MODEL_TYPE=rknn
     depends_on:
-      - face_node
-      - person_node
+      - aibox-face
+      - aibox-person
     network_mode: host
     volumes:
       - /dev:/dev
