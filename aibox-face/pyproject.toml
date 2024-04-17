@@ -13,10 +13,10 @@ meta-cv = "^0.1.9"
 fastapi = "^0.110.1"
 uvicorn = "^0.29.0"
 
-[[tool.poetry.source]]
-name = "tsinghua"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-priority = "primary"
+# [[tool.poetry.source]]
+# name = "tsinghua"
+# url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+# priority = "primary"
 
 [[tool.poetry.source]]
 name = "looptech"

@@ -10,10 +10,10 @@ package-mode = false
 python = "^3.8"
 loop-pycoral = {version = "^0.1.3", source = "looptech"}
 
-[[tool.poetry.source]]
-name = "tsinghua"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-priority = "primary"
+# [[tool.poetry.source]]
+# name = "tsinghua"
+# url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+# priority = "primary"
 
 [[tool.poetry.source]]
 name = "looptech"
