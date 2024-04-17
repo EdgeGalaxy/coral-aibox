@@ -5,7 +5,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 # 设置时区
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+# RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo 'Asia/Shanghai' >/etc/timezone
 # opencv 相关安装so文件
 RUN apt-get update && apt-get install -y libgl1
