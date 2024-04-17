@@ -1,12 +1,12 @@
-FROM cash2020/ubuntu2004_rknn152_ros2_service:v1.0
+FROM bboyhanat/ubuntu2004-ros2foxy-rknn150:v1.4
 
 ENV TZ="Asia/Shanghai"
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-# 设置时区
-# RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-# RUN echo 'Asia/Shanghai' > /etc/timezone
+设置时区
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo 'Asia/Shanghai' > /etc/timezone
 # opencv 相关安装so文件
 # RUN apt-get update && apt-get install -y libgl1
 
