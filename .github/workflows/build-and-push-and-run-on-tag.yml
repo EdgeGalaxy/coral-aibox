@@ -36,7 +36,7 @@ jobs:
       - name: Build and push Docker images for onnx
         run: |
           USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker-compose -f docker-compose-onnx.yml build
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker-compose push -f docker-compose-onnx.yml push
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker-compose -f docker-compose-onnx.yml push
         env:
           IMAGE_TAG: ${{ steps.extract_tag.outputs.TAG_NAME }}
           USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
