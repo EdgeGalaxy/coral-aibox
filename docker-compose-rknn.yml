@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  camera_node:
+  aibox-camera:
     build:
       context: ./aibox-camera
       dockerfile: Dockerfile
@@ -15,7 +15,7 @@ services:
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped # 如果服务退出，则除非手动停止，否则总是重启
 
-  person_node:
+  aibox-person:
     build:
       context: ./aibox-person
       dockerfile: Dockerfile_rknn
@@ -34,7 +34,7 @@ services:
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
 
-  face_node:
+  aibox-face:
     build:
       context: ./aibox-face
       dockerfile: Dockerfile_rknn
@@ -53,7 +53,7 @@ services:
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
 
-  record_node:
+  aibox-record:
     build:
       context: ./aibox-record
       dockerfile: Dockerfile
@@ -71,7 +71,7 @@ services:
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
 
-  report_node:
+  aibox-report:
     build:
       context: ./aibox-report
       dockerfile: Dockerfile
@@ -89,3 +89,14 @@ services:
       - /proc/device-tree/compatible:/proc/device-tree/compatible
       - $HOME/.coral/aibox:/root/.coral
     restart: unless-stopped
+
+  aibox-web:
+    build:
+      context: ./aibox-web
+      dockerfile: Dockerfile
+    image: ${USERNAME}/aibox-web:${IMAGE_TAG}
+    privileged: true
+    ports:
+      - 3000:3000
+    volumes:
+      - $HOME/.coral/aibox:/root/.coral
