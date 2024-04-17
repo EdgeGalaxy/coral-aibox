@@ -43,8 +43,8 @@ jobs:
 
       - name: Build and push Docker images for rt
         run: |
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker-compose build -f docker-compose-rt.yml
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker-compose push -f docker-compose-rt.yml
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker-compose -f docker-compose-rt.yml build
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker-compose -f docker-compose-rt.yml push
         env:
           IMAGE_TAG: ${{ steps.extract_tag.outputs.TAG_NAME }}
           USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
