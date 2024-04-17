@@ -27,8 +27,8 @@ jobs:
 
       - name: Build and push Docker images for rknn
         run: |
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rknn.yml build
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rknn.yml push
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rknn.yml build face_node person_node
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rknn.yml push face_node person_node
         env:
           IMAGE_TAG: ${{ steps.extract_tag.outputs.TAG_NAME }}
           USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -82,8 +82,8 @@ jobs:
 
       - name: Build and push Docker images for rt
         run: |
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rt.yml build
-          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rt.yml push
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rt.yml build face_node person_node
+          USERNAME=${{ secrets.DOCKERHUB_USERNAME }} IMAGE_TAG=${{ steps.extract_tag.outputs.TAG_NAME }} docker compose -f docker-compose-rt.yml push face_node person_node
         env:
           IMAGE_TAG: ${{ steps.extract_tag.outputs.TAG_NAME }}
           USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}

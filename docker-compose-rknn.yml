@@ -74,8 +74,8 @@ services:
   report_node:
     build:
       context: ./aibox-report
-      dockerfile: Dockerfile_rknn
-    image: ${USERNAME}/aibox-report:rknn-${IMAGE_TAG}
+      dockerfile: Dockerfile
+    image: ${USERNAME}/aibox-report:${IMAGE_TAG}
     privileged: true
     environment:
       - MODEL_TYPE=rknn

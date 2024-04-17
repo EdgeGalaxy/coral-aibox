@@ -68,8 +68,8 @@ services:
   report_node:
     build:
       context: ./aibox-report
-      dockerfile: Dockerfile_rt
-    image: ${USERNAME}/aibox-report:rt-${IMAGE_TAG}
+      dockerfile: Dockerfile
+    image: ${USERNAME}/aibox-report:${IMAGE_TAG}
     privileged: true
     environment:
       - MODEL_TYPE=rt
