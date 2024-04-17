@@ -20,7 +20,7 @@ RUN python3 -m pip install -U pip setuptools wheel && \
     pip3 install poetry==1.8.2 && \
     poetry config virtualenvs.create false
 
-COPY poetry.lock pyproject.toml /workspace
+COPY poetry.lock pyproject.toml /workspace/
 RUN poetry install --without rt,rknn && \
     rm -rf /root/.cache && \
     rm -rf /root/.local
