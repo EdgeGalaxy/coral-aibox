@@ -5,6 +5,7 @@ services:
     build:
       context: ./aibox-camera
       dockerfile: Dockerfile
+    image: ${USERNAME}/aibox-camera:${IMAGE_TAG}
     privileged: true
     network_mode: host
     environment:
@@ -18,6 +19,7 @@ services:
     build:
       context: ./aibox-person
       dockerfile: Dockerfile
+    image: ${USERNAME}/aibox-person:${IMAGE_TAG}
     privileged: true
     depends_on:
       - camera_node
@@ -34,6 +36,7 @@ services:
     build:
       context: ./aibox-face
       dockerfile: Dockerfile
+    image: ${USERNAME}/aibox-face:${IMAGE_TAG}
     privileged: true
     depends_on:
       - person_node
@@ -50,6 +53,7 @@ services:
     build:
       context: ./aibox-record
       dockerfile: Dockerfile
+    image: ${USERNAME}/aibox-record:${IMAGE_TAG}
     privileged: true
     depends_on:
       - person_node
@@ -65,6 +69,7 @@ services:
     build:
       context: ./aibox-report
       dockerfile: Dockerfile
+    image: ${USERNAME}/aibox-report:${IMAGE_TAG}
     privileged: true
     environment:
       - MODEL_TYPE=onnx
