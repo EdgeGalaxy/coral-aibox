@@ -34,14 +34,15 @@ poetry install --without rt,rknn
 ### 配置更改
 
 > `aibox-camera`默认读取 `0` 号摄像头节点，正常Mac本地运行无需更改任何配置
+
 > 若需要更改摄像头配置，可在`aibox-camera`的`config.json`文件中更改
 
 **注：配置文件`config.json`中除`params`字段外其他均为框架内置定义字段，详见：[coral文档](https://zhaokefei.github.io)**
 
 
 ### 模型文件
-> 模型文件会优先在`$HOME/.cora/aibox/weights`目录下检查，不存在则从远端下载，默认本地下载`onnx`模型
-> 通过环境变量`MODEL_TYPE`和`CORAL_NODE_CONFIG_PATH`来选择不同的模型下载
+> - 模型文件会优先在`$HOME/.cora/aibox/weights`目录下检查，不存在则从远端下载，默认本地下载`onnx`模型
+> - 通过环境变量`MODEL_TYPE`和`CORAL_NODE_CONFIG_PATH`来选择不同的模型下载
 
 ### 运行代码
 
@@ -70,10 +71,10 @@ docker compose -f docker-compose-local.yml up -d
 
 ### 盒子上运行
 
-> 盒子上运行的yml文件中指定了配置文件具体路径，若启动时未设置配置文件，则会将默认的配置文件复制到指定的具体路径中
-> 默认配置文件地址: `$HOME/.coral/aibox/configs/`
-> 默认模型文件地址: `$HOME/.coral/aibox/weights/`
-> 默认前端访问地址: `http://<内网ip>:3000`
+> - 盒子上运行的yml文件中指定了配置文件具体路径，若启动时未设置配置文件，则会将默认的配置文件复制到指定的具体路径中
+> - 默认配置文件地址: `$HOME/.coral/aibox/configs/`
+> - 默认模型文件地址: `$HOME/.coral/aibox/weights/`
+> - 默认前端访问地址: `http://<内网ip>:3000`
 
 ### Rknn盒子
 
