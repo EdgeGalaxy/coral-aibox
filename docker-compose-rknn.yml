@@ -10,6 +10,7 @@ services:
     network_mode: host
     environment:
       - MODEL_TYPE=rknn
+      - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-camera.json
     volumes:
       - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
@@ -27,6 +28,7 @@ services:
     environment:
       - MODEL_TYPE=rknn
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/rknn/weights/
+      - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-person.json
     volumes:
       - /dev:/dev
       # 非树莓派类边缘设备没有改路径，需要注释掉
@@ -46,6 +48,7 @@ services:
     environment:
       - MODEL_TYPE=rknn
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/rknn/weights/
+      - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-face.json
     volumes:
       - /dev:/dev
       # 非树莓派类边缘设备没有改路径，需要注释掉
@@ -64,6 +67,7 @@ services:
     network_mode: host
     environment:
       - MODEL_TYPE=rknn
+      - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-record.json
     volumes:
       - /dev:/dev
       # 非树莓派类边缘设备没有改路径，需要注释掉
@@ -79,6 +83,7 @@ services:
     privileged: true
     environment:
       - MODEL_TYPE=rknn
+      - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-report.json
     depends_on:
       - aibox-face
       - aibox-person

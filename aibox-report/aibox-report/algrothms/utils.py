@@ -13,6 +13,10 @@ def get_import_gpio(model_type: str):
 
 
 class BaseGPIO:
+    BOARD = 10
+    OUT = 11
+    LOW = 0
+    HIGH = 1
 
     def __init__(self, pins: list) -> None:
         self.pins = pins
