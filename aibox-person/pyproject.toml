@@ -38,5 +38,5 @@ rknn-toolkit-lite2 = {path = "libs/rknn_toolkit_lite2-1.6.0-cp38-cp38-linux_aarc
 meta-onnx = "^0.1.2"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["setuptools", "wheel", "typing-extensions", "poetry-core"]
 build-backend = "poetry.core.masonry.api"

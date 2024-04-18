@@ -17,8 +17,7 @@ RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple &&
     pip3 config set install.trusted-host pypi.tuna.tsinghua.edu.cn
 
 RUN python3 -m pip install -U pip setuptools wheel && \
-    pip3 install poetry==1.8.2 && \
-    poetry config virtualenvs.create false
+    pip3 install poetry==1.8.2
 
 COPY poetry.lock pyproject.toml /workspace/
 RUN poetry install --only main && \
@@ -27,4 +26,4 @@ RUN poetry install --only main && \
 
 COPY . .
 
-CMD cd aibox-camera && python3 node.py
+CMD cd aibox-camera && poetry run python3 node.py
