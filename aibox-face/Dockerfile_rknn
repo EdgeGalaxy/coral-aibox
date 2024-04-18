@@ -12,21 +12,20 @@ RUN echo 'Asia/Shanghai' >/etc/timezone
 
 WORKDIR /workspace
 
-# RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
-#     pip3 config set global.timeout 300 && \
-#     pip3 config set install.trusted-host pypi.tuna.tsinghua.edu.cn
+RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip3 config set global.timeout 300 && \
+    pip3 config set install.trusted-host pypi.tuna.tsinghua.edu.cn
 
 RUN python3 -m pip install -U pip setuptools wheel && \
-    pip3 install poetry==1.8.2 && \
-    poetry config virtualenvs.create false
+    pip3 install poetry==1.8.2
 
 COPY poetry.lock pyproject.toml /workspace/
 ADD libs/* /workspace/libs/
 RUN poetry install --without rt,onnx && \
     rm -rf /root/.cache && \
     rm -rf /root/.local
-RUN cp aarch64/usr/bin/* /usr/bin && cp aarch64/usr/lib/* /usr/lib && restart_rknn.sh
+RUN cp aarch64/usr/bin/* /usr/bin && cp aarch64/usr/libs/* /usr/lib && restart_rknn.sh
 
 COPY . .
 
-CMD cd aibox-face && python3 node.py
+CMD cd aibox-face && poetry run python3 node.py

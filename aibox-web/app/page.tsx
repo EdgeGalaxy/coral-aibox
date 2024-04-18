@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { Image } from "antd";
+import { Button, Image } from "antd";
 
 export default function Home() {
   const [cameras, SetCameras] = useState([]);
@@ -14,11 +14,13 @@ export default function Home() {
 
   return (
     <div className="grid grid-cols-2 gap-4">
+      <Button onClick={() => window.location.reload()}>新增Camera</Button>
       {cameras.map((camera_id: string) => {
         const videoUrl = `http://localhost:8010/api/aibox_camera/cameras/${camera_id}/stream`;
         return (
           <div>
             <Image key={camera_id} className="w-full" alt={camera_id} src={videoUrl} />
+            <Button key={camera_id} onClick={() => window.location.reload()}>删除Camera</Button>
             <p className="text-center font-blod">{camera_id}</p>
           </div>
         );

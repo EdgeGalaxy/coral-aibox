@@ -8,7 +8,7 @@ repos:
 
       # 防止提交巨型文件
       - id: check-added-large-files
-        args: ['--maxkb=2048']
+        args: ['--maxkb=10240']
 
       # 修剪尾部空格
       - id: trailing-whitespace
