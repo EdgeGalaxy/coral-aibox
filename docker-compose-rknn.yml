@@ -95,10 +95,9 @@ services:
       context: ./aibox-web
       dockerfile: Dockerfile
     image: ${USERNAME}/aibox-web:${IMAGE_TAG}
+    network_mode: host
     environment:
       - NEXT_PUBLIC_AIBOX_HOST=http://10.184.13.118
     privileged: true
-    ports:
-      - 3000:3000
     volumes:
       - $HOME/.coral/aibox:/root/.coral
