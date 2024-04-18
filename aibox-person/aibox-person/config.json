@@ -1,9 +1,12 @@
 {
     "node_id": "aibox_person",
+    "generic": {
+        "enable_shared_memory": true
+    },
     "process": {
         "enable_parallel": true,
-        "count": 3,
-        "max_qsize": 5
+        "count": 5,
+        "max_qsize": 10
     },
     "meta": {
         "receivers": [{ "node_id": "aibox_camera" }],

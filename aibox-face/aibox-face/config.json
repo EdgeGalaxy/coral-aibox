@@ -1,5 +1,8 @@
 {
     "node_id": "aibox_face",
+    "generic": {
+        "enable_shared_memory": true
+    },
     "meta": {
         "receivers": [{ "node_id": "aibox_person" }],
         "sender": { "node_id": "aibox_face" }

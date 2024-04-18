@@ -38,6 +38,8 @@ class AIboxPerson(CoralNode):
     config_path = "config.json"
     node_type = NodeType.interface
 
+    web.check_config_fp_or_set_default(CoralNode.get_config()[0], "config.json")
+
     def __init__(self):
         super().__init__()
         # 更新node_id变量，并启动web服务

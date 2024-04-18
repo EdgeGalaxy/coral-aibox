@@ -1,9 +1,13 @@
 {
     "node_id": "aibox_report",
+    "generic": {
+        "enable_shared_memory": true
+    },
     "meta": {
         "receivers": [{ "node_id": "aibox_face" }]
     },
     "params": {
+		"report_image": false,
         "mqtt": {
             "broker": "47.116.14.85",
             "port": 9022,

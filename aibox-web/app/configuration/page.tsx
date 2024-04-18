@@ -2,8 +2,8 @@
 'use client'
 
 import { CameraMask } from "@/components/cameraMask";
-import { Button } from "antd";
 import { useEffect, useState } from "react";
+import { getInternalHost } from '@/components/api/utils'
 
 
 type CameraConfig = {
@@ -14,7 +14,7 @@ type CameraConfig = {
 
 export default function Configuration() {
 
-  const BASE_URL = process.env.NEXT_PUBLIC_AIBOX_HOST || 'http://localhost'
+  const BASE_URL = getInternalHost()
   const [cameras, SetCameras] = useState([]);
 
   useEffect(() => {

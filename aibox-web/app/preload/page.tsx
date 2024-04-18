@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { Switch } from 'antd';
 
+import { getInternalHost } from '@/components/api/utils'
+
 export default function Home() {
 
-  const BASE_URL = process.env.NEXT_PUBLIC_AIBOX_HOST || 'http://localhost'
+  const BASE_URL = getInternalHost()
   const personConfigUrl = `${BASE_URL}:8020/api/aibox_person/config`;
   const personRecordUrl = `${BASE_URL}:8020/api/aibox_person/record/featuredb`;
   const faceConfigUrl = `${BASE_URL}:8030/api/aibox_face/config`;

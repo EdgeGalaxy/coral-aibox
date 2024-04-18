@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { Button, Image } from "antd";
 
+import { getInternalHost } from '@/components/api/utils'
+
 export default function Home() {
-  const BASE_URL = process.env.NEXT_PUBLIC_AIBOX_HOST || 'http://localhost'
+  const BASE_URL = getInternalHost()
   const [cameras, SetCameras] = useState([]);
 
   useEffect(() => {

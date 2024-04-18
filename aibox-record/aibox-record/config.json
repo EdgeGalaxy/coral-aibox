@@ -1,7 +1,10 @@
 {
     "node_id": "aibox_record",
+    "generic": {
+        "enable_shared_memory": true
+    },
     "meta": {
-        "receivers": [{ "node_id": "aibox_person" }]
+        "receivers": [{ "node_id": "aibox_face" }]
     },
     "params": {
         "save_dir": "record"

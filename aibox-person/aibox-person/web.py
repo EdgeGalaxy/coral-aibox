@@ -1,5 +1,7 @@
+import os
 import io
 import json
+import shutil
 import base64
 from typing import Dict, List
 from threading import Thread
@@ -47,6 +49,22 @@ def async_run(_node_id: str) -> None:
     Thread(
         target=uvicorn.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 8020}
     ).start()
+
+
+def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
+    """
+    校验配置文件是否存在，不存在则拷贝
+
+    :param config_fp: 环境变量配置文件路径
+    :param default_config_fp: 默认本地项目的配置文件路径
+    """
+    config_dir = os.path.split(config_fp)[0]
+    os.makedirs(config_dir, exist_ok=True)
+    if not os.path.exists(config_fp):
+        logger.warning(f"{config_fp} not exists, copy from {default_config_fp}!")
+        shutil.copyfile(default_config_fp, config_fp)
+    if config_fp == default_config_fp:
+        logger.warning(f"config_fp is default {default_config_fp}!")
 
 
 def durable_config(node_params: WebNodeParams):
