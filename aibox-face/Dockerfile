@@ -21,7 +21,6 @@ RUN python3 -m pip install -U pip setuptools wheel && \
 
 COPY poetry.lock pyproject.toml /workspace/
 RUN poetry install --without rt,rknn && \
-    rm -rf /root/.cache && \
     rm -rf /root/.local
 
 COPY . .

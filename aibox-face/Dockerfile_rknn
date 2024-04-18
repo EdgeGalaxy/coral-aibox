@@ -22,7 +22,6 @@ RUN python3 -m pip install -U pip setuptools wheel && \
 COPY poetry.lock pyproject.toml /workspace/
 ADD libs/* /workspace/libs/
 RUN poetry install --without rt,onnx && \
-    rm -rf /root/.cache && \
     rm -rf /root/.local
 ADD aarch64 /workspace/aarch64
 RUN cp aarch64/usr/bin/* /usr/bin && cp aarch64/usr/libs/* /usr/lib && restart_rknn.sh
