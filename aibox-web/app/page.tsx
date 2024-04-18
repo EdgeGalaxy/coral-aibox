@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { Button, Image } from "antd";
 
 export default function Home() {
+  const BASE_URL = process.env.NEXT_PUBLIC_AIBOX_HOST || 'http://localhost'
   const [cameras, SetCameras] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:8010/api/aibox_camera/cameras`)
+    fetch(`${BASE_URL}:8010/api/aibox_camera/cameras`)
       .then((response) => response.json())
       .then((cameras) => SetCameras(cameras));
   }, []);
@@ -16,7 +17,7 @@ export default function Home() {
     <div className="grid grid-cols-2 gap-4">
       <Button onClick={() => window.location.reload()}>新增Camera</Button>
       {cameras.map((camera_id: string) => {
-        const videoUrl = `http://localhost:8010/api/aibox_camera/cameras/${camera_id}/stream`;
+        const videoUrl = `${BASE_URL}:8010/api/aibox_camera/cameras/${camera_id}/stream`;
         return (
           <div>
             <Image key={camera_id} className="w-full" alt={camera_id} src={videoUrl} />

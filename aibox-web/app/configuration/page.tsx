@@ -14,10 +14,11 @@ type CameraConfig = {
 
 export default function Configuration() {
 
+  const BASE_URL = process.env.NEXT_PUBLIC_AIBOX_HOST || 'http://localhost'
   const [cameras, SetCameras] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:8010/api/aibox_camera/cameras`)
+    fetch(`${BASE_URL}:8010/api/aibox_camera/cameras`)
       .then((response) => response.json())
       .then((cameras) => SetCameras(cameras));
   }, []);

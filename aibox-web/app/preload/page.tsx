@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { Switch } from 'antd';
 
 export default function Home() {
-  const personConfigUrl = "http://localhost:8020/api/aibox_person/config";
-  const personRecordUrl = "http://localhost:8020/api/aibox_person/record/featuredb";
-  const faceConfigUrl = "http://localhost:8030/api/aibox_face/config";
-  const faceRecordUrl = "http://localhost:8030/api/aibox_face/record/featuredb";
+
+  const BASE_URL = process.env.NEXT_PUBLIC_AIBOX_HOST || 'http://localhost'
+  const personConfigUrl = `${BASE_URL}:8020/api/aibox_person/config`;
+  const personRecordUrl = `${BASE_URL}:8020/api/aibox_person/record/featuredb`;
+  const faceConfigUrl = `${BASE_URL}:8030/api/aibox_face/config`;
+  const faceRecordUrl = `${BASE_URL}:8030/api/aibox_face/record/featuredb`;
 
   const [isLoading, setIsLoading] = useState(false);
   const [personRecord, setPersonRecord] = useState(false);
