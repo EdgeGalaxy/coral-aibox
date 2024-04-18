@@ -64,8 +64,10 @@ yarn run dev
 ## Docker Compose运行(有网环境，需要本地构建镜像)
 
 ### 本地
+> 本地若为mac电脑，则无法在容器中根据 camera的`0`编号读到视频流，需要手动改`aibox-camera`的`config.json`文件
+
 ```
-docker compose -f docker-compose-local.yml up -d
+docker compose -f docker-compose-local.yml up -d --build
 ```
 
 
@@ -79,12 +81,12 @@ docker compose -f docker-compose-local.yml up -d
 ### Rknn盒子
 
 ```
-docker compose -f docker-compose-rknn.yml up -d
+docker compose -f docker-compose-rknn.yml up -d --build
 ```
 
 ### Jetson盒子
 ```
-docker compose -f docker-compose-rt.yml up -d
+docker compose -f docker-compose-rt.yml up -d --build
 ```
 
 

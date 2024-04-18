@@ -5,7 +5,7 @@ services:
     build:
       context: ./aibox-camera
       dockerfile: Dockerfile
-    image: ${USERNAME}/aibox-camera:${IMAGE_TAG}
+    image: ${USERNAME:-local}/aibox-camera:${IMAGE_TAG:-v0.1.0}
     privileged: true
     network_mode: host
     environment:
@@ -20,7 +20,7 @@ services:
     build:
       context: ./aibox-person
       dockerfile: Dockerfile_rknn
-    image: ${USERNAME}/aibox-person:rknn-${IMAGE_TAG}
+    image: ${USERNAME:-local}/aibox-person:rknn-${IMAGE_TAG:-v0.1.0}
     privileged: true
     depends_on:
       - aibox-camera
@@ -39,7 +39,7 @@ services:
     build:
       context: ./aibox-face
       dockerfile: Dockerfile_rknn
-    image: ${USERNAME}/aibox-face:rknn-${IMAGE_TAG}
+    image: ${USERNAME:-local}/aibox-face:rknn-${IMAGE_TAG:-v0.1.0}
     privileged: true
     depends_on:
       - aibox-person
@@ -58,7 +58,7 @@ services:
     build:
       context: ./aibox-record
       dockerfile: Dockerfile
-    image: ${USERNAME}/aibox-record:${IMAGE_TAG}
+    image: ${USERNAME:-local}/aibox-record:${IMAGE_TAG:-v0.1.0}
     privileged: true
     depends_on:
       - aibox-person
@@ -76,7 +76,7 @@ services:
     build:
       context: ./aibox-report
       dockerfile: Dockerfile
-    image: ${USERNAME}/aibox-report:${IMAGE_TAG}
+    image: ${USERNAME:-local}/aibox-report:${IMAGE_TAG:-v0.1.0}
     privileged: true
     environment:
       - MODEL_TYPE=rknn
@@ -95,7 +95,7 @@ services:
     build:
       context: ./aibox-web
       dockerfile: Dockerfile
-    image: ${USERNAME}/aibox-web:${IMAGE_TAG}
+    image: ${USERNAME:-local}/aibox-web:${IMAGE_TAG:-v0.1.0}
     network_mode: host
     environment:
       - NEXT_PUBLIC_AIBOX_HOST=http://10.184.13.118
