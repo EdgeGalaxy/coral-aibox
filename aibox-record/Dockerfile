@@ -25,4 +25,4 @@ RUN poetry install --only main && \
 
 COPY . .
 
-CMD cd aibox-person && poetry run python3 node.py
+CMD cd aibox-record && poetry run python3 node.py
