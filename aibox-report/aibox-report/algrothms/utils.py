@@ -30,7 +30,7 @@ class BaseGPIO:
         pass
 
     @classmethod
-    def setup(cls, pins, value):
+    def setup(cls, pins, value, initial=None):
         pass
 
     @classmethod
