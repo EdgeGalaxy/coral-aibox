@@ -59,7 +59,8 @@ def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
     :param default_config_fp: 默认本地项目的配置文件路径
     """
     config_dir = os.path.split(config_fp)[0]
-    os.makedirs(config_dir, exist_ok=True)
+    if config_dir:
+        os.makedirs(config_dir, exist_ok=True)
     if not os.path.exists(config_fp):
         logger.warning(f"{config_fp} not exists, copy from {default_config_fp}!")
         shutil.copyfile(default_config_fp, config_fp)
