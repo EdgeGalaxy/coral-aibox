@@ -10,6 +10,7 @@ services:
     network_mode: host
     environment:
       - MODEL_TYPE=rt
+      - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-camera.json
     volumes:
       - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
@@ -27,6 +28,7 @@ services:
     environment:
       - MODEL_TYPE=rt
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
+      - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-person.json
     volumes:
       - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
@@ -44,6 +46,7 @@ services:
     environment:
       - MODEL_TYPE=rt
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
+      - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-face.json
     volumes:
       - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
@@ -60,6 +63,7 @@ services:
     network_mode: host
     environment:
       - MODEL_TYPE=rt
+      - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-record.json
     volumes:
       - /dev:/dev
       - $HOME/.coral/aibox:/root/.coral
@@ -73,6 +77,7 @@ services:
     privileged: true
     environment:
       - MODEL_TYPE=rt
+      - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-report.json
     depends_on:
       - aibox-face
       - aibox-person
