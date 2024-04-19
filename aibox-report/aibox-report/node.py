@@ -8,6 +8,7 @@ from typing import Dict
 from loguru import logger
 from coral import CoralNode, BaseParamsModel, NodeType, RawPayload, PTManager
 from coral.metrics import init_mqtt, mqtt
+from pydantic import Field
 
 from algrothms.gpio import GpioControl
 
@@ -22,7 +23,7 @@ class MQTTParamsModel(BaseParamsModel):
 class GpioParamsModel(BaseParamsModel):
     enable: bool = True
     pins: list = [7, 29, 31]
-    wait_time: float = 0.5
+    interval: float = Field(default=1, description="触发gpio on的间隔时间")
 
 
 @PTManager.register()
@@ -66,9 +67,14 @@ class AIboxReport(CoralNode):
         :param context: 上下文参数
         """
         data = self.params.model_dump()
+        gpio_cfg = data["gpio"]
 
         mqtt_client = init_mqtt(data["mqtt"])
+        gpio_client = GpioControl(
+            gpio_cfg["pins"], gpio_cfg["enable"], data["interval"]
+        )
         context["mqtt"] = mqtt_client
+        context["gpio"] = gpio_client
 
     @property
     def topic(self):
@@ -83,6 +89,7 @@ class AIboxReport(CoralNode):
         :return: 数据
         """
         mqtt_client: mqtt.Client = context["mqtt"]
+        gpio_client: GpioControl = context["gpio"]
         data = payload.model_dump()
         frame_msg = {
             "uuid": payload.raw_id,
@@ -95,17 +102,13 @@ class AIboxReport(CoralNode):
             "image": payload.raw if self.params.report_image else None,
         }
 
-        # 触发信号, 开
-        if payload.objects:
-            with GpioControl(self.params.gpio.pins, self.params.gpio.enable) as gpio:
-                gpio.run(True)
-
         mqtt_client.publish(self.topic, json.dumps(frame_msg))
 
-        time.sleep(self.params.gpio.wait_time)
-        # 触发信号, 关
-        with GpioControl(self.params.gpio.pins, self.params.gpio.enable) as gpio:
-            gpio.run(False)
+        # 触发信号, 开
+        if payload.objects:
+            with gpio_client:
+                gpio_client.trigger_on()
+
         return None
 
 
