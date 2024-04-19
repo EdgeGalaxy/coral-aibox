@@ -72,7 +72,7 @@ services:
   aibox-report:
     build:
       context: ./aibox-report
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_rt
     image: ${USERNAME:-local}/aibox-report:${IMAGE_TAG:-v0.1.0}
     privileged: true
     environment:
