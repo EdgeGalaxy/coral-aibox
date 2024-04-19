@@ -71,7 +71,7 @@ class AIboxReport(CoralNode):
 
         mqtt_client = init_mqtt(data["mqtt"])
         gpio_client = GpioControl(
-            gpio_cfg["pins"], gpio_cfg["enable"], data["interval"]
+            gpio_cfg["pins"], gpio_cfg["enable"], gpio_cfg["interval"]
         )
         context["mqtt"] = mqtt_client
         context["gpio"] = gpio_client
