@@ -3,6 +3,11 @@
     "generic": {
         "enable_shared_memory": true
     },
+    "process": {
+        "enable_parallel": true,
+        "count": 3,
+        "max_qsize": 8
+    },
     "meta": {
         "receivers": [{ "node_id": "aibox_person" }],
         "sender": { "node_id": "aibox_face" }
