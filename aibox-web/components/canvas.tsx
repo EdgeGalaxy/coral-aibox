@@ -9,6 +9,8 @@ type props = {
 const _Mask = ({ url, updateCoordinate }: props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [ width, setWidth ] = useState(0);
+  const [ height, setHeight ] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -16,7 +18,6 @@ const _Mask = ({ url, updateCoordinate }: props) => {
 
     const context = canvas.getContext('2d');
     if (!context) return;
-
 
     const handleMouseDown = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -41,19 +42,26 @@ const _Mask = ({ url, updateCoordinate }: props) => {
   }, [isDrawing, url]);
 
   useEffect(() => {
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    fetch(url).then(response => response.blob()).then((blob) => {
-        const image = new Image();
-        image.src = URL.createObjectURL(blob);
-        image.onload = () => {
-            context.drawImage(image, 0, 0, image.width, image.height);
-        }
-    })
-  }, [canvasRef, url])
+    const image = new Image();
+    console.log('url', url)
+    image.onload = () => {
+      console.log(image)
+        context.drawImage(image, 0, 0, image.width, image.height);
+        setWidth(image.width);
+        setHeight(image.height);
+    }
+    image.src = url;
+
+    if (image.complete) {
+      context.drawImage(image, 0, 0, image.width, image.height);
+    }
+  }, [url])
 
   function drawDot(context: CanvasRenderingContext2D, x1: number, y1: number) {
     context.beginPath();
@@ -64,11 +72,13 @@ const _Mask = ({ url, updateCoordinate }: props) => {
   }
 
   return (
-    <canvas
-      ref={canvasRef}
-    >
-      Your browser does not support the HTML5 canvas tag.
-    </canvas>
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+      >
+        Your browser does not support the HTML5 canvas tag.
+      </canvas>
   );
 };
 

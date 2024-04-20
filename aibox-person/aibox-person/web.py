@@ -1,24 +1,15 @@
 import os
-import io
 import json
 import shutil
-import base64
-from typing import Dict, List
+from typing import List
 from threading import Thread
 
-import cv2
-import requests
 import uvicorn
-import numpy as np
 from loguru import logger
-from coral import ObjectPayload
-from fastapi import FastAPI, APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
-from algrothms.inference import Inference
-from algrothms.utils import draw_image_with_boxes
-from schema import RecordFeatureModel, ImageReqModel, WebNodeParams
+from schema import RecordFeatureModel, WebNodeParams
 
 
 # 全局变量
@@ -69,7 +60,7 @@ def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
 
 
 def durable_config(node_params: WebNodeParams):
-    from node import CoralNode
+    from coral import CoralNode
 
     config_fp, _ = CoralNode.get_config()
     with open(config_fp, "r") as f:
@@ -91,17 +82,36 @@ def record_feature(item: RecordFeatureModel):
         logger.info(f"{node_id} start record feature!!")
     else:
         logger.info(f"{node_id} stop record feature!!")
-    return params.model_dump()
+    return {"result": "success"}
 
 
 @router.get("/config")
 def get_params():
-    return WebNodeParams(**contexts[0]["params"].model_dump()).model_dump()
+    params = contexts[0]["params"].model_dump()
+    detection = params["detection"]
+    featuredb = params["featuredb"]
+    return WebNodeParams(
+        **{
+            "is_record": params["is_record"],
+            "detection": {
+                "width": detection["width"],
+                "height": detection["height"],
+                "nms_thresh": detection["nms_thresh"],
+                "confidence_thresh": detection["confidence_thresh"],
+            },
+            "featuredb": {
+                "width": featuredb["width"],
+                "height": featuredb["height"],
+                "db_size": featuredb["db_size"],
+                "sim_threshold": featuredb["sim_threshold"],
+            },
+        }
+    )
 
 
 @router.post("/config")
 def change_params(item: WebNodeParams):
-    from node import AIboxPersonParamsModel
+    from schema import AIboxPersonParamsModel
 
     context = contexts[0]
     params = context["params"].model_dump()
@@ -109,45 +119,3 @@ def change_params(item: WebNodeParams):
     context["params"] = AIboxPersonParamsModel(**params)
     durable_config(item)
     return item.model_dump()
-
-
-@router.post("/predict")
-def predict(item: ImageReqModel, with_face_detect: bool = False):
-    from .node import AIboxPerson
-
-    context = contexts[0]["context"]
-    model: Inference = context["model"]
-    params = contexts[0]["params"]
-    frame = np.frombuffer(base64.b64decode(item.image), np.uint8)
-    # 获取mask
-    mask = context["mask"]
-    iou_thresh = context["iou_thresh"]
-
-    defects = model.predict(frame, params.is_record)
-    objects = [ObjectPayload(**defect) for defect in defects]
-    # 过滤与mask不重合的objects
-    objects: List[ObjectPayload] = AIboxPerson.filter_objects(mask, objects, iou_thresh)
-
-    # ! 此处存在硬代码，执行另外face_node的web服务，简化前端调用逻辑
-    if with_face_detect and objects:
-        url = "http://localhost:8030/api/aibox_face/predict"
-        data = {"image": item.image, "boxes": [object.box for object in objects]}
-        r = requests.post(url, json=data)
-        if r.ok:
-            face_objects = r.json()
-        else:
-            raise HTTPException(
-                status_code=500, detail=f"get face objects error: {r.text}!"
-            )
-
-        for object, face_object in zip(objects, face_objects):
-            if not face_object:
-                continue
-            object.objects = [ObjectPayload(**face_object)]
-
-    draw_image_with_boxes(frame, objects)
-    ret, frame = cv2.imencode(".jpg", frame)
-    if not ret:
-        raise HTTPException(status_code=500, detail="图像编码失败！")
-    bframe = io.BytesIO(frame.tobytes())
-    return StreamingResponse(bframe, media_type="image/jpeg")

@@ -55,13 +55,12 @@ class AIboxCamera(CoralNode):
             )
 
         camera = cameras[index]
-        url = camera["url"]
+        url: str = camera["url"]
         if url.isdigit():
-            camera["url"] = int(url)
-        vc = cv2.VideoCapture(camera["url"])
+            url = int(url)
+        vc = cv2.VideoCapture(url)
         context["vc"] = vc
-        context["name"] = camera["name"]
-        context["params"] = camera["params"]
+        context.update(camera)
         # 更新web的全局变量
         web.contexts[camera["name"]] = context
 
@@ -75,7 +74,10 @@ class AIboxCamera(CoralNode):
         """
         # 此处控制线程退出
         if web.restart:
+            import sys
+
             self.shutdown()
+            sys.exit()
 
         vc: cv2.VideoCapture = context["vc"]
         ret, frame = vc.read()

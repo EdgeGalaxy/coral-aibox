@@ -5,8 +5,8 @@
     },
     "process": {
         "enable_parallel": true,
-        "count": 3,
-        "max_qsize": 8
+        "count": 1,
+        "max_qsize": 1
     },
     "meta": {
         "receivers": [{ "node_id": "aibox_person" }],

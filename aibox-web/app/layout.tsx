@@ -1,6 +1,8 @@
 "use client";
 
 import "./globals.css";
+import { usePathname } from 'next/navigation';
+
 import { Inter } from "next/font/google";
 import Link from "next/link";
 
@@ -20,28 +22,22 @@ const inter = Inter({ subsets: ["latin"] });
 const menuItems = [
   {
     label: "显示",
-    key: "1",
+    key: "/",
     url: "/",
     icon: <HomeOutlined />,
   },
   {
-    label: "配置",
-    key: "2",
-    url: "/configuration",
+    label: "Mask配置",
+    key: "/mask",
+    url: "/mask",
     icon: <DesktopOutlined />,
   },
   {
     label: "预热",
-    key: "3",
+    key: "/preload",
     url: "/preload",
     icon: <RedoOutlined />,
-  },
-  {
-    label: "测试",
-    key: "4",
-    url: "/predict",
-    icon: <SunOutlined />,
-  },
+  }
 ];
 
 export default function RootLayout({
@@ -54,6 +50,14 @@ export default function RootLayout({
     token: { colorBgContainer },
   } = theme.useToken();
 
+  // 获取当前路径
+  const currentPath = usePathname()
+
+  // 确定哪个菜单项应该高亮
+  const selectedKeys = menuItems
+    .filter(item => currentPath === item.key)
+    .map(item => item.key);
+
   return (
     <html lang="en">
       <body className={inter.className}>
@@ -63,10 +67,10 @@ export default function RootLayout({
             collapsed={collapsed}
             onCollapse={(value) => setCollapsed(value)}
           >
-            <div className="demo-logo-vertical" />
+            <div className="demo-logo-vertical mb-12" />
             <Menu
               theme="dark"
-              defaultSelectedKeys={["1"]}
+              defaultSelectedKeys={selectedKeys}
               mode="inline"
               items={menuItems.map((item) => {
                 return {

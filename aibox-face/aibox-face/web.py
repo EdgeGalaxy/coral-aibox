@@ -73,7 +73,7 @@ def append_payload_to_web_queue(payload: RawPayload) -> None:
 
 
 def durable_config(node_params: WebNodeParams):
-    from node import CoralNode
+    from coral import CoralNode
 
     config_fp, _ = CoralNode.get_config()
     with open(config_fp, "r") as f:
@@ -100,12 +100,31 @@ def record_feature(item: RecordFeatureModel):
 
 @router.get("/config")
 def get_params():
-    return WebNodeParams(**contexts[0]["params"].model_dump()).model_dump()
+    params = contexts[0]["params"].model_dump()
+    detection = params["detection"]
+    featuredb = params["featuredb"]
+    return WebNodeParams(
+        **{
+            "is_record": params["is_record"],
+            "detection": {
+                "width": detection["width"],
+                "height": detection["height"],
+                "nms_thresh": detection["nms_thresh"],
+                "confidence_thresh": detection["confidence_thresh"],
+            },
+            "featuredb": {
+                "width": featuredb["width"],
+                "height": featuredb["height"],
+                "db_size": featuredb["db_size"],
+                "sim_threshold": featuredb["sim_threshold"],
+            },
+        }
+    )
 
 
 @router.post("/config")
 def change_params(item: WebNodeParams):
-    from node import AIboxFaceParamsModel
+    from schema import AIboxFaceParamsModel
 
     context = contexts[0]
     params = context["params"].model_dump()
@@ -113,22 +132,6 @@ def change_params(item: WebNodeParams):
     context["params"] = AIboxFaceParamsModel(**params)
     durable_config(item)
     return item.model_dump()
-
-
-@router.post("/predict")
-def predict(item: ImageReqModel):
-    from .node import AIboxFace
-
-    face_objects = []
-    model: Inference = contexts[0]["context"]["model"]
-    frame = np.frombuffer(base64.b64decode(item.image), np.uint8)
-    for box in item.boxes:
-        # base64 image to ndarray
-        person_frame = frame[box.x1 : box.x2, box.y1 : box.y2, :]
-        objects = model.predict(person_frame)
-        similar_object = AIboxFace.get_max_face(objects)
-        face_objects.append(similar_object)
-    return face_objects
 
 
 @router.get("/cameras/{camera_id}/stream")
@@ -145,7 +148,9 @@ def get_frames(camera_id: str):
 
             frame: np.ndarray = payload.raw
 
-            draw_image_with_boxes(frame, payload.objects)
+            draw_image_with_boxes(
+                frame, payload.objects, int(payload.nodes_cost * 1000)
+            )
             ret, frame = cv2.imencode(".jpg", frame)
             if not ret:
                 raise HTTPException(status_code=500, detail="图像编码失败！")

@@ -1,9 +1,7 @@
 from typing import Dict, List, Any
 
-from pydantic import Field
 from coral import (
     CoralNode,
-    BaseParamsModel,
     PTManager,
     ObjectsPayload,
     InterfaceMode,
@@ -15,16 +13,11 @@ from coral import (
 import web
 from algrothms.featuredb import FeatureDB
 from algrothms.inference import Inference
-from schema import DetectionParamsModel, FeatureDBParamsModel
+from schema import AIboxFaceParamsModel
 
 
-@PTManager.register()
-class AIboxFaceParamsModel(BaseParamsModel):
-    detection: DetectionParamsModel
-    featuredb: FeatureDBParamsModel
-    is_record: bool = Field(
-        default=False, description="是否记录当前获取的图像信息和特征"
-    )
+# 注册PT
+PTManager.register()(AIboxFaceParamsModel)
 
 
 class AIboxFace(CoralNode):
@@ -50,12 +43,11 @@ class AIboxFace(CoralNode):
         :param context: 上下文参数
         """
         data = self.params.model_dump()
-        print(data)
         featuredb = FeatureDB(**data["featuredb"])
         inference = Inference(featuredb=featuredb, **data["detection"])
         context["model"] = inference
         # 更新contexts
-        web.contexts[str(index)] = {"context": context, "params": self.params}
+        web.contexts[index] = {"context": context, "params": self.params}
 
     @classmethod
     def get_max_face(cls, objects: List[Dict[str, Any]]):

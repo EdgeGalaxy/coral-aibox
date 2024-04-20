@@ -77,7 +77,7 @@ def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
 def durable_config(
     camera_id: str, camera: CameraParamsModel = None, ops: str = CameraOps.DELETE
 ):
-    from node import CoralNode
+    from coral import CoralNode
 
     config_fp, _ = CoralNode.get_config()
     with open(config_fp, "r") as f:
@@ -162,7 +162,13 @@ def change_camera_params(camera_id: str, item: ParamsModel):
     context = contexts[camera_id]
     context["params"] = item.model_dump()
     # 持久化配置
-    durable_config(camera_id, CameraParamsModel(**context), ops=CameraOps.CHANGE)
+    durable_config(
+        camera_id,
+        CameraParamsModel(
+            name=context["name"], url=context["url"], params=context["params"]
+        ),
+        ops=CameraOps.CHANGE,
+    )
     return context["params"]
 
 
@@ -178,7 +184,7 @@ def add_camera(item: CameraParamsModel):
 @router.delete("/cameras/{camera_id}")
 def delete_camera(camera_id: str):
     # 持久化
-    durable_config(camera_id, ops=CameraOps.ADD)
+    durable_config(camera_id, ops=CameraOps.DELETE)
     # 重启服务
     restart_main_thread()
     return {"name": camera_id}

@@ -1,12 +1,9 @@
-import os
 from typing import Dict, List, Any
 
 import cv2
 import numpy as np
-from pydantic import Field
 from coral import (
     CoralNode,
-    BaseParamsModel,
     ObjectPayload,
     PTManager,
     ObjectsPayload,
@@ -18,16 +15,11 @@ from coral import (
 import web
 from algrothms.featuredb import FeatureDB
 from algrothms.inference import Inference
-from schema import DetectionParamsModel, FeatureDBParamsModel
+from schema import AIboxPersonParamsModel
 
 
-@PTManager.register()
-class AIboxPersonParamsModel(BaseParamsModel):
-    detection: DetectionParamsModel
-    featuredb: FeatureDBParamsModel
-    is_record: bool = Field(
-        default=False, description="是否记录当前获取的图像信息和特征"
-    )
+## 注册PT
+PTManager.register()(AIboxPersonParamsModel)
 
 
 class AIboxPerson(CoralNode):
@@ -58,7 +50,7 @@ class AIboxPerson(CoralNode):
         inference = Inference(featuredb=featuredb, **data["detection"])
         context["model"] = inference
         # 更新contexts
-        web.contexts[str(index)] = {"context": context, "params": self.params}
+        web.contexts[index] = {"context": context, "params": self.params}
 
     def sender(self, payload: RawPayload, context: Dict) -> ObjectsPayload:
         """

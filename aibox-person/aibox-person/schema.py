@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 
 import requests
 from loguru import logger
+from coral import BaseParamsModel
 from coral.constants import MOUNT_PATH
 from coral.types.payload import Box
 from pydantic import BaseModel, computed_field, field_validator, Field
@@ -75,6 +76,14 @@ class FeatureDBParamsModel(ModelParamsModel):
         return os.path.join(MOUNT_NODE_PATH, v)
 
 
+class AIboxPersonParamsModel(BaseParamsModel):
+    detection: DetectionParamsModel
+    featuredb: FeatureDBParamsModel
+    is_record: bool = Field(
+        default=False, description="是否记录当前获取的图像信息和特征"
+    )
+
+
 ## ======= Web Schema ======= ##
 
 
@@ -86,6 +95,21 @@ class ImageReqModel(BaseModel):
     image: str = Field(description="base64 image")
 
 
+class WebDetectionParams(BaseModel):
+    width: int
+    height: int
+    nms_thresh: float = 0.4
+    confidence_thresh: float = 0.5
+
+
+class WebFeatureDBParams(BaseModel):
+    width: int
+    height: int
+    db_size: int = 1000
+    sim_threshold: float = 0.9
+
+
 class WebNodeParams(BaseModel):
-    detection: DetectionParamsModel
-    featuredb: FeatureDBParamsModel
+    detection: WebDetectionParams
+    featuredb: WebFeatureDBParams
+    is_record: bool

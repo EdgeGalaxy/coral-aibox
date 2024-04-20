@@ -1,8 +1,10 @@
 
-import { Button } from "antd";
+import { Button, Spin } from "antd";
 import { memo, useEffect, useState } from "react";
 
 import { Mask } from "./canvas";
+
+import { getInternalHost } from "./api/utils";
 
 
 type CameraConfig = {
@@ -12,18 +14,28 @@ type CameraConfig = {
 
 
 const _CameraMask = ({ camera_id} : { camera_id: string }) => {
-  const url = `http://localhost:8010/api/aibox_camera/cameras/${camera_id}/mask`
-  const cameraConfigUrl = `http://localhost:8010/api/aibox_camera/cameras/${camera_id}/config`
+  const BASE_URL = getInternalHost()
+  const url = `${BASE_URL}:8010/api/aibox_camera/cameras/${camera_id}/mask`
+  const cameraConfigUrl = `${BASE_URL}:8010/api/aibox_camera/cameras/${camera_id}/config`
   const [coordinates, setCoordinates] = useState<{ x: number; y: number }[]>([]);
   const [snapshotUrl, setSnapshotUrl] = useState<string>("");
   const [cameraConfig, setCameraConfig] = useState<CameraConfig>({} as CameraConfig);
 
   useEffect(() => {
     fetch(cameraConfigUrl)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json()
+      })
       .then((config: CameraConfig) => {
         const points: number[][] = config['points']
         setCameraConfig(config)
+        if (points.length === 0) {
+            setSnapshotUrl(url)
+          return
+        }
         const pointsStr: string = points.flatMap(point => point).join(',')
         const maskUrl = url + `?points=${pointsStr}`
         setSnapshotUrl(maskUrl)
@@ -75,13 +87,20 @@ const _CameraMask = ({ camera_id} : { camera_id: string }) => {
     console.log("保存Mask", snapshotUrl);
   };
 
+  if (snapshotUrl === "") {
+    return <div>Loading...</div>;
+  }
+
   return (
-      <div>
-        <Mask url={snapshotUrl} updateCoordinate={updateCoordinate}/>
-        <div>
-          <Button onClick={handlePreviewClick}>预览Mask</Button>
-          <Button onClick={handleClearClick}>清除Mask</Button>
-          <Button onClick={handleSaveClick}>保存Mask</Button>
+      <div className="flex">
+          < div className="mb-2">
+            <Mask url={snapshotUrl} updateCoordinate={updateCoordinate}/>
+            <p className="font-mono text-center text-base font-blod">{camera_id}</p>
+            </div>
+        <div className="flex-col">
+          <Button className="m-2" type="primary" onClick={handlePreviewClick}>预览Mask</Button>
+          <Button className="m-2" type="primary" onClick={handleClearClick}>清除Mask</Button>
+          <Button className="m-2" type="primary" onClick={handleSaveClick}>保存Mask</Button>
         </div>
       </div>
   );
