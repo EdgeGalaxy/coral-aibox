@@ -64,6 +64,25 @@ class AIboxCamera(CoralNode):
         # 更新web的全局变量
         web.contexts[camera["name"]] = context
 
+    @classmethod
+    def restart_program(cls):
+        """重启当前程序。"""
+        import os
+        import sys
+        import subprocess
+
+        python = sys.executable
+        # 如果你的脚本接受命令行参数，可以通过sys.argv传递
+        args = sys.argv[:]
+        # 也可以在这里修改sys.argv中的元素，如果你想改变重启时的命令行参数
+        # args[1:] = ['arg1', 'arg2']
+
+        # 下面的命令会启动一个新的Python进程，使用相同的参数运行本脚本
+        subprocess.Popen([python] + args)
+
+        # 退出当前进程
+        os.kill(os.getpid(), 9)
+
     def sender(self, payload: RawPayload, context: Dict) -> FirstPayload:
         """
         数据发送函数
@@ -74,10 +93,9 @@ class AIboxCamera(CoralNode):
         """
         # 此处控制线程退出
         if web.restart:
-            import sys
-
+            web.restart = False
             self.shutdown()
-            sys.exit()
+            self.restart_program()
 
         vc: cv2.VideoCapture = context["vc"]
         ret, frame = vc.read()

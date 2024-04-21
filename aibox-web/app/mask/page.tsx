@@ -21,6 +21,10 @@ export default function Configuration() {
       });
   }, []);
 
+  const onSelectChange = (value: string) => {
+    setSelectCameraID(value);
+  }
+
   if (cameras.length === 0 || selectCameraID === "") {
     return <div>Loading...</div>; // 显示加载状态
   }
@@ -33,6 +37,7 @@ export default function Configuration() {
           className="text-center"
           defaultValue={selectCameraID}
           style={{ width: 120, height: 40 }}
+          onChange={onSelectChange}
         >
           {cameras.map((id) => (
             <Option key={id} value={id}>
@@ -41,9 +46,7 @@ export default function Configuration() {
           ))}
         </Select>
       </div>
-      <div className="grid grid-cols-1">
-        <CameraMask camera_id={selectCameraID} />
-      </div>
+      <CameraMask camera_id={selectCameraID} />
     </div>
   );
 }

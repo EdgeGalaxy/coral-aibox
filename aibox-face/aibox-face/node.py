@@ -1,3 +1,4 @@
+import math
 from typing import Dict, List, Any
 
 from coral import (
@@ -83,7 +84,9 @@ class AIboxFace(CoralNode):
                 object.objects = [ObjectPayload(**similar_face_object)]
 
         # 传输当前RawPayload的复制对象到frames_queue中，供web页面展示
-        web.append_payload_to_web_queue(payload.model_copy(deep=True))
+        web.append_payload_to_web_queue(
+            payload.model_copy(deep=True), math.ceil(self.sender_fps)
+        )
 
         return ObjectsPayload(objects=payload.objects, mode=InterfaceMode.OVERWRITE)
 

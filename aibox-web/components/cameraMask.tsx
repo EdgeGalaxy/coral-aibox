@@ -1,5 +1,5 @@
 
-import { Button, Spin } from "antd";
+import { Button, Spin, message } from "antd";
 import { memo, useEffect, useState } from "react";
 
 import { Mask } from "./canvas";
@@ -13,7 +13,7 @@ type CameraConfig = {
 }
 
 
-const _CameraMask = ({ camera_id} : { camera_id: string }) => {
+const _CameraMask = ({ camera_id } : { camera_id: string }) => {
   const BASE_URL = getInternalHost()
   const url = `${BASE_URL}:8010/api/aibox_camera/cameras/${camera_id}/mask`
   const cameraConfigUrl = `${BASE_URL}:8010/api/aibox_camera/cameras/${camera_id}/config`
@@ -40,7 +40,7 @@ const _CameraMask = ({ camera_id} : { camera_id: string }) => {
         const maskUrl = url + `?points=${pointsStr}`
         setSnapshotUrl(maskUrl)
       });
-  }, []);
+  }, [camera_id]);
 
   const updateCoordinate = (newCoordinates: { x: number; y: number }) => {
     setCoordinates(() => [...coordinates, newCoordinates]);
@@ -50,13 +50,11 @@ const _CameraMask = ({ camera_id} : { camera_id: string }) => {
     const pointsStr = coordinates.map(point => `${point.x},${point.y}`).join(',')
     const maskUrl = url + `?points=${pointsStr}`
     setSnapshotUrl(maskUrl)
-    console.log("预览Mask", snapshotUrl);
   };
 
   const handleClearClick = () => {
     setSnapshotUrl(url)
     setCoordinates([])
-    console.log("清除Mask", snapshotUrl);
   };
 
   const handleSaveClick = () => {
@@ -79,10 +77,11 @@ const _CameraMask = ({ camera_id} : { camera_id: string }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Success:', data);
+        message.info('保存成功');
       })
       .catch((error) => {
-        console.error('Error:', error);
+        console.error('保存失败', error);
+        message.error('保存失败')
       });
     console.log("保存Mask", snapshotUrl);
   };

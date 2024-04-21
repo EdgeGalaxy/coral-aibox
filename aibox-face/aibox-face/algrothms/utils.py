@@ -18,7 +18,7 @@ def get_import_meta(model_type: str):
 
 
 def draw_image_with_boxes(
-    image: np.ndarray, objects: List[ObjectPayload], delay_time=1
+    image: np.ndarray, objects: List[ObjectPayload], delay_time: float, fps: int
 ):
     # 基于objects的box和label在图像上画对应的框和label标记
     def _draw(
@@ -42,7 +42,7 @@ def draw_image_with_boxes(
     # 为图片右上角添加延时的时间标志
     cv2.putText(
         image,
-        f"fps: {delay_time} ms",
+        f"delay: {delay_time} ms fps: {fps}",
         (10, 20),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.5,

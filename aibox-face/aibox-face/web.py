@@ -68,8 +68,8 @@ def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
         logger.warning(f"config_fp is default {default_config_fp}!")
 
 
-def append_payload_to_web_queue(payload: RawPayload) -> None:
-    cameras_queue[payload.source_id].append(payload)
+def append_payload_to_web_queue(payload: RawPayload, fps: int) -> None:
+    cameras_queue[payload.source_id].append((payload, fps))
 
 
 def durable_config(node_params: WebNodeParams):
@@ -140,7 +140,9 @@ def get_frames(camera_id: str):
     def process_frames():
         while True:
             try:
-                payload: RawPayload = cameras_queue[camera_id].popleft()
+                message = cameras_queue[camera_id].popleft()
+                payload: RawPayload = message[0]
+                fps: int = message[1]
             except IndexError:
                 # 队列不存在值
                 time.sleep(0.01)
@@ -149,7 +151,7 @@ def get_frames(camera_id: str):
             frame: np.ndarray = payload.raw
 
             draw_image_with_boxes(
-                frame, payload.objects, int(payload.nodes_cost * 1000)
+                frame, payload.objects, int(payload.nodes_cost * 1000), fps
             )
             ret, frame = cv2.imencode(".jpg", frame)
             if not ret:

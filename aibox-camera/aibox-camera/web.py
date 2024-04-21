@@ -91,6 +91,7 @@ def durable_config(
     elif ops == CameraOps.DELETE:
         idx = camera_ids[camera_id]
         del cameras[idx]
+        data["process"]["count"] = len(cameras)
     elif ops == CameraOps.ADD:
         # 新增数据
         cameras.append(camera.model_dump())
@@ -188,3 +189,9 @@ def delete_camera(camera_id: str):
     # 重启服务
     restart_main_thread()
     return {"name": camera_id}
+
+
+@router.get("/restart")
+def restart_view():
+    restart_main_thread()
+    return {"result": "success"}
