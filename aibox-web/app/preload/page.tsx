@@ -89,11 +89,11 @@ export default function Home() {
     <div className="flex">
         <div className="flex m-8">
           <p className="mr-4">误检人物数据录入</p>
-          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={personRecord} onChange={() => onPersonSwitchChange(!personRecord)}/>
+          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={personRecord} checked={personRecord} onChange={() => onPersonSwitchChange(!personRecord)}/>
         </div>
         <div className="flex m-8">
           <p className="mr-4">人物面部识别录入</p>
-          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={faceRecord} onChange={() => onFaceSwitchChange(!faceRecord)}/>
+          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={faceRecord} checked={faceRecord} onChange={() => onFaceSwitchChange(!faceRecord)}/>
         </div>
     </div>
   );

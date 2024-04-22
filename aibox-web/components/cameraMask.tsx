@@ -14,12 +14,24 @@ type CameraConfig = {
 
 
 const _CameraMask = ({ camera_id } : { camera_id: string }) => {
-  const BASE_URL = getInternalHost()
-  const url = `${BASE_URL}:8010/api/aibox_camera/cameras/${camera_id}/mask`
-  const cameraConfigUrl = `${BASE_URL}:8010/api/aibox_camera/cameras/${camera_id}/config`
+  const [ baseUrl, setBaseUrl ] = useState("");
+  const [ url, setUrl ] = useState("");
+  const [ cameraConfigUrl, setCameraConfigUrl] = useState("");
   const [coordinates, setCoordinates] = useState<{ x: number; y: number }[]>([]);
   const [snapshotUrl, setSnapshotUrl] = useState<string>("");
   const [cameraConfig, setCameraConfig] = useState<CameraConfig>({} as CameraConfig);
+
+  useEffect(() => {
+    const fetchInternalIP = async () => {
+      const internalHost = await getInternalHost();
+      console.log('internalHost', internalHost)
+      setBaseUrl(internalHost)
+      setUrl(`${internalHost}:8010/api/aibox_camera/cameras/${camera_id}/mask`)
+      setCameraConfigUrl(`${internalHost}:8010/api/aibox_camera/cameras/${camera_id}/config`)
+      return internalHost
+    }
+    fetchInternalIP()
+  }, []);
 
   useEffect(() => {
     fetch(cameraConfigUrl)
@@ -40,7 +52,15 @@ const _CameraMask = ({ camera_id } : { camera_id: string }) => {
         const maskUrl = url + `?points=${pointsStr}`
         setSnapshotUrl(maskUrl)
       });
-  }, [camera_id]);
+  }, [camera_id, baseUrl, cameraConfigUrl]);
+
+  // 为了首次加载出图片
+  useEffect(() => {
+    const pointsStr = coordinates.map(point => `${point.x},${point.y}`).join(',')
+    const maskUrl = url + `?points=${pointsStr}`
+    console.log('maskurl', maskUrl)
+    setSnapshotUrl(maskUrl)
+  }, [snapshotUrl]);
 
   const updateCoordinate = (newCoordinates: { x: number; y: number }) => {
     setCoordinates(() => [...coordinates, newCoordinates]);
