@@ -7,17 +7,24 @@ import { getInternalHost } from '@/components/api/utils'
 
 export default function Home() {
 
-  const BASE_URL = getInternalHost()
-  const personConfigUrl = `${BASE_URL}:8020/api/aibox_person/config`;
-  const personRecordUrl = `${BASE_URL}:8020/api/aibox_person/record/featuredb`;
-  const faceConfigUrl = `${BASE_URL}:8030/api/aibox_face/config`;
-  const faceRecordUrl = `${BASE_URL}:8030/api/aibox_face/record/featuredb`;
-
+  const [ baseUrl, setBaseUrl ] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [personRecord, setPersonRecord] = useState(false);
   const [faceRecord, setFaceRecord] = useState(false);
 
   useEffect(() => {
+    const fetchInternalIP = async () => {
+      const internalHost = await getInternalHost();
+      console.log('internalHost', internalHost)
+      setBaseUrl(internalHost)
+      return internalHost
+    }
+    fetchInternalIP()
+  }, []);
+
+  useEffect(() => {
+    const personConfigUrl = `${baseUrl}:8020/api/aibox_person/config`;
+    const faceConfigUrl = `${baseUrl}:8030/api/aibox_face/config`;
     // person fetch
     fetch(personConfigUrl)
       .then((response) => response.json())
@@ -34,10 +41,11 @@ export default function Home() {
         setFaceRecord(data['is_record'])
       })
 
-  }, []);
+  }, [baseUrl]);
 
   const onPersonSwitchChange = (checked: boolean) => {
     setIsLoading(true)
+    const personRecordUrl = `${baseUrl}:8020/api/aibox_person/record/featuredb`;
     fetch(personRecordUrl, {
       method: 'POST',
       headers: {
@@ -58,6 +66,7 @@ export default function Home() {
 
   const onFaceSwitchChange = (checked: boolean) => {
     setIsLoading(true)
+    const faceRecordUrl = `${baseUrl}:8030/api/aibox_face/record/featuredb`;
     fetch(faceRecordUrl, {
       method: 'POST',
       headers: {

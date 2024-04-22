@@ -10,7 +10,7 @@ import { getInternalHost } from "@/components/api/utils";
 const { Option } = Select;
 
 export default function Home() {
-  const BASE_URL = getInternalHost();
+  const [ baseUrl, setBaseUrl ] = useState("");
   const [cameras, SetCameras] = useState([]);
   const [prefixPath, setPrefixPath] = useState("8010/api/aibox_camera/cameras");
 
@@ -25,10 +25,21 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetch(`${BASE_URL}:8010/api/aibox_camera/cameras`)
+    const fetchInternalIP = async () => {
+      const internalHost = await getInternalHost();
+      console.log('internalHost', internalHost)
+      setBaseUrl(internalHost)
+      return internalHost
+    }
+    fetchInternalIP()
+  }, []);
+
+  useEffect(() => {
+    console.log('base url', baseUrl)
+    fetch(`${baseUrl}:8010/api/aibox_camera/cameras`)
       .then((response) => response.json())
       .then((cameras) => SetCameras(cameras));
-  }, []);
+  }, [baseUrl]);
 
   if (cameras.length === 0) {
     return <div>Loading...</div>; // 显示加载状态
@@ -61,7 +72,7 @@ export default function Home() {
       </div>
       <div className="grid grid-cols-2 gap-4">
         {cameras.map((camera_id: string) => {
-          const videoUrl = `${BASE_URL}:${prefixPath}/${camera_id}/stream`;
+          const videoUrl = `${baseUrl}:${prefixPath}/${camera_id}/stream`;
           return (
             <div className="mx-4">
               <Image

@@ -8,18 +8,28 @@ import { getInternalHost } from "@/components/api/utils";
 const { Option } = Select;
 
 export default function Configuration() {
-  const BASE_URL = getInternalHost();
+  const [ baseUrl, setBaseUrl ] = useState("");
   const [cameras, setCameras] = useState([]);
   const [selectCameraID, setSelectCameraID] = useState<string>("");
 
   useEffect(() => {
-    fetch(`${BASE_URL}:8010/api/aibox_camera/cameras`)
+    const fetchInternalIP = async () => {
+      const internalHost = await getInternalHost();
+      console.log('internalHost', internalHost)
+      setBaseUrl(internalHost)
+      return internalHost
+    }
+    fetchInternalIP()
+  }, []);
+
+  useEffect(() => {
+    fetch(`${baseUrl}:8010/api/aibox_camera/cameras`)
       .then((response) => response.json())
       .then((cameras) => {
         setCameras(cameras);
         setSelectCameraID(cameras[0]);
       });
-  }, []);
+  }, [baseUrl]);
 
   const onSelectChange = (value: string) => {
     setSelectCameraID(value);
