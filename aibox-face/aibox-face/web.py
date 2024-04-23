@@ -8,6 +8,7 @@ from threading import Thread
 from collections import deque, defaultdict
 
 import cv2
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 import numpy as np
 from loguru import logger
@@ -17,8 +18,16 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from algrothms.inference import Inference
-from algrothms.utils import draw_image_with_boxes
-from schema import RecordFeatureModel, ImageReqModel, WebNodeParams
+from algrothms.gossip import GossipCommunicate
+from algrothms.utils import draw_image_with_boxes, BASE_URL
+from schema import (
+    RecordFeatureModel,
+    ImageReqModel,
+    WebNodeParams,
+    UsersRemarkModel,
+    UserFacesModel,
+    UserFaceModel,
+)
 
 # 全局变量
 node_id = None
@@ -35,7 +44,7 @@ web接口实现
 router = APIRouter()
 
 
-def async_run(_node_id: str) -> None:
+def async_run(_node_id: str, mount_path: str) -> None:
     app = FastAPI()
     app.add_middleware(
         CORSMiddleware,
@@ -45,6 +54,7 @@ def async_run(_node_id: str) -> None:
         allow_headers=["*"],
     )
     app.include_router(router, prefix=f"/api/{_node_id}")
+    app.mount("/static", StaticFiles(directory=mount_path), name="static")
     logger.info(f"{_node_id} start web server")
     Thread(
         target=uvicorn.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 8030}
@@ -85,6 +95,108 @@ def durable_config(node_params: WebNodeParams):
         json.dump(data, f, indent=4)
 
 
+@router.get("/users")
+def show_faces():
+    context = contexts[0]
+    inference: Inference = context["context"]["model"]
+    featuredb = inference.featuredb
+    return featuredb.show_users_faces()
+
+
+@router.post("/users/remark")
+def update_user_remark(item: UsersRemarkModel):
+    context = contexts[0]
+    inference: Inference = context["context"]["model"]
+    featuredb = inference.featuredb
+    gossip: GossipCommunicate = context["context"]["gossip"]
+    logger.info(
+        f"{node_id} update user remark: {item.remark_user_id} to {item.old_user_id}"
+    )
+    featuredb.remark_user_id(item.remark_user_id, item.old_user_id)
+    # 更新gossip
+    user_faces = featuredb.show_users_faces()[item.remark_user_id]
+    user_faces_url = [
+        {
+            "face_key": user_face,
+            "image": f"{BASE_URL}/static/{user_face}.jpg",
+            "vector": f"{BASE_URL}/static/{user_face}.npy",
+        }
+        for user_face in user_faces
+    ]
+    # 默认从UNKOWN文件重命名，对其他节点实行创建
+    if item.old_user_id.startswith("UNKNOWN"):
+        gossip.user_faces_create(item.remark_user_id, user_faces_url)
+    else:  # 重命名对其他节点实行重命名操作
+        gossip.user_faces_move(
+            item.old_user_id, item.remark_user_id, faces=user_faces_url
+        )
+    return {"result": "success"}
+
+
+@router.delete("/users/{user_id}/faces/{face_id}")
+def delete_user_faces(user_id: str, face_id: str):
+    context = contexts[0]
+    inference: Inference = context["context"]["model"]
+    featuredb = inference.featuredb
+    gossip: GossipCommunicate = context["context"]["gossip"]
+    logger.info(f"{node_id} delete user {user_id} face {face_id}")
+    featuredb.delete_user_faces(user_id, face_id)
+    # 更新gossip
+    gossip.user_delete(user_id)
+    return {"result": "success"}
+
+
+@router.post("/users/{src_user_id}/move/{dest_user_id}")
+def move_user_faces(src_user_id: str, dest_user_id: str, item: UserFaceModel):
+    context = contexts[0]
+    inference: Inference = context["context"]["model"]
+    featuredb = inference.featuredb
+    gossip: GossipCommunicate = context["context"]["gossip"]
+    logger.info(
+        f"{node_id} move face: {item.face} user {src_user_id} to {dest_user_id}"
+    )
+    featuredb.move_face_to_user_id(item.face, dest_user_id)
+    # 更新gossip
+    user_face_url = {
+        "face_key": item.face,
+        "image": f"{BASE_URL}/static/{item.face}.jpg",
+        "vector": f"{BASE_URL}/static/{item.face}.npy",
+    }
+    gossip.user_faces_move(src_user_id, dest_user_id, faces=[user_face_url])
+    return {"result": "success"}
+
+
+@router.delete("/users/{user_id}")
+def delete_user(user_id: str):
+    context = contexts[0]
+    inference: Inference = context["context"]["model"]
+    featuredb = inference.featuredb
+    logger.info(f"{node_id} delete user: {user_id}")
+    featuredb.delete_user(user_id)
+    return {"result": "success"}
+
+
+@router.get("/users/sync")
+def sync_users():
+    context = contexts[0]
+    inference: Inference = context["context"]["model"]
+    featuredb = inference.featuredb
+    gossip: GossipCommunicate = context["context"]["gossip"]
+    users_faces = featuredb.show_users_faces()
+    for user_id, user_faces in users_faces.items():
+        user_faces_url = [
+            {
+                "face_key": user_face,
+                "image": f"{BASE_URL}/static/{user_face}.jpg",
+                "vector": f"{BASE_URL}/static/{user_face}.npy",
+            }
+            for user_face in user_faces
+        ]
+        gossip.user_sync(user_id, user_faces_url)
+        logger.info(f"sync user: {user_id} success!")
+    return {"result": "success"}
+
+
 @router.post("/record/featuredb")
 def record_feature(item: RecordFeatureModel):
     context = contexts[0]
@@ -106,6 +218,7 @@ def get_params():
     return WebNodeParams(
         **{
             "is_record": params["is_record"],
+            "is_open": params["is_open"],
             "detection": {
                 "width": detection["width"],
                 "height": detection["height"],

@@ -79,6 +79,7 @@ class FeatureDBParamsModel(ModelParamsModel):
 class AIboxPersonParamsModel(BaseParamsModel):
     detection: DetectionParamsModel
     featuredb: FeatureDBParamsModel
+    is_open: bool = Field(default=True, description="是否开启人物识别")
     is_record: bool = Field(
         default=False, description="是否记录当前获取的图像信息和特征"
     )
@@ -112,4 +113,5 @@ class WebFeatureDBParams(BaseModel):
 class WebNodeParams(BaseModel):
     detection: WebDetectionParams
     featuredb: WebFeatureDBParams
+    is_open: bool
     is_record: bool

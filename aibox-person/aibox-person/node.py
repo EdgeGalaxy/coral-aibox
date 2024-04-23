@@ -36,7 +36,7 @@ class AIboxPerson(CoralNode):
         super().__init__()
         # 更新node_id变量，并启动web服务
         web.node_id = self.config.node_id
-        web.async_run(self.config.node_id)
+        web.async_run(self.config.node_id, self.params.featuredb.db_path)
 
     def init(self, index: int, context: dict):
         """
@@ -60,21 +60,24 @@ class AIboxPerson(CoralNode):
         :param context: 上下文参数
         :return: 数据
         """
-        model: Inference = context["model"]
-        iou_thresh = payload.raw_params["iou_scale"]
-        # 获取mask
-        if context.get("mask") is None:
-            mask = self.gen_mask(payload.raw, payload.raw_params)
-            # 更新context内容，供web侧获取最新值
-            context["mask"] = mask
-            context["iou_thresh"] = iou_thresh
+        if self.params.is_open:
+            model: Inference = context["model"]
+            iou_thresh = payload.raw_params["iou_scale"]
+            # 获取mask
+            if context.get("mask") is None:
+                mask = self.gen_mask(payload.raw, payload.raw_params)
+                # 更新context内容，供web侧获取最新值
+                context["mask"] = mask
+                context["iou_thresh"] = iou_thresh
+            else:
+                mask = context["mask"]
+            defects = model.predict(payload.raw, self.params.is_record)
+            objects = [ObjectPayload(**defect) for defect in defects]
+            # 过滤与mask不重合的objects
+            if mask is not None:
+                objects = self.filter_objects(mask, objects, iou_thresh)
         else:
-            mask = context["mask"]
-        defects = model.predict(payload.raw, self.params.is_record)
-        objects = [ObjectPayload(**defect) for defect in defects]
-        # 过滤与mask不重合的objects
-        if mask is not None:
-            objects = self.filter_objects(mask, objects, iou_thresh)
+            objects = []
         return ObjectsPayload(objects=objects, mode=InterfaceMode.APPEND)
 
     @classmethod

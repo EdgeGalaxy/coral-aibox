@@ -1,3 +1,4 @@
+import socket
 from typing import List
 
 import cv2
@@ -15,6 +16,18 @@ def get_import_meta(model_type: str):
     else:
         raise ValueError(f"未知的模型类型: {model_type}")
     return meta
+
+
+def get_internal_ip():
+    try:
+        # 创建一个socket对象
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("10.255.255.255", 1))
+        ip_address = s.getsockname()[0]
+        s.close()
+    except OSError:
+        ip_address = ""
+    return ip_address
 
 
 def draw_image_with_boxes(
@@ -60,3 +73,7 @@ def draw_image_with_boxes(
                 _draw(image, sub_object, box_color=(0, 255, 0), label_color=(0, 255, 0))
 
     return image
+
+
+INTERNAL_IP = get_internal_ip()
+BASE_URL = f"http://{INTERNAL_IP}:8030"

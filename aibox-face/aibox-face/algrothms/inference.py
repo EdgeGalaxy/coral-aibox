@@ -60,13 +60,14 @@ class Inference:
                 align_img = F.norm_crop(image, np.array(kps))
                 # 正常模式下，如果背景特征库为空时，不调用特征匹配
                 if len(self.featuredb.features) == 0 and not is_record:
-                    person = None
+                    user_id = "UNKNOWN"
                 else:
-                    # ! 此处需要确认逻辑是否正确
-                    person = self.featuredb.predict(align_img, is_record)
+                    user_id = self.featuredb.predict(align_img, is_record)
 
                 defect = {
-                    "label": person if person else "UNKNOWN",
+                    "label": (
+                        user_id if not user_id.startswith("UNKNOWN") else "UNKNOWN"
+                    ),
                     "class_id": 0,
                     "prob": round(float(conf), 4),
                     "box": {

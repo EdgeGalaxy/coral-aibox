@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional
 from functools import cached_property
 from urllib.parse import urljoin
 
@@ -79,6 +79,7 @@ class FeatureDBParamsModel(ModelParamsModel):
 class AIboxFaceParamsModel(BaseParamsModel):
     detection: DetectionParamsModel
     featuredb: FeatureDBParamsModel
+    is_open: bool = Field(default=True, description="是否开启人脸识别")
     is_record: bool = Field(
         default=False, description="是否记录当前获取的图像信息和特征"
     )
@@ -88,7 +89,8 @@ class AIboxFaceParamsModel(BaseParamsModel):
 
 
 class RecordFeatureModel(BaseModel):
-    is_record: bool = False
+    is_record: bool
+    is_open: bool
 
 
 class ImageReqModel(BaseModel):
@@ -111,6 +113,20 @@ class WebFeatureDBParams(BaseModel):
 
 
 class WebNodeParams(BaseModel):
-    detection: WebDetectionParams
-    featuredb: WebFeatureDBParams
+    detection: Optional[WebDetectionParams] = None
+    featuredb: Optional[WebFeatureDBParams] = None
+    is_open: bool = True
     is_record: bool
+
+
+class UsersRemarkModel(BaseModel):
+    remark_user_id: str
+    old_user_id: str
+
+
+class UserFacesModel(BaseModel):
+    faces: List[str]
+
+
+class UserFaceModel(BaseModel):
+    face: str

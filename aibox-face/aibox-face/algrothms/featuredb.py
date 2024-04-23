@@ -1,8 +1,15 @@
 import os
+import shutil
 import platform
+from io import BytesIO
 from uuid import uuid4
+from typing import List, Dict
+from collections import defaultdict
 
 import cv2
+import requests
+from loguru import logger
+from PIL import Image
 import numpy as np
 
 from .utils import get_import_meta
@@ -47,8 +54,9 @@ class FeatureDB:
         # pre load data save
         self.images = []
         self.features = []
-
-        self.load()
+        self.mapper = {}
+        # load users
+        self.load_users()
 
     @classmethod
     def filter_files(cls, dir: str, suffix: str):
@@ -62,8 +70,12 @@ class FeatureDB:
         similarity = dot_product / (norm_a * norm_b)
         return similarity
 
-    def load(self):
-        image_files = self.filter_files(self.db_path, ".jpg")
+    def load_users(self):
+        for user_id in os.listdir(self.db_path):
+            self.load_user(user_id)
+
+    def load_user(self, user_id):
+        image_files = self.filter_files(os.path.join(self.db_path, user_id), ".jpg")
         # for循环每个image，替换jpg为npy，判断是否存在该文件
         for image_file in image_files:
             key = os.path.splitext(os.path.basename(image_file))[0]
@@ -71,38 +83,136 @@ class FeatureDB:
             if os.path.exists(feature_file):
                 self.images.append(key)
                 self.features.append(np.load(feature_file))
+                self.mapper[key] = user_id
+
+    def show_users_faces(self):
+        users = defaultdict(list)
+        for face_key, user_id in self.mapper.items():
+            users[user_id].append(face_key)
+        return users
+
+    @property
+    def user_ids(self):
+        return set(self.mapper.values())
+
+    def remark_user_id(self, mark_user_id: str, old_user_id: str):
+        if mark_user_id in self.user_ids:
+            raise ValueError(f"{mark_user_id} already exists!")
+
+        keys = [key for key, value in self.mapper.items() if value == old_user_id]
+        for key in keys:
+            self.mapper[key] = mark_user_id
+
+        user_dir = os.path.join(self.db_path, old_user_id)
+        # 重命名user_dir
+        shutil.move(user_dir, os.path.join(self.db_path, mark_user_id))
+        return True
+
+    def move_face_to_user_id(self, key: str, user_id: str):
+        old_user_id = self.mapper.get(key, None)
+        if not old_user_id:
+            logger.warning(f"key {key} not exists!")
+            return False
+        # 更新mapper
+        self.mapper[key] = user_id
+        # 移动key对应的文件
+        shutil.move(
+            os.path.join(self.db_path, old_user_id, key + ".jpg"),
+            os.path.join(self.db_path, user_id, key + ".jpg"),
+        )
+        shutil.move(
+            os.path.join(self.db_path, old_user_id, key + ".npy"),
+            os.path.join(self.db_path, user_id, key + ".npy"),
+        )
+        return True
+
+    def delete_user_faces(self, user_id: str, face_key: str):
+        del self.mapper[face_key]
+        # 删除key对应的文件
+        os.remove(os.path.join(self.db_path, user_id, face_key + ".jpg"))
+        os.remove(os.path.join(self.db_path, user_id, face_key + ".npy"))
+        return True
+
+    def update_user_date_from_remote(self, user_id: str, faces: List[Dict]):
+        """
+        更新用户面部数据，从远程获取
+
+        :param user_id:
+        :param faces:
+        """
+        for face in faces:
+            try:
+                face_key = face["face_key"]
+                image_resp = requests.get(face["image"])
+                # 将图像数据转换为OpenCV图像
+                image = Image.open(BytesIO(image_resp.content))
+                image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+                # 向量数据
+                vector_resp = requests.get(face["vector"])
+                vector = np.array(np.frombuffer(vector_resp.content))
+            except Exception as e:
+                logger.error(f"update user {user_id} face {face_key} error {e}!")
+            else:
+                self.save(image, vector, user_id, face_key)
+
+    def delete_user(self, user_id: str):
+        if user_id in self.user_ids:
+            faces = [key for key, value in self.mapper.items() if value == user_id]
+            for face in faces:
+                del self.mapper[face]
+            shutil.rmtree(os.path.join(self.db_path, user_id))
+
+        return True
 
     def compare(self, feature: np.ndarray):
         if len(self.features) == 0:
             return None
 
         index_cossims = self.cosine_similarity(feature, np.vstack(self.features).T)[0]
+        # 找出最大的相似度
         s = np.argmax(index_cossims)
         if index_cossims[s] > self.sim_threshold:
-            return self.images[s]
+            max_similar_key = self.images[s]
+            # 找出最大相似度的索引, 根据索引获取用户ID
+            user_id = self.mapper.get(max_similar_key, None)
+            return user_id
 
-        return None
+        return None, None
 
-    def predict(self, image: np.ndarray, save: bool = False) -> bool:
+    def predict(self, image: np.ndarray, save: bool = False) -> str:
         feature = self.model.predict(image)
-        match_key = self.compare(feature)
-        if match_key:
-            return match_key
+        user_id = self.compare(feature)
+        if user_id:
+            return user_id
 
         if save:
-            self.save(image, feature)
-        return True
+            self.save(image, feature, user_id)
+        return "UNKNOWN"
 
-    def save(self, image: np.ndarray, feature: np.ndarray):
+    def save(
+        self,
+        image: np.ndarray,
+        feature: np.ndarray,
+        user_id: str = None,
+        face_key: str = None,
+    ):
         if len(self.features) > self.db_size:
             return
+
+        if user_id is None:
+            # 默认的用户ID
+            user_id = f"UNKNOWN_{str(uuid4())[:8]}"
 
         key = str(uuid4())[:8]
         self.images.append(key)
         self.features.append(feature)
+        self.mapper[key] = user_id
 
-        os.makedirs(self.db_path, exist_ok=True)
+        user_dir = os.path.join(self.db_path, user_id)
+
+        # 存储用户特征到对应的User Dir
+        os.makedirs(user_dir, exist_ok=True)
         cv2.imencode(".jpg", image[:, :, ::-1], [cv2.IMWRITE_JPEG_QUALITY, 100])[
             1
-        ].tofile(os.path.join(self.db_path, key + ".jpg"))
-        np.save(os.path.join(self.db_path, key + ".npy"), feature)
+        ].tofile(os.path.join(user_dir, key + ".jpg"))
+        np.save(os.path.join(user_dir, key + ".npy"), feature)

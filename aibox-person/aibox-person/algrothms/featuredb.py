@@ -4,6 +4,7 @@ from uuid import uuid4
 
 import cv2
 import numpy as np
+from loguru import logger
 
 from .utils import get_import_meta
 
@@ -45,8 +46,8 @@ class FeatureDB:
         self.sim_threshold = sim_threshold
 
         # pre load data save
-        self.images = []
-        self.features = []
+        self.fake_persons_image = []
+        self.fake_persons_features = []
 
         self.load()
 
@@ -64,22 +65,34 @@ class FeatureDB:
 
     def load(self):
         image_files = self.filter_files(self.db_path, ".jpg")
+        logger.info(f"load {len(image_files)} images from {self.db_path}")
         # for循环每个image，替换jpg为npy，判断是否存在该文件
         for image_file in image_files:
             key = os.path.splitext(os.path.basename(image_file))[0]
             feature_file = image_file.replace(".jpg", ".npy")
             if os.path.exists(feature_file):
-                self.images.append(key)
-                self.features.append(np.load(feature_file))
+                self.fake_persons_image.append(key)
+                self.fake_persons_features.append(np.load(feature_file))
+
+    def get_fake_person_ids(self):
+        return self.fake_persons_image
+
+    def delete_fake_person(self, person_id: str):
+        if person_id in self.fake_persons_image:
+            self.fake_persons_image.remove(person_id)
+            os.remove(os.path.join(self.db_path, person_id + ".jpg"))
+            os.remove(os.path.join(self.db_path, person_id + ".npy"))
 
     def compare(self, feature: np.ndarray):
-        if len(self.features) == 0:
+        if len(self.fake_persons_features) == 0:
             return None
 
-        index_cossims = self.cosine_similarity(feature, np.vstack(self.features).T)[0]
+        index_cossims = self.cosine_similarity(
+            feature, np.vstack(self.fake_persons_features).T
+        )[0]
         s = np.argmax(index_cossims)
         if index_cossims[s] > self.sim_threshold:
-            return self.images[s]
+            return self.fake_persons_image[s]
 
         return None
 
@@ -94,12 +107,12 @@ class FeatureDB:
         return True
 
     def save(self, image: np.ndarray, feature: np.ndarray):
-        if len(self.features) > self.db_size:
+        if len(self.fake_persons_features) > self.db_size:
             return
 
         key = str(uuid4())[:8]
-        self.images.append(key)
-        self.features.append(feature)
+        self.fake_persons_image.append(key)
+        self.fake_persons_features.append(feature)
 
         os.makedirs(self.db_path, exist_ok=True)
         cv2.imencode(".jpg", image[:, :, ::-1], [cv2.IMWRITE_JPEG_QUALITY, 100])[

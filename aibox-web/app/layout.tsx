@@ -33,10 +33,24 @@ const menuItems = [
     icon: <DesktopOutlined />,
   },
   {
-    label: "预热",
+    label: "预加载",
     key: "/preload",
     url: "/preload",
     icon: <RedoOutlined />,
+    children: [
+      {
+        label: "人物误检",
+        key: "/preload/person",
+        url: "/preload/person",
+        icon: <SunOutlined />,
+      },
+      {
+        label: "面部识别",
+        key: "/preload/face",
+        url: "/preload/face",
+        icon: <RedoOutlined />,
+      }
+    ]
   }
 ];
 
@@ -77,6 +91,13 @@ export default function RootLayout({
                   key: item.key,
                   icon: item.icon,
                   label: <Link href={item.url}>{item.label}</Link>,
+                  children: item.children?.map(child => {
+                    return {
+                      key: child.key,
+                      icon: child.icon,
+                      label: <Link href={child.url}>{child.label}</Link>
+                    }
+                  })
                 };
               })}
             />

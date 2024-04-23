@@ -4,12 +4,14 @@ import shutil
 from typing import List
 from threading import Thread
 
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from loguru import logger
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
-from schema import RecordFeatureModel, WebNodeParams
+from algrothms.inference import Inference
+from schema import RecordFeatureModel, WebNodeParams, MOUNT_NODE_PATH
 
 
 # 全局变量
@@ -26,7 +28,7 @@ web接口实现
 router = APIRouter()
 
 
-def async_run(_node_id: str) -> None:
+def async_run(_node_id: str, mount_path: str) -> None:
     app = FastAPI()
     app.add_middleware(
         CORSMiddleware,
@@ -36,6 +38,7 @@ def async_run(_node_id: str) -> None:
         allow_headers=["*"],
     )
     app.include_router(router, prefix=f"/api/{_node_id}")
+    app.mount("/static", StaticFiles(directory=mount_path), name="static")
     logger.info(f"{_node_id} start web server")
     Thread(
         target=uvicorn.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 8020}
@@ -72,6 +75,23 @@ def durable_config(node_params: WebNodeParams):
         json.dump(data, f, indent=4)
 
 
+@router.get("/fake/persons")
+def get_fake_persons():
+    context = contexts[0]
+    inference: Inference = context["context"]["model"]
+    featuredb = inference.featuredb
+    return [image + ".jpg" for image in featuredb.get_fake_person_ids()]
+
+
+@router.delete("/fake/persons/{fake_person_id}")
+def delete_fake_person(fake_person_id: str):
+    context = contexts[0]
+    inference: Inference = context["context"]["model"]
+    featuredb = inference.featuredb
+    featuredb.delete_fake_person(fake_person_id)
+    return {"result": "success"}
+
+
 @router.post("/record/featuredb")
 def record_feature(item: RecordFeatureModel):
     context = contexts[0]
@@ -93,6 +113,7 @@ def get_params():
     return WebNodeParams(
         **{
             "is_record": params["is_record"],
+            "is_open": params["is_open"],
             "detection": {
                 "width": detection["width"],
                 "height": detection["height"],

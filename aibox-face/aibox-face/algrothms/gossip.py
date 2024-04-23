@@ -1,0 +1,94 @@
+import json
+from typing import Dict, List, Any
+
+import paho.mqtt.client as mqtt
+from loguru import logger
+
+from .featuredb import FeatureDB
+from .utils import INTERNAL_IP
+
+
+class GossipCommunicate:
+
+    def __init__(
+        self, mqtt_client: mqtt.Client, featuredb: FeatureDB, enable: bool = True
+    ) -> None:
+        self.enable = enable
+        self.featuedb = featuredb
+        self.client = mqtt_client
+        self._topic = f"aibox/gossip/faces/{INTERNAL_IP}"
+        # 订阅topic
+        self.start_subscribe()
+
+    def start_subscribe(self):
+        for topic in self.topics.values():
+            self.client.subscribe(topic)
+        self.client.on_message = self.on_message
+
+    def on_message(self, client: mqtt.Client, userdata: Any, msg: mqtt.MQTTMessage):
+        topic, recv_data = msg.topic, json.loads(msg.payload.decode())
+        if INTERNAL_IP in topic:
+            logger.info(f"ignore topic: {topic}, because it is send from self!")
+            return
+        if "create" in topic:
+            # 创建新的数据
+            user_id = recv_data["user_id"]
+            self.featuedb.update_user_date_from_remote(user_id, recv_data["faces"])
+        elif "move" in topic:
+            # 先删除对方的src_user_id数据，再更新dest_user_id数据
+            self.featuedb.delete_user(recv_data["src_user_id"])
+            self.featuedb.update_user_date_from_remote(
+                recv_data["dest_user_id"], recv_data["faces"]
+            )
+        elif "delete" in topic:
+            self.featuedb.delete_user(recv_data["user_id"])
+        elif "sync" in topic:
+            self.featuedb.delete_user(recv_data["user_id"])
+            self.featuedb.update_user_date_from_remote(
+                recv_data["user_id"], recv_data["faces"]
+            )
+
+    @property
+    def topics(self):
+        return {
+            "create": f"{self._topic}/create",
+            "move": f"{self._topic}/move",
+            "delete": f"{self._topic}/delete",
+            "sync": f"{self._topic}/sync",
+        }
+
+    def user_faces_create(self, user_id: str, faces: List[Dict]):
+        topic = self.topics["create"]
+        if not self.enable:
+            logger.warning(f"{topic} disabled!")
+            return
+        payload = {"user_id": user_id, "faces": faces}
+        self.client.publish(topic, json.dumps(payload))
+
+    def user_faces_move(self, src_user_id: str, dest_user_id: str, faces: List[Dict]):
+        topic = self.topics["move"]
+        if not self.enable:
+            logger.warning(f"{topic} disabled!")
+            return
+        payload = {
+            "src_user_id": src_user_id,
+            "dest_user_id": dest_user_id,
+            "faces": faces,
+        }
+        self.client.publish(topic, json.dumps(payload))
+
+    def user_delete(self, user_id: str):
+        topic = self.topics["delete"]
+        if not self.enable:
+            logger.warning(f"{topic} disabled!")
+            return
+        payload = {"user_id": user_id}
+        self.client.publish(topic, json.dumps(payload))
+
+    def user_sync(self, user_id: str, faces: List[Dict]):
+        topic = self.topics["sync"]
+        if not self.enable:
+            logger.warning(f"{topic} disabled!")
+            return
+        payload = {"user_id": user_id, "faces": faces}
+        self.client.publish(topic, json.dumps(payload))
