@@ -13,6 +13,7 @@ from coral import (
 from loguru import logger
 from coral.constants import MOUNT_PATH
 
+import web
 from algrothms.core import Recorder
 
 
@@ -44,7 +45,7 @@ class AIboxRecordParamsModel(BaseParamsModel):
     enable: bool = Field(default=True, description="是否开启")
     max_gb: int = Field(default=2, description="最大存储空间")
 
-    @field_validator("save_dir")
+    @field_validator("base_dir")
     @classmethod
     def validate_save_dir(cls, v: str):
         _dir = os.path.join(MOUNT_NODE_PATH, v)
@@ -62,6 +63,10 @@ class AIboxRecord(CoralNode):
 
     check_config_fp_or_set_default(CoralNode.get_config()[0], "config.json")
 
+    def __init__(self):
+        super().__init__()
+        web.async_run(self.config.node_id, self.params.base_dir)
+
     def init(self, index: int, context: dict):
         """
         初始化参数，可传递到sender方法中
@@ -76,6 +81,8 @@ class AIboxRecord(CoralNode):
             enable=self.params.enable,
         )
         context["recorder"] = recorder
+
+        web.contexts[index] = {"context": context, "params": self.params}
 
     def sender(self, payload: RawPayload, context: Dict):
         """

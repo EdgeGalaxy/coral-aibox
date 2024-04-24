@@ -28,6 +28,8 @@ class FeatureDB:
         use_preprocess: bool = True,
         user_faces_size: int = 10,
         sim_threshold: float = 0.9,
+        *args,
+        **kwargs,
     ):
         meta = get_import_meta(model_type)
         self.model = meta.FaceEmbedding(

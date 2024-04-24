@@ -23,7 +23,6 @@ export default function Home() {
       setPrefixPath("8030/api/aibox_face/cameras");
     }
   };
-
   useEffect(() => {
     const fetchInternalIP = async () => {
       const internalHost = await getInternalHost();
@@ -35,7 +34,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log('base url', baseUrl)
     fetch(`${baseUrl}:8010/api/aibox_camera/cameras`)
       .then((response) => response.json())
       .then((cameras) => SetCameras(cameras));
@@ -64,17 +62,17 @@ export default function Home() {
       </div>
       <div className="flex my-8 mx-4 justify-end">
         <div className="mr-2">
-          <AddCamera />
+          <AddCamera baseUrl={baseUrl}/>
         </div>
         <div>
-          <DeleteCamera cameraIds={cameras} />
+          <DeleteCamera baseUrl={baseUrl} cameraIds={cameras} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         {cameras.map((camera_id: string) => {
           const videoUrl = `${baseUrl}:${prefixPath}/${camera_id}/stream`;
           return (
-            <div className="mx-4">
+            <div className="mx-4" key={camera_id}>
               <Image
                 key={camera_id}
                 className="w-full"

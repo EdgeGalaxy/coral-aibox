@@ -20,6 +20,7 @@
     },
     "params": {
         "detection": {
+            "weight_name": "face_detection",
             "width": 480,
             "height": 640,
             "device_id": 0,
@@ -30,13 +31,15 @@
             "confidence_thresh": 0.6
         },
         "featuredb": {
+            "weight_name": "face_recognition",
             "width": 112,
             "height": 112,
             "device_id": 0,
+            "base_dir": "db/face",
             "user_faces_size": 10,
-            "sim_threshold": 0.6
+            "sim_threshold": 0.8
         },
-        "is_record": true,
+        "is_record": false,
         "is_open": true
     }
 }

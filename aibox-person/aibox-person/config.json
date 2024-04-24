@@ -20,6 +20,7 @@
     },
     "params": {
         "detection": {
+            "weight_name": "bytetrack_s",
             "width": 1088,
             "height": 608,
             "device_id": 0,
@@ -27,16 +28,18 @@
                 "person"
             ],
             "nms_thresh": 0.4,
-            "confidence_thresh": 0.7
+            "confidence_thresh": 0.45
         },
         "featuredb": {
+            "weight_name": "resnet18-f37072fd",
             "width": 224,
             "height": 224,
             "device_id": 0,
+            "base_dir": "db/person",
             "db_size": 1000,
             "sim_threshold": 0.65
         },
-        "is_record": true,
+        "is_record": false,
         "is_open": true
     }
 }

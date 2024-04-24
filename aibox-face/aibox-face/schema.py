@@ -21,22 +21,21 @@ WEIGHTS_REMOTE_HOST = os.environ.get(
 
 
 class ModelParamsModel(BaseModel):
-    weight_path: str = Field(description="模型权重文件名")
+    weight_name: str = Field(description="模型权重文件名")
 
-    @computed_field
-    @cached_property
+    @property
     def model_type(self) -> str:
         return MODEL_TYPE
 
-    @field_validator("weight_path")
+    @field_validator("weight_name")
     @classmethod
     def validate_model_path(cls, v: str):
-        v = ".".join([v, MODEL_TYPE])
+        fn = ".".join([v, MODEL_TYPE])
         _dir = os.path.join(MOUNT_NODE_PATH, "weights")
         os.makedirs(_dir, exist_ok=True)
-        _file = os.path.join(_dir, v)
+        _file = os.path.join(_dir, fn)
         if not os.path.exists(_file):
-            url = urljoin(WEIGHTS_REMOTE_HOST, v)
+            url = urljoin(WEIGHTS_REMOTE_HOST, fn)
             logger.warning(f"file {_file} not exists, download from {url}")
             r = requests.get(url)
             if r.ok:
@@ -47,7 +46,12 @@ class ModelParamsModel(BaseModel):
                 raise ValueError(
                     f"file {_file} not exists, download from {url} error: {r.text}!"
                 )
-        return _file
+        return v
+
+    @property
+    def weight_path(self) -> str:
+        weight_fn = ".".join([self.weight_name, MODEL_TYPE])
+        return os.path.join(MOUNT_NODE_PATH, "weights", weight_fn)
 
 
 class DetectionParamsModel(ModelParamsModel):
@@ -63,17 +67,16 @@ class FeatureDBParamsModel(ModelParamsModel):
     width: int = 112
     height: int = 112
     device_id: int = 0
-    db_path: str
+    base_dir: str
     user_faces_size: int = 10
     sim_threshold: float = 0.9
 
-    @field_validator("db_path")
-    @classmethod
-    def validate_db_path(cls, v: str):
-        _dir = os.path.join(MOUNT_NODE_PATH, v)
+    @property
+    def db_path(self):
+        _dir = os.path.join(MOUNT_NODE_PATH, self.base_dir)
         if not os.path.exists(_dir):
             os.makedirs(_dir, exist_ok=True)
-        return os.path.join(MOUNT_NODE_PATH, v)
+        return _dir
 
 
 class AIboxFaceParamsModel(BaseParamsModel):

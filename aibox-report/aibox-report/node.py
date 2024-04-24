@@ -1,3 +1,4 @@
+from datetime import datetime
 import math
 import os
 import json
@@ -19,10 +20,17 @@ from coral import (
     RawPayload,
     PTManager,
 )
+from coral.constants import MOUNT_PATH
 from coral.metrics import init_mqtt, mqtt
-from pydantic import Field
+from pydantic import Field, field_validator
 
+import web
+from algrothms.event import EventRecord
 from algrothms.gpio import GpioControl
+
+
+MOUNT_NODE_PATH = os.path.join(MOUNT_PATH, "aibox")
+os.makedirs(MOUNT_NODE_PATH, exist_ok=True)
 
 
 class MQTTParamsModel(BaseParamsModel):
@@ -46,6 +54,14 @@ class AIboxReportParamsModel(BaseParamsModel):
         default=1, description="预测值人数窗口最大间隔时间，在这时间内的才做统计"
     )
     report_image: bool = True
+    base_dir: str = Field(description="事件保存路径")
+
+    @field_validator("base_dir")
+    @classmethod
+    def validate_base_dir(cls, v: str):
+        _dir = os.path.join(MOUNT_NODE_PATH, v)
+        os.makedirs(_dir, exist_ok=True)
+        return _dir
 
 
 def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
@@ -83,6 +99,9 @@ class AIboxReport(CoralNode):
         self.cameras_last_capture_time: Dict[str, float] = {}
         self.windows_interval = 1
         self.kf = self.init_kalman_filter()
+        # 初始化事件类
+        self.event = EventRecord(event_dir=self.params.base_dir)
+        web.async_run(self.config.node_id, self.params.base_dir)
 
     def init(self, index: int, context: dict):
         """
@@ -99,6 +118,9 @@ class AIboxReport(CoralNode):
         )
         context["mqtt"] = mqtt_client
         context["gpio"] = gpio_client
+        context["event"] = self.event
+
+        web.contexts[index] = {"context": context, "params": self.params}
 
     @property
     def topic(self):
@@ -164,9 +186,10 @@ class AIboxReport(CoralNode):
             self.kf.predict()
             self.kf.update(obs)
             pre_state_count.append(self.kf.x[0])
-        logger.debug(f"预测值窗口中每一帧人数：{pre_state_count}")
+        count = math.ceil(self.kf.x[0])
+        logger.debug(f"预测值窗口中每一帧人数：{pre_state_count}, 最终人数：{count}")
         # 向上取整返回最终的人数
-        return math.ceil(self.kf.x[0])
+        return count
 
     def sender(self, payload: RawPayload, context: Dict):
         """
@@ -184,6 +207,8 @@ class AIboxReport(CoralNode):
 
         mqtt_client: mqtt.Client = context["mqtt"]
         gpio_client: GpioControl = context["gpio"]
+        person_count = self.process_person_count()
+        objects = self.prepare_objects(payload.objects or [])
         frame_msg = {
             "uuid": payload.raw_id,
             "source": payload.source_id,
@@ -191,8 +216,8 @@ class AIboxReport(CoralNode):
             "mac_address": self.mac_addr,
             # ! 人数采用滤波过滤方式检测widows_interval秒内的人数, 因此人数可能会与objects中的数量不符
             # ! 人数建议采用person_count给出的数值
-            "person_count": self.process_person_count(),
-            "objects": self.prepare_objects(payload.objects or []),
+            "person_count": person_count,
+            "objects": objects,
             # 单位: ms
             "duration": payload.nodes_cost * 1000,
             # 图片数据按base64编码传输
@@ -204,10 +229,17 @@ class AIboxReport(CoralNode):
         mqtt_client.publish(self.topic, json.dumps(frame_msg))
 
         # 触发信号, 开
-        if payload.objects:
+        if person_count and payload.objects:
             with gpio_client:
                 gpio_client.trigger_on()
-
+            self.event.add_event(
+                {
+                    # 取时间: 年-月-日 时:分:秒.毫秒
+                    "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
+                    "person_count": person_count,
+                    "objects_count": len(objects),
+                }
+            )
         return None
 
 

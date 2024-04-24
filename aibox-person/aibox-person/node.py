@@ -44,10 +44,30 @@ class AIboxPerson(CoralNode):
 
         :param context: 上下文参数
         """
-        data = self.params.model_dump()
-        # 获取入参
-        featuredb = FeatureDB(**data["featuredb"])
-        inference = Inference(featuredb=featuredb, **data["detection"])
+        params: AIboxPersonParamsModel = self.params
+        feat_params = params.featuredb
+        infer_params = params.detection
+        featuredb = FeatureDB(
+            width=feat_params.width,
+            height=feat_params.height,
+            weight_path=feat_params.weight_path,
+            model_type=feat_params.model_type,
+            device_id=feat_params.device_id,
+            db_path=feat_params.db_path,
+            db_size=feat_params.db_size,
+            sim_threshold=feat_params.sim_threshold,
+        )
+        inference = Inference(
+            featuredb=featuredb,
+            width=infer_params.width,
+            height=infer_params.height,
+            weight_path=infer_params.weight_path,
+            model_type=infer_params.model_type,
+            device_id=infer_params.device_id,
+            class_names=infer_params.class_names,
+            nms_thresh=infer_params.nms_thresh,
+            confidence_thresh=infer_params.confidence_thresh,
+        )
         context["model"] = inference
         # 更新contexts
         web.contexts[index] = {"context": context, "params": self.params}

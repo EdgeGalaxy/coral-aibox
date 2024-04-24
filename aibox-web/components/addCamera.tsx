@@ -8,9 +8,7 @@ type FormValues = {
   url: string;
 };
 
-const _addCamera = () => {
-  const BASE_URL = getInternalHost();
-  const url = `${BASE_URL}:8010/api/aibox_camera/cameras/add`;
+const _addCamera = ( { baseUrl }: { baseUrl: string }) => {
 
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm<FormValues>();
@@ -19,11 +17,16 @@ const _addCamera = () => {
     setVisible(true);
   };
 
+  const handleCancel = () => {
+    setVisible(false);
+  };
+
   const handleSubmit = () => {
     form
       .validateFields()
       .then((values: FormValues) => {
         console.log("Received values of form:", values);
+        const url = `${baseUrl}:8010/api/aibox_camera/cameras/add`;
         // 发送Form数据到后端
         fetch(url, {
           method: "POST",
@@ -51,9 +54,6 @@ const _addCamera = () => {
       });
   };
 
-  const handleCancel = () => {
-    setVisible(false);
-  };
 
   return (
     <>

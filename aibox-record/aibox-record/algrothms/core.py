@@ -31,9 +31,7 @@ class Recorder:
         self._enable = enable
         os.makedirs(self.base_dir, exist_ok=True)
         # 启动后台清理程序, 每5分钟清理一次
-        bg_tasks.add_job(
-            self.auto_recycle, "interval", args=(self.base_dir,), minutes=5
-        )
+        bg_tasks.add_job(self.auto_recycle, "interval", minutes=5)
 
     def write(
         self, frame: np.ndarray, objects: List[ObjectPayload], target_dir_name: str
@@ -78,16 +76,13 @@ class Recorder:
                 # 遍历相机目录，删除最老的文件
                 _cameras_dir = os.listdir(self.base_dir)
                 for _camera_dir in _cameras_dir:
-                    if os.path.isdir(_camera_dir):
-                        _camera_video_fns = sorted(
-                            os.listdir(os.path.join(self.base_dir, _camera_dir))
-                        )
+                    _camera_dir_fp = os.path.join(self.base_dir, _camera_dir)
+                    if os.path.isdir(_camera_dir_fp):
+                        _camera_video_fns = sorted(os.listdir(_camera_dir_fp))
                         if not len(_camera_video_fns) > 3:
                             continue
                         _camera_video_fns.sort()
-                        _target_fp = os.path.join(
-                            self.base_dir, _camera_dir, _camera_video_fns[0]
-                        )
+                        _target_fp = os.path.join(_camera_dir_fp, _camera_video_fns[0])
                         os.remove(_target_fp)
                         logger.info(f"auto delete success. remove file: {_target_fp}")
                         time.sleep(1)

@@ -9,8 +9,13 @@ import Link from "next/link";
 import {
   DesktopOutlined,
   RedoOutlined,
-  HomeOutlined,
-  SunOutlined,
+  VideoCameraOutlined,
+  TeamOutlined,
+  MessageOutlined,
+  IdcardOutlined,
+  BlockOutlined,
+  UpOutlined,
+  
 } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
 import { useState } from "react";
@@ -24,13 +29,13 @@ const menuItems = [
     label: "显示",
     key: "/",
     url: "/",
-    icon: <HomeOutlined />,
+    icon: <DesktopOutlined />,
   },
   {
     label: "Mask配置",
     key: "/mask",
     url: "/mask",
-    icon: <DesktopOutlined />,
+    icon: <BlockOutlined />,
   },
   {
     label: "预加载",
@@ -42,16 +47,34 @@ const menuItems = [
         label: "人物误检",
         key: "/preload/person",
         url: "/preload/person",
-        icon: <SunOutlined />,
+        icon: <TeamOutlined />,
       },
       {
         label: "面部识别",
         key: "/preload/face",
         url: "/preload/face",
-        icon: <RedoOutlined />,
+        icon: <IdcardOutlined />,
       }
     ]
-  }
+  },
+  {
+    label: "录像",
+    key: "/record",
+    url: "/record",
+    icon: <VideoCameraOutlined />,
+  },
+  {
+    label: "事件",
+    key: "/event",
+    url: "/event",
+    icon: <MessageOutlined />,
+  },
+  {
+    label: "升级",
+    key: "/upgrade",
+    url: "/upgrade",
+    icon: <UpOutlined />,
+  },
 ];
 
 export default function RootLayout({
@@ -81,7 +104,7 @@ export default function RootLayout({
             collapsed={collapsed}
             onCollapse={(value) => setCollapsed(value)}
           >
-            <div className="demo-logo-vertical mb-12" />
+            <div className="demo-logo-vertical m-12" />
             <Menu
               theme="dark"
               defaultSelectedKeys={selectedKeys}
@@ -106,7 +129,7 @@ export default function RootLayout({
             <Header style={{ padding: 0, background: colorBgContainer }} />
             <Content style={{ margin: "0 16px" }}>{children}</Content>
             <Footer style={{ textAlign: "center" }}>
-              LoopTech ©{new Date().getFullYear()} Created by LoopTech
+              路谱智迅 ©{new Date().getFullYear()} Created by 路谱智迅
             </Footer>
           </Layout>
         </Layout>

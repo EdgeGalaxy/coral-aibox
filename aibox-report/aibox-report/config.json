@@ -13,6 +13,7 @@
             "port": 9022,
             "username": "admin",
             "password": "admin"
-        }
+        },
+        "base_dir": "report"
     }
 }
