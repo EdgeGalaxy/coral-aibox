@@ -20,11 +20,21 @@
     },
     "params": {
         "detection": {
-            "weight_path": "face_detection"
+            "width": 480,
+            "height": 640,
+            "device_id": 0,
+            "class_names": [
+                "person"
+            ],
+            "nms_thresh": 0.4,
+            "confidence_thresh": 0.6
         },
         "featuredb": {
-            "weight_path": "face_recognition",
-            "db_path": "db/face"
+            "width": 112,
+            "height": 112,
+            "device_id": 0,
+            "user_faces_size": 10,
+            "sim_threshold": 0.6
         },
         "is_record": true,
         "is_open": true

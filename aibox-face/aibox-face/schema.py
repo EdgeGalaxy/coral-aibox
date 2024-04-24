@@ -91,6 +91,8 @@ class AIboxFaceParamsModel(BaseParamsModel):
 class RecordFeatureModel(BaseModel):
     is_record: bool
     is_open: bool = True
+    confidence_thresh: float = 0.5
+    sim_threshold: float = 0.9
 
 
 class ImageReqModel(BaseModel):

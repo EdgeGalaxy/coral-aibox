@@ -205,9 +205,13 @@ def record_feature(item: RecordFeatureModel):
     else:
         logger.info(f"{node_id} stop record feature!!")
     params.is_open = item.is_open
+    params.detection.confidence_thresh = item.confidence_thresh
+    params.featuredb.sim_threshold = item.sim_threshold
+
+    new_params = params.model_dump()
     # 更新数据
-    durable_config({"is_record": item.is_record, "is_open": item.is_open})
-    return params.model_dump()
+    durable_config(new_params)
+    return {"result": "success"}
 
 
 @router.get("/config")
