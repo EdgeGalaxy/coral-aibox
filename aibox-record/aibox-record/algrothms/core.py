@@ -8,6 +8,7 @@ import cv2
 from loguru import logger
 import numpy as np
 from coral import ObjectPayload
+from coral.sched import bg_tasks
 
 
 class Recorder:
@@ -29,6 +30,10 @@ class Recorder:
         self._auto_recycle_threshold = auto_recycle_threshold
         self._enable = enable
         os.makedirs(self.base_dir, exist_ok=True)
+        # 启动后台清理程序, 每5分钟清理一次
+        bg_tasks.add_job(
+            self.auto_recycle, "interval", args=(self.base_dir,), minutes=5
+        )
 
     def write(
         self, frame: np.ndarray, objects: List[ObjectPayload], target_dir_name: str
@@ -38,8 +43,6 @@ class Recorder:
 
         save_dir = os.path.join(self.base_dir, target_dir_name)
         os.makedirs(save_dir, exist_ok=True)
-        # 轮训删除
-        self._auto_recycle(save_dir)
 
         if frame.shape[0] * frame.shape[1] == 0:
             return
@@ -65,23 +68,29 @@ class Recorder:
         frame = self._draw_person_rect(frame, objects)
         self._writer.write(frame)
 
-    def _auto_recycle(self, save_dir: str):
+    def auto_recycle(self):
         # 自动删除老数据，直到磁盘空间达到预期
         gb = 1024**3
         while True:
             _, _, free_b = shutil.disk_usage("/")
             # 当剩余空间小于指定阈值，触发删除逻辑，从最老的数据开始删除 （至少保留3个视频文件）
-            if (
-                free_b < self._auto_recycle_threshold * gb
-                and len(os.listdir(self.base_dir)) > 3
-            ):
-                _date_dir_list = sorted(os.listdir(save_dir))
-                if _date_dir_list:
-                    _date_dir_list.sort()
-                    _target_fp = os.path.join(self.base_dir, _date_dir_list[0])
-                    os.remove(_target_fp)
-                    logger.info(f"auto delete success. remove file: {_target_fp}")
-                    time.sleep(1)
+            if free_b < self._auto_recycle_threshold * gb:
+                # 遍历相机目录，删除最老的文件
+                _cameras_dir = os.listdir(self.base_dir)
+                for _camera_dir in _cameras_dir:
+                    if os.path.isdir(_camera_dir):
+                        _camera_video_fns = sorted(
+                            os.listdir(os.path.join(self.base_dir, _camera_dir))
+                        )
+                        if not len(_camera_video_fns) > 3:
+                            continue
+                        _camera_video_fns.sort()
+                        _target_fp = os.path.join(
+                            self.base_dir, _camera_dir, _camera_video_fns[0]
+                        )
+                        os.remove(_target_fp)
+                        logger.info(f"auto delete success. remove file: {_target_fp}")
+                        time.sleep(1)
             else:
                 break
 

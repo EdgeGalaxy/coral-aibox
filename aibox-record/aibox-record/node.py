@@ -39,7 +39,7 @@ def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
 
 @PTManager.register()
 class AIboxRecordParamsModel(BaseParamsModel):
-    save_dir: str = Field(description="保存路径")
+    base_dir: str = Field(description="保存路径")
     interval: int = Field(default=600, description="间隔时间")
     enable: bool = Field(default=True, description="是否开启")
     max_gb: int = Field(default=2, description="最大存储空间")
@@ -70,7 +70,7 @@ class AIboxRecord(CoralNode):
         """
         # 获取入参
         recorder = Recorder(
-            base_dir=self.params.save_dir,
+            base_dir=self.params.base_dir,
             record_interval=self.params.interval,
             auto_recycle_threshold=self.params.max_gb,
             enable=self.params.enable,
