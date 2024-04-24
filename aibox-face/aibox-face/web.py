@@ -2,7 +2,6 @@ import os
 import time
 import json
 import shutil
-import base64
 from typing import Dict
 from threading import Thread
 from collections import deque, defaultdict
@@ -22,10 +21,8 @@ from algrothms.gossip import GossipCommunicate
 from algrothms.utils import draw_image_with_boxes, BASE_URL
 from schema import (
     RecordFeatureModel,
-    ImageReqModel,
     WebNodeParams,
     UsersRemarkModel,
-    UserFacesModel,
     UserFaceModel,
 )
 
@@ -82,14 +79,14 @@ def append_payload_to_web_queue(payload: RawPayload, fps: int) -> None:
     cameras_queue[payload.source_id].append((payload, fps))
 
 
-def durable_config(node_params: WebNodeParams):
+def durable_config(node_params: dict):
     from coral import CoralNode
 
     config_fp, _ = CoralNode.get_config()
     with open(config_fp, "r") as f:
         data = json.load(f)
 
-    data["params"].update(node_params.model_dump())
+    data["params"].update(node_params)
 
     with open(config_fp, "w") as f:
         json.dump(data, f, indent=4)
@@ -207,29 +204,32 @@ def record_feature(item: RecordFeatureModel):
         logger.info(f"{node_id} start record feature!!")
     else:
         logger.info(f"{node_id} stop record feature!!")
+    params.is_open = item.is_open
+    # 更新数据
+    durable_config({"is_record": item.is_record, "is_open": item.is_open})
     return params.model_dump()
 
 
 @router.get("/config")
 def get_params():
-    params = contexts[0]["params"].model_dump()
-    detection = params["detection"]
-    featuredb = params["featuredb"]
+    params = contexts[0]["params"]
+    detection = params.detection
+    featuredb = params.featuredb
     return WebNodeParams(
         **{
-            "is_record": params["is_record"],
-            "is_open": params["is_open"],
+            "is_record": params.is_record,
+            "is_open": params.is_open,
             "detection": {
-                "width": detection["width"],
-                "height": detection["height"],
-                "nms_thresh": detection["nms_thresh"],
-                "confidence_thresh": detection["confidence_thresh"],
+                "width": detection.width,
+                "height": detection.height,
+                "nms_thresh": detection.nms_thresh,
+                "confidence_thresh": detection.confidence_thresh,
             },
             "featuredb": {
-                "width": featuredb["width"],
-                "height": featuredb["height"],
-                "db_size": featuredb["db_size"],
-                "sim_threshold": featuredb["sim_threshold"],
+                "width": featuredb.width,
+                "height": featuredb.height,
+                "db_size": featuredb.db_size,
+                "sim_threshold": featuredb.sim_threshold,
             },
         }
     )
@@ -243,7 +243,7 @@ def change_params(item: WebNodeParams):
     params = context["params"].model_dump()
     params.update(item.model_dump())
     context["params"] = AIboxFaceParamsModel(**params)
-    durable_config(item)
+    durable_config(item.model_dump())
     return item.model_dump()
 
 

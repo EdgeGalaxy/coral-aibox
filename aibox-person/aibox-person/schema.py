@@ -89,7 +89,8 @@ class AIboxPersonParamsModel(BaseParamsModel):
 
 
 class RecordFeatureModel(BaseModel):
-    is_record: bool = False
+    is_record: bool
+    is_open: bool
 
 
 class ImageReqModel(BaseModel):

@@ -64,7 +64,7 @@ class FeatureDBParamsModel(ModelParamsModel):
     height: int = 112
     device_id: int = 0
     db_path: str
-    db_size: int = 1000
+    user_faces_size: int = 10
     sim_threshold: float = 0.9
 
     @field_validator("db_path")
@@ -90,7 +90,7 @@ class AIboxFaceParamsModel(BaseParamsModel):
 
 class RecordFeatureModel(BaseModel):
     is_record: bool
-    is_open: bool
+    is_open: bool = True
 
 
 class ImageReqModel(BaseModel):
@@ -108,7 +108,7 @@ class WebDetectionParams(BaseModel):
 class WebFeatureDBParams(BaseModel):
     width: int
     height: int
-    db_size: int = 1000
+    user_faces_size: int = 10
     sim_threshold: float = 0.9
 
 

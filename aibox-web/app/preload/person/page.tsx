@@ -1,19 +1,18 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import type { GetProp, UploadFile, UploadProps } from 'antd';
-import { Switch, Upload, message, Modal, Popconfirm, Button, Image } from 'antd';
+import type { UploadFile } from 'antd';
+import { Switch, message, Popconfirm, Button, Image } from 'antd';
 
 import { getInternalHost } from '@/components/api/utils'
 import { DeleteOutlined } from "@ant-design/icons";
 
-type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
 
 export default function LoadPersonPage() {
   const [ baseUrl, setBaseUrl ] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [personRecord, setPersonRecord] = useState(false);
+  const [ switchs, setSwitchs] = useState<{ [key: string]: boolean}>({isRecord: false, isOpen: true});
   const [personFileList, setPersonFileList] = useState<UploadFile<any>[]>([]);
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export default function LoadPersonPage() {
     fetch(personConfigUrl)
       .then((response) => response.json())
       .then((data) => {
-        setPersonRecord(data['is_record'])
+        setSwitchs({isRecord: data['is_record'], isOpen: data['is_open']})
       })
 
     // person images
@@ -61,22 +60,24 @@ export default function LoadPersonPage() {
 
   }, [baseUrl]);
 
-  const onPersonSwitchChange = (checked: boolean) => {
+  const onPersonSwitchChange = (key: string, checked: boolean) => {
     setIsLoading(true)
     const personRecordUrl = `${baseUrl}:8020/api/aibox_person/record/featuredb`;
+    let { [key]: _, ...otheSwitchs } = switchs
     fetch(personRecordUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        'is_record': checked
+        [key]: checked,
+        ...otheSwitchs
       }),
     }).then(() => {
-      setPersonRecord(checked)
-      console.log('onPersonSwitchChange', checked, '更新成功')
+      setSwitchs({...switchs, [key]: checked})
+      console.log('onPersonSwitchChange', key, checked, '更新成功')
     }).catch((error: any) => {
-      console.error('onPersonSwitchChange', checked, 'Error:', error);
+      console.error('onPersonSwitchChange', key, checked, 'Error:', error);
     }).finally(() => {
       setIsLoading(false)
     })
@@ -119,9 +120,15 @@ export default function LoadPersonPage() {
 
   return (
     <div>
+        <div className="flex">
         <div className="flex m-8">
           <p className="mr-4">误检人物数据录入</p>
-          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={personRecord} checked={personRecord} onChange={() => onPersonSwitchChange(!personRecord)}/>
+          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={switchs.isRecord} checked={switchs.isRecord} onChange={() => onPersonSwitchChange('isRecord', !switchs.isRecord)}/>
+        </div>
+        <div className="flex m-8">
+          <p className="mr-4">人物检测开关</p>
+          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={switchs.isOpen} checked={switchs.isOpen} onChange={() => onPersonSwitchChange('isOpen', !switchs.isOpen)}/>
+        </div>
         </div>
         <div className="grid grid-cols-4 m-8">
             {personFileList.map((file) => (

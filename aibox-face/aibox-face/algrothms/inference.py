@@ -4,6 +4,7 @@ from typing import List
 from loguru import logger
 import numpy as np
 from metacv import Face as F
+from coral.types.payload import Box
 
 from .featuredb import FeatureDB
 from .utils import get_import_meta
@@ -51,18 +52,18 @@ class Inference:
 
         self.featuredb = featuredb
 
-    def predict(self, image: np.ndarray, is_record: bool = False):
+    def predict(self, image: np.ndarray, box: Box, is_record: bool = False):
         defects = []
         dets, det_scores, det_kpss = self.model.predict(image)
         for det, conf, kps in zip(dets[0], det_scores[0], det_kpss[0]):
             try:
                 xmin, ymin, xmax, ymax = det
-                align_img = F.norm_crop(image, np.array(kps))
+                face_img = F.norm_crop(image, np.array(kps))
                 # 正常模式下，如果背景特征库为空时，不调用特征匹配
                 if len(self.featuredb.features) == 0 and not is_record:
                     user_id = "UNKNOWN"
                 else:
-                    user_id = self.featuredb.predict(align_img, is_record)
+                    user_id = self.featuredb.predict(face_img, is_record)
 
                 defect = {
                     "label": (
@@ -71,14 +72,14 @@ class Inference:
                     "class_id": 0,
                     "prob": round(float(conf), 4),
                     "box": {
-                        "x1": xmin,
-                        "y1": ymin,
-                        "x2": xmax,
-                        "y2": ymax,
+                        "x1": box.x1 + xmin,
+                        "y1": box.y1 + ymin,
+                        "x2": box.x1 + xmax,
+                        "y2": box.y1 + ymax,
                     },
                 }
                 defects.append(defect)
             except Exception as e:
-                logger.warning(f"person predict error: {e}")
+                logger.warning(f"face predict error: {e}")
 
         return defects

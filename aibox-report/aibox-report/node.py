@@ -1,12 +1,24 @@
+import math
 import os
-import time
 import json
+import time
+import base64
 import shutil
+from typing import Dict, List
+from collections import defaultdict, deque
 
-from typing import Dict
-
+import cv2
+import numpy as np
 from loguru import logger
-from coral import CoralNode, BaseParamsModel, NodeType, RawPayload, PTManager
+from filterpy.kalman import KalmanFilter
+from coral import (
+    CoralNode,
+    BaseParamsModel,
+    NodeType,
+    ObjectPayload,
+    RawPayload,
+    PTManager,
+)
 from coral.metrics import init_mqtt, mqtt
 from pydantic import Field
 
@@ -30,6 +42,9 @@ class GpioParamsModel(BaseParamsModel):
 class AIboxReportParamsModel(BaseParamsModel):
     mqtt: MQTTParamsModel = MQTTParamsModel()
     gpio: GpioParamsModel = GpioParamsModel()
+    windows_interval: int = Field(
+        default=1, description="预测值人数窗口最大间隔时间，在这时间内的才做统计"
+    )
     report_image: bool = True
 
 
@@ -60,6 +75,15 @@ class AIboxReport(CoralNode):
 
     check_config_fp_or_set_default(CoralNode.get_config()[0], "config.json")
 
+    def __init__(self):
+        super().__init__()
+        self.cameras_person_count_windows: Dict[str, deque] = defaultdict(
+            lambda: deque(maxlen=5)
+        )
+        self.cameras_last_capture_time: Dict[str, float] = {}
+        self.windows_interval = 1
+        self.kf = self.init_kalman_filter()
+
     def init(self, index: int, context: dict):
         """
         初始化参数，可传递到sender方法中
@@ -78,7 +102,71 @@ class AIboxReport(CoralNode):
 
     @property
     def topic(self):
-        return f"aibox/{self.mac_addr}/{self.config.node_id}"
+        return f"aibox/inference/{self.mac_addr}/{self.config.node_id}"
+
+    def init_kalman_filter(self):
+        kf = KalmanFilter(dim_x=2, dim_z=1)
+
+        # 定义状态转移矩阵和观测矩阵
+        kf.F = np.array([[1, 1], [0, 1]])  # 状态转移矩阵
+        kf.H = np.array([[1, 0]])  # 观测矩阵
+
+        # 定义过程噪声协方差和观测噪声协方差
+        kf.Q = np.eye(2) * 0.01  # 过程噪声协方差
+        kf.R = np.array([[1]])  # 观测噪声协方差
+
+        # 初始化状态和协方差矩阵
+        kf.x = np.array([0, 0])  # 初始状态
+        kf.P = np.eye(2)  # 初始协方差矩阵
+        return kf
+
+    def prepare_objects(self, objects: List[ObjectPayload]):
+        detects = []
+        for obj in objects:
+            detect = {
+                # 表示人脸识别结果
+                "id": obj.objects[0].label if obj.objects else None,
+                # 表示目标检测结果
+                "label": obj.label,
+                # 表示目标检测概率
+                "prob": obj.prob,
+                # 表示目标检测框坐标
+                "positions": [obj.box.x1, obj.box.y1, obj.box.x2, obj.box.y2],
+                # 表示人脸检测概率
+                "face_prop": obj.objects[0].prob if obj.objects else None,
+            }
+            detects.append(detect)
+        return detects
+
+    def encode_frame(self, frame: np.ndarray):
+        is_ok, _frame = cv2.imencode(".jpg", frame)
+        if not is_ok:
+            raise ValueError("无法编码视频帧!")
+        b64_frame = base64.b64encode(_frame).decode()
+        return b64_frame
+
+    def process_person_count(self):
+        observations = []
+        for (
+            camera_id,
+            window_person_count_buffer,
+        ) in self.cameras_person_count_windows.items():
+            # 过滤掉最近windows_interval时间段内没更新的摄像头数据
+            # 这类可能会存在摄像头不稳定的情况，window中的数据不一定是最新的，因此过滤掉
+            if (
+                time.time() - self.cameras_last_capture_time[camera_id]
+                > self.windows_interval
+            ):
+                continue
+            observations.extend(list(window_person_count_buffer))
+        pre_state_count = []
+        for obs in observations:
+            self.kf.predict()
+            self.kf.update(obs)
+            pre_state_count.append(self.kf.x[0])
+        logger.debug(f"预测值窗口中每一帧人数：{pre_state_count}")
+        # 向上取整返回最终的人数
+        return math.ceil(self.kf.x[0])
 
     def sender(self, payload: RawPayload, context: Dict):
         """
@@ -88,18 +176,29 @@ class AIboxReport(CoralNode):
         :param context: 上下文参数
         :return: 数据
         """
+        # 记录每个摄像头的人数
+        self.cameras_last_capture_time[payload.source_id] = time.time()
+        self.cameras_person_count_windows[payload.source_id].append(
+            len(payload.objects or [])
+        )
+
         mqtt_client: mqtt.Client = context["mqtt"]
         gpio_client: GpioControl = context["gpio"]
-        data = payload.model_dump()
         frame_msg = {
             "uuid": payload.raw_id,
             "source": payload.source_id,
             # !docker部署需要设置 network=host模式
             "mac_address": self.mac_addr,
-            "objects": data["objects"],
+            # ! 人数采用滤波过滤方式检测widows_interval秒内的人数, 因此人数可能会与objects中的数量不符
+            # ! 人数建议采用person_count给出的数值
+            "person_count": self.process_person_count(),
+            "objects": self.prepare_objects(payload.objects or []),
             # 单位: ms
             "duration": payload.nodes_cost * 1000,
-            "image": payload.raw if self.params.report_image else None,
+            # 图片数据按base64编码传输
+            "image": (
+                self.encode_frame(payload.raw) if self.params.report_image else None
+            ),
         }
 
         mqtt_client.publish(self.topic, json.dumps(frame_msg))

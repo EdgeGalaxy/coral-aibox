@@ -5,18 +5,22 @@ import paho.mqtt.client as mqtt
 from loguru import logger
 
 from .featuredb import FeatureDB
-from .utils import INTERNAL_IP
 
 
 class GossipCommunicate:
 
     def __init__(
-        self, mqtt_client: mqtt.Client, featuredb: FeatureDB, enable: bool = True
+        self,
+        mqtt_client: mqtt.Client,
+        featuredb: FeatureDB,
+        mac_addr: str,
+        enable: bool = True,
     ) -> None:
         self.enable = enable
         self.featuedb = featuredb
         self.client = mqtt_client
-        self._topic = f"aibox/gossip/faces/{INTERNAL_IP}"
+        self.mac_addr = mac_addr
+        self._topic = f"aibox/gossip/faces/{mac_addr}"
         # 订阅topic
         self.start_subscribe()
 
@@ -27,7 +31,7 @@ class GossipCommunicate:
 
     def on_message(self, client: mqtt.Client, userdata: Any, msg: mqtt.MQTTMessage):
         topic, recv_data = msg.topic, json.loads(msg.payload.decode())
-        if INTERNAL_IP in topic:
+        if self.mac_addr in topic:
             logger.info(f"ignore topic: {topic}, because it is send from self!")
             return
         if "create" in topic:
@@ -43,6 +47,7 @@ class GossipCommunicate:
         elif "delete" in topic:
             self.featuedb.delete_user(recv_data["user_id"])
         elif "sync" in topic:
+            # 同步数据，先删除对方的数据，再更新数据
             self.featuedb.delete_user(recv_data["user_id"])
             self.featuedb.update_user_date_from_remote(
                 recv_data["user_id"], recv_data["faces"]
@@ -58,6 +63,12 @@ class GossipCommunicate:
         }
 
     def user_faces_create(self, user_id: str, faces: List[Dict]):
+        """
+        创建用户
+
+        :param user_id:
+        :param faces:
+        """
         topic = self.topics["create"]
         if not self.enable:
             logger.warning(f"{topic} disabled!")
@@ -66,6 +77,13 @@ class GossipCommunicate:
         self.client.publish(topic, json.dumps(payload))
 
     def user_faces_move(self, src_user_id: str, dest_user_id: str, faces: List[Dict]):
+        """
+        重命名用户名
+
+        :param src_user_id:
+        :param dest_user_id:
+        :param faces:
+        """
         topic = self.topics["move"]
         if not self.enable:
             logger.warning(f"{topic} disabled!")
@@ -78,6 +96,11 @@ class GossipCommunicate:
         self.client.publish(topic, json.dumps(payload))
 
     def user_delete(self, user_id: str):
+        """
+        删除用户
+
+        :param user_id:
+        """
         topic = self.topics["delete"]
         if not self.enable:
             logger.warning(f"{topic} disabled!")
@@ -86,6 +109,12 @@ class GossipCommunicate:
         self.client.publish(topic, json.dumps(payload))
 
     def user_sync(self, user_id: str, faces: List[Dict]):
+        """
+        同步用户
+
+        :param user_id:
+        :param faces:
+        """
         topic = self.topics["sync"]
         if not self.enable:
             logger.warning(f"{topic} disabled!")

@@ -26,7 +26,7 @@ class FeatureDB:
         device_id: int,
         db_path: str,
         use_preprocess: bool = True,
-        db_size: int = 1000,
+        user_faces_size: int = 10,
         sim_threshold: float = 0.9,
     ):
         meta = get_import_meta(model_type)
@@ -48,7 +48,7 @@ class FeatureDB:
             )
 
         self.db_path = db_path
-        self.db_size = db_size
+        self.user_faces_size = user_faces_size
         self.sim_threshold = sim_threshold
 
         # pre load data save
@@ -196,22 +196,41 @@ class FeatureDB:
         user_id: str = None,
         face_key: str = None,
     ):
-        if len(self.features) > self.db_size:
-            return
+        # if len(self.features) > self.db_size:
+        #     logger.warning(f"db has more than {self.db_size} faces!")
+        #     return
 
         if user_id is None:
             # 默认的用户ID
             user_id = f"UNKNOWN_{str(uuid4())[:8]}"
 
-        key = str(uuid4())[:8]
+        user_dir = os.path.join(self.db_path, user_id)
+        # 存储用户特征到对应的User Dir
+        os.makedirs(user_dir, exist_ok=True)
+
+        # 判断是否超过单用户最大人脸数
+        if (
+            len(
+                [
+                    face_fn
+                    for face_fn in os.listdir(user_dir)
+                    if face_fn.endswith(".jpg")
+                ]
+            )
+            > self.user_faces_size
+        ):
+            logger.warning(
+                f"user {user_id} has more than {self.user_faces_size} faces!"
+            )
+            return
+
+        key = face_key if face_key else str(uuid4())[:8]
         self.images.append(key)
         self.features.append(feature)
         self.mapper[key] = user_id
 
-        user_dir = os.path.join(self.db_path, user_id)
+        logger.info(f"save user {user_id} face {key} to {user_dir}")
 
-        # 存储用户特征到对应的User Dir
-        os.makedirs(user_dir, exist_ok=True)
         cv2.imencode(".jpg", image[:, :, ::-1], [cv2.IMWRITE_JPEG_QUALITY, 100])[
             1
         ].tofile(os.path.join(user_dir, key + ".jpg"))

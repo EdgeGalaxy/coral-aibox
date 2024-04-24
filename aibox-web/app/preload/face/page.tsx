@@ -8,11 +8,12 @@ import { UsersFaceFolderList } from '@/components/usersFaceList'
 import { ItemData } from "@/components/types/type";
 
 
+
 export default function PreloadFacePage() {
 
   const [ baseUrl, setBaseUrl ] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [faceRecord, setFaceRecord] = useState(false);
+  const [ switchs, setSwitchs] = useState<{ [key: string]: boolean}>({isRecord: false, isOpen: true});
   const [ users, setUsers ] = useState<ItemData[]>([]);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function PreloadFacePage() {
       .then((response) => response.json())
       .then((data) => {
         console.log('faceConfigUrl', data)
-        setFaceRecord(data['is_record'])
+        setSwitchs({isRecord: data['is_record'], isOpen: data['is_open']})
       })
     // users fetch
     fetch(usersFaceUrl)
@@ -64,22 +65,24 @@ export default function PreloadFacePage() {
 
   }, [baseUrl]);
 
-  const onFaceSwitchChange = (checked: boolean) => {
+  const onFaceRecordSwitchChange = (key: string, checked: boolean) => {
     setIsLoading(true)
     const faceRecordUrl = `${baseUrl}:8030/api/aibox_face/record/featuredb`;
+    let { [key]: _, ...otheSwitchs } = switchs
     fetch(faceRecordUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        'is_record': checked
+        [key]: checked,
+        ...otheSwitchs
       }),
     }).then(() => {
-      setFaceRecord(checked)
-      console.log('onFaceSwitchChange', checked, '更新成功')
+      setSwitchs({...switchs, [key]: checked})
+      console.log('onFaceSwitchChange', key, checked, '更新成功')
     }).catch((error: any) => {
-      console.error('onFaceSwitchChange', checked, 'Error:', error);
+      console.error('onFaceSwitchChange', key, checked, 'Error:', error);
     }).finally(() => {
       setIsLoading(false)
     })
@@ -87,11 +90,18 @@ export default function PreloadFacePage() {
 
   return (
     <div>
-        <div className="flex m-8">
-          <p className="mr-4">人物面部识别录入</p>
-          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={faceRecord} checked={faceRecord} onChange={() => onFaceSwitchChange(!faceRecord)}/>
-        </div>
+        <div className="flex">
+            <div className="flex m-8">
+            <p className="mr-4">人物面部识别录入</p>
+            <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={switchs.isRecord} checked={switchs.isRecord} onChange={() => onFaceRecordSwitchChange('isRecord', !switchs.isRecord)}/>
+            </div>
+            <div className="flex m-8">
+            <p className="mr-4">面部检测开关</p>
+            <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={switchs.isOpen} checked={switchs.isOpen} onChange={() => onFaceRecordSwitchChange('isOpen', !switchs.isOpen)}/>
+            </div>
         <div className="m-8">
+
+        </div>
             <UsersFaceFolderList baseUrl={baseUrl} data={users} />
         </div>
     </div>

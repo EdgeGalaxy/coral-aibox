@@ -52,7 +52,10 @@ class AIboxFace(CoralNode):
         # 系统内传播的Gossip
         gossip_enable = True if self.metrics.enable and INTERNAL_IP else False
         gossip = GossipCommunicate(
-            self.metrics.mqtt_client, featuredb=featuredb, enable=gossip_enable
+            self.metrics.mqtt_client,
+            featuredb=featuredb,
+            mac_addr=self.mac_addr,
+            enable=gossip_enable,
         )
         context["gossip"] = gossip
         # 更新contexts
@@ -87,7 +90,7 @@ class AIboxFace(CoralNode):
             for object in payload.objects:
                 box = object.box
                 face_raw = raw[box.x1 : box.x2, box.y1 : box.y2, :]
-                face_objects = model.predict(face_raw, self.params.is_record)
+                face_objects = model.predict(face_raw, box, self.params.is_record)
                 similar_face_object = self.get_max_face(face_objects)
                 if similar_face_object:
                     object.objects = [ObjectPayload(**similar_face_object)]

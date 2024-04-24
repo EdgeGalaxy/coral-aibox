@@ -62,14 +62,14 @@ def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
         logger.warning(f"config_fp is default {default_config_fp}!")
 
 
-def durable_config(node_params: WebNodeParams):
+def durable_config(node_params: dict):
     from coral import CoralNode
 
     config_fp, _ = CoralNode.get_config()
     with open(config_fp, "r") as f:
         data = json.load(f)
 
-    data["params"].update(node_params.model_dump())
+    data["params"].update(node_params)
 
     with open(config_fp, "w") as f:
         json.dump(data, f, indent=4)
@@ -102,29 +102,32 @@ def record_feature(item: RecordFeatureModel):
         logger.info(f"{node_id} start record feature!!")
     else:
         logger.info(f"{node_id} stop record feature!!")
+    params.is_open = item.is_open
+    # 更新数据
+    durable_config({"is_record": item.is_record, "is_open": item.is_open})
     return {"result": "success"}
 
 
 @router.get("/config")
 def get_params():
-    params = contexts[0]["params"].model_dump()
-    detection = params["detection"]
-    featuredb = params["featuredb"]
+    params = contexts[0]["params"]
+    detection = params.detection
+    featuredb = params.featuredb
     return WebNodeParams(
         **{
-            "is_record": params["is_record"],
-            "is_open": params["is_open"],
+            "is_record": params.is_record,
+            "is_open": params.is_open,
             "detection": {
-                "width": detection["width"],
-                "height": detection["height"],
-                "nms_thresh": detection["nms_thresh"],
-                "confidence_thresh": detection["confidence_thresh"],
+                "width": detection.width,
+                "height": detection.height,
+                "nms_thresh": detection.nms_thresh,
+                "confidence_thresh": detection.confidence_thresh,
             },
             "featuredb": {
-                "width": featuredb["width"],
-                "height": featuredb["height"],
-                "db_size": featuredb["db_size"],
-                "sim_threshold": featuredb["sim_threshold"],
+                "width": featuredb.width,
+                "height": featuredb.height,
+                "db_size": featuredb.db_size,
+                "sim_threshold": featuredb.sim_threshold,
             },
         }
     )
@@ -138,5 +141,5 @@ def change_params(item: WebNodeParams):
     params = context["params"].model_dump()
     params.update(item.model_dump())
     context["params"] = AIboxPersonParamsModel(**params)
-    durable_config(item)
+    durable_config(item.model_dump())
     return item.model_dump()

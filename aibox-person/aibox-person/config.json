@@ -6,7 +6,7 @@
     "process": {
         "enable_parallel": true,
         "count": 5,
-        "max_qsize": 10
+        "max_qsize": 5
     },
     "meta": {
         "receivers": [{ "node_id": "aibox_camera" }],
