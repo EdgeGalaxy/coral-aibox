@@ -197,9 +197,6 @@ class FeatureDB:
         user_id: str = None,
         face_key: str = None,
     ):
-        # if len(self.features) > self.db_size:
-        #     logger.warning(f"db has more than {self.db_size} faces!")
-        #     return
 
         if not user_id:
             # 默认的用户ID
@@ -232,7 +229,7 @@ class FeatureDB:
 
         logger.info(f"save user {user_id} face {key} to {user_dir}")
 
-        cv2.imencode(".jpg", image[:, :, ::-1], [cv2.IMWRITE_JPEG_QUALITY, 100])[
-            1
-        ].tofile(os.path.join(user_dir, key + ".jpg"))
+        cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 100])[1].tofile(
+            os.path.join(user_dir, key + ".jpg")
+        )
         np.save(os.path.join(user_dir, key + ".npy"), feature)

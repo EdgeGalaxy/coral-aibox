@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { Switch, Button } from 'antd';
+import { Switch, Button, message } from 'antd';
 
 import { getInternalHost } from '@/components/api/utils'
 import { UsersFaceFolderList } from '@/components/usersFaceList'
@@ -88,6 +88,19 @@ export default function PreloadFacePage() {
     })
   };
 
+  const onSyncButtonClick = () => {
+    console.log('onSyncButtonClick')
+    fetch(`${baseUrl}:8030/api/aibox_face/users/sync`)
+      .then((response) => {
+        if (response.ok) {
+            message.success('同步成功')
+      } else {
+          message.error('同步失败')
+      }}).catch((error) => {
+          message.error('同步失败')
+      })
+  }
+
   return (
     <div>
         <div className="flex">
@@ -99,7 +112,7 @@ export default function PreloadFacePage() {
             <p className="mr-4">面部检测开关</p>
             <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={switchs.is_open} checked={switchs.is_open} onChange={() => onFaceRecordSwitchChange('is_open', !switchs.is_open)}/>
             </div>
-            <Button className="ml-20 mt-6" type="primary">广播面部信息</Button>
+            <Button className="ml-20 mt-6" type="primary" onClick={onSyncButtonClick}>广播面部信息</Button>
         </div>
         <div>
             <UsersFaceFolderList baseUrl={baseUrl} data={users} />

@@ -125,7 +125,7 @@ class FeatureDB:
         logger.info(f"save {key} to {self.db_path}")
 
         os.makedirs(self.db_path, exist_ok=True)
-        cv2.imencode(".jpg", image[:, :, ::-1], [cv2.IMWRITE_JPEG_QUALITY, 100])[
-            1
-        ].tofile(os.path.join(self.db_path, key + ".jpg"))
+        cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 100])[1].tofile(
+            os.path.join(self.db_path, key + ".jpg")
+        )
         np.save(os.path.join(self.db_path, key + ".npy"), feature)

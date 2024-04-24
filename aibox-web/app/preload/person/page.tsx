@@ -127,7 +127,7 @@ export default function LoadPersonPage() {
         </div>
         <div className="flex m-8">
           <p className="mr-4">人物检测开关</p>
-          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={switchs.is_open} checked={switchs.is_open} onChange={() => onPersonSwitchChange('is_open', !switchs.is_open)}/>
+          <Switch checkedChildren="开启" unCheckedChildren="关闭" disabled loading={isLoading} defaultChecked={switchs.is_open} checked={switchs.is_open} onChange={() => onPersonSwitchChange('is_open', !switchs.is_open)}/>
         </div>
         </div>
         <div className="grid grid-cols-4 m-8">
