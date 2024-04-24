@@ -29,7 +29,7 @@ from schema import (
 # 全局变量
 node_id = None
 contexts = {}
-cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=5))
+cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1))
 
 
 """
@@ -228,7 +228,7 @@ def get_params():
             "featuredb": {
                 "width": featuredb.width,
                 "height": featuredb.height,
-                "db_size": featuredb.db_size,
+                "user_faces_size": featuredb.user_faces_size,
                 "sim_threshold": featuredb.sim_threshold,
             },
         }

@@ -12,7 +12,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 export default function LoadPersonPage() {
   const [ baseUrl, setBaseUrl ] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [ switchs, setSwitchs] = useState<{ [key: string]: boolean}>({isRecord: false, isOpen: true});
+  const [ switchs, setSwitchs] = useState<{ [key: string]: boolean}>({is_record: false, is_open: true});
   const [personFileList, setPersonFileList] = useState<UploadFile<any>[]>([]);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function LoadPersonPage() {
     fetch(personConfigUrl)
       .then((response) => response.json())
       .then((data) => {
-        setSwitchs({isRecord: data['is_record'], isOpen: data['is_open']})
+        setSwitchs({is_record: data['is_record'], is_open: data['is_open']})
       })
 
     // person images
@@ -123,11 +123,11 @@ export default function LoadPersonPage() {
         <div className="flex">
         <div className="flex m-8">
           <p className="mr-4">误检人物数据录入</p>
-          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={switchs.isRecord} checked={switchs.isRecord} onChange={() => onPersonSwitchChange('isRecord', !switchs.isRecord)}/>
+          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={switchs.is_record} checked={switchs.is_record} onChange={() => onPersonSwitchChange('is_record', !switchs.is_record)}/>
         </div>
         <div className="flex m-8">
           <p className="mr-4">人物检测开关</p>
-          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={switchs.isOpen} checked={switchs.isOpen} onChange={() => onPersonSwitchChange('isOpen', !switchs.isOpen)}/>
+          <Switch checkedChildren="开启" unCheckedChildren="关闭" loading={isLoading} defaultChecked={switchs.is_open} checked={switchs.is_open} onChange={() => onPersonSwitchChange('is_open', !switchs.is_open)}/>
         </div>
         </div>
         <div className="grid grid-cols-4 m-8">

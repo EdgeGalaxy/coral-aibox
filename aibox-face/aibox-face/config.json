@@ -9,8 +9,14 @@
         "max_qsize": 5
     },
     "meta": {
-        "receivers": [{ "node_id": "aibox_person" }],
-        "sender": { "node_id": "aibox_face" }
+        "receivers": [
+            {
+                "node_id": "aibox_person"
+            }
+        ],
+        "sender": {
+            "node_id": "aibox_face"
+        }
     },
     "params": {
         "detection": {
@@ -19,6 +25,8 @@
         "featuredb": {
             "weight_path": "face_recognition",
             "db_path": "db/face"
-        }
+        },
+        "is_record": true,
+        "is_open": true
     }
 }

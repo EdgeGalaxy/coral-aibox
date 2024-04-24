@@ -80,6 +80,6 @@ class Inference:
                 }
                 defects.append(defect)
             except Exception as e:
-                logger.warning(f"face predict error: {e}")
+                logger.exception(f"face predict error: {e}")
 
         return defects

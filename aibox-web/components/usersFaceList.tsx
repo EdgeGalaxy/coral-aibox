@@ -169,6 +169,7 @@ const _UsersFaceList = ({
         </div>
       )}
       <List
+        className="m-12"
         itemLayout="horizontal"
         dataSource={usersData}
         renderItem={(item) => (

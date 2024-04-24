@@ -30,6 +30,7 @@ class FeatureDB:
             input_width=width,
             use_preprocess=use_preprocess,
             device_id=device_id,
+            swap=None if model_type == "rknn" else (2, 0, 1),
         )
         if platform.machine() == "x86_64" and model_type == "rknn":
             self.model.convert_and_load(
@@ -56,7 +57,7 @@ class FeatureDB:
         return [os.path.join(dir, f) for f in os.listdir(dir) if f.endswith(suffix)]
 
     @classmethod
-    def cosine_similarity(a, b):
+    def cosine_similarity(self, a, b):
         dot_product = np.dot(a, b)
         norm_a = np.linalg.norm(a)
         norm_b = np.linalg.norm(b)
@@ -85,29 +86,36 @@ class FeatureDB:
 
     def compare(self, feature: np.ndarray):
         if len(self.fake_persons_features) == 0:
-            return None
+            return None, 0
 
         index_cossims = self.cosine_similarity(
             feature, np.vstack(self.fake_persons_features).T
         )[0]
         s = np.argmax(index_cossims)
+        above_threshold_indices = np.where(index_cossims > self.sim_threshold)[0]
         if index_cossims[s] > self.sim_threshold:
-            return self.fake_persons_image[s]
+            return self.fake_persons_image[s], len(above_threshold_indices)
 
-        return None
+        return None, 0
 
     def predict(self, image: np.ndarray, save: bool = False) -> bool:
         feature = self.model.feature(image)
-        match_key = self.compare(feature)
-        if match_key:
-            return False
+        match_key, above_count = self.compare(feature)
 
         if save:
-            self.save(image, feature)
-        return True
+            self.save(image, feature, above_count)
 
-    def save(self, image: np.ndarray, feature: np.ndarray):
+        return True if not match_key else False
+
+    def save(self, image: np.ndarray, feature: np.ndarray, above_count: int):
         if len(self.fake_persons_features) > self.db_size:
+            logger.info(f"db has more than {self.db_size} fake persons!")
+            return
+
+        if above_count > 10:
+            logger.warning(
+                f"similar fake person over threshold {self.sim_threshold} above {above_count} times, ignore!"
+            )
             return
 
         key = str(uuid4())[:8]

@@ -36,6 +36,9 @@ class FeatureDB:
             input_width=width,
             use_preprocess=use_preprocess,
             device_id=device_id,
+            mean=None if model_type == "rknn" else [127.5, 127.5, 127.5],
+            std=None if model_type == "rknn" else [127.5, 127.5, 127.5],
+            swap=None if model_type == "rknn" else (2, 0, 1),
         )
         if platform.machine() == "x86_64" and model_type == "rknn":
             self.model.convert_and_load(
@@ -63,7 +66,7 @@ class FeatureDB:
         return [os.path.join(dir, f) for f in os.listdir(dir) if f.endswith(suffix)]
 
     @classmethod
-    def cosine_similarity(a, b):
+    def cosine_similarity(self, a, b):
         dot_product = np.dot(a, b)
         norm_a = np.linalg.norm(a)
         norm_b = np.linalg.norm(b)
@@ -177,17 +180,15 @@ class FeatureDB:
             user_id = self.mapper.get(max_similar_key, None)
             return user_id
 
-        return None, None
+        return ""
 
     def predict(self, image: np.ndarray, save: bool = False) -> str:
         feature = self.model.predict(image)
         user_id = self.compare(feature)
-        if user_id:
-            return user_id
 
         if save:
             self.save(image, feature, user_id)
-        return "UNKNOWN"
+        return user_id if user_id else "UNKNOWN"
 
     def save(
         self,
@@ -200,7 +201,7 @@ class FeatureDB:
         #     logger.warning(f"db has more than {self.db_size} faces!")
         #     return
 
-        if user_id is None:
+        if not user_id:
             # 默认的用户ID
             user_id = f"UNKNOWN_{str(uuid4())[:8]}"
 

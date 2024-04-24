@@ -89,7 +89,7 @@ class AIboxFace(CoralNode):
             model: Inference = context["model"]
             for object in payload.objects:
                 box = object.box
-                face_raw = raw[box.x1 : box.x2, box.y1 : box.y2, :]
+                face_raw = raw[box.x1 : box.x2 + 1, box.y1 : box.y2 + 1, :]
                 face_objects = model.predict(face_raw, box, self.params.is_record)
                 similar_face_object = self.get_max_face(face_objects)
                 if similar_face_object:

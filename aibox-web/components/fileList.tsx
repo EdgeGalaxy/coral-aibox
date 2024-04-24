@@ -41,6 +41,7 @@ const _FileList = ({
   const [avatarModalVisable, setAvatarModalVisable] = useState(false);
   const [moveVisable, setMoveVisable] = useState(false);
   const [moveFolderID, setMoveFolderID] = useState("");
+  const [facePreview, setFacePreview] = useState("");
 
   const handleChildMenu = (item: ItemData, event: React.MouseEvent) => {
     event.preventDefault();
@@ -93,8 +94,9 @@ const _FileList = ({
     }
   };
 
-  const handleAvatarClick = () => {
+  const handleAvatarClick = (faceID: string) => {
     setAvatarModalVisable(true);
+    setFacePreview(`${baseUrl}:8030/static/${folderID}/${faceID}.jpg`);
   };
 
   const handleSelectChange = (destFolderID: string) => {
@@ -219,22 +221,11 @@ const _FileList = ({
               avatar={
                 <Avatar
                   src={`${baseUrl}:8030/static/${folderID}/${item.name}.jpg`}
-                  onClick={handleAvatarClick}
+                  onClick={() => handleAvatarClick(item.name)}
                 />
               }
               title={item.name}
             />
-            <Modal
-              open={avatarModalVisable}
-              onCancel={() => setAvatarModalVisable(false)}
-              footer={null}
-            >
-              <img
-                src={`${baseUrl}:8030/static/${folderID}/${item.name}.jpg`}
-                style={{ width: "100%" }}
-                alt="大图"
-              />
-            </Modal>
             <Modal
               className="w-1/3"
               open={moveVisable}
@@ -248,6 +239,17 @@ const _FileList = ({
                 onChange={handleSelectChange}
                 options={selectOptions}
               />
+            </Modal>
+            <Modal
+            open={avatarModalVisable}
+            onCancel={() => setAvatarModalVisable(false)}
+            footer={null}
+            >
+            <img
+            src={facePreview}
+            style={{ width: "100%" }}
+            alt="大图"
+            />
             </Modal>
           </List.Item>
         )}
