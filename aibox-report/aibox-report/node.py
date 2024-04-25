@@ -178,7 +178,7 @@ class AIboxReport(CoralNode):
     def process_person_count(self, camera_ids: str):
         _valid_camera_ids = []
         _valid_person_count = 0
-        for (camera_id,) in self.cameras_frame_data:
+        for camera_id in self.cameras_frame_data:
             # 过滤掉最近concat_max_interval时间段内没更新的摄像头数据
             # 这类可能会存在摄像头不稳定的情况，camera_id中的数据不一定是最新的，因此过滤掉
             if (
@@ -220,11 +220,11 @@ class AIboxReport(CoralNode):
         objects = self.prepare_objects(payload.objects or [])
         # 记录每个摄像头的人数
         self.cameras_last_capture_time[payload.source_id] = time.time()
-        self.cameras_frame_data[payload.source_id] = (
+        self.cameras_frame_data[payload.source_id] = [
             len(payload.objects or []),
             objects,
             payload.raw,
-        )
+        ]
 
         mqtt_client: mqtt.Client = context["mqtt"]
         gpio_client: GpioControl = context["gpio"]
