@@ -11,6 +11,7 @@ type eventsData = {
   time: string
   person_count: number
   objects_count: number 
+  pre_camera_count: number[]
 }
 
 
@@ -38,7 +39,7 @@ export default function EventPage() {
         for (let _event of events_data) {
           _events.push({
             label: _event.time,
-            children: <><p>{`统计人数: ${_event.person_count} 人`}</p>  <p>{`检测人数: ${_event.objects_count}`}</p></>,
+            children: <><p>{`统计人数: ${_event.person_count} 人`}</p>  <p>{`检测人数: ${_event.objects_count} 人`}</p></>,
             color: _event.person_count === _event.objects_count ? 'green' : 'red'
           })
         }

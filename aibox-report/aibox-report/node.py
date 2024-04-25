@@ -33,6 +33,10 @@ MOUNT_NODE_PATH = os.path.join(MOUNT_PATH, "aibox")
 os.makedirs(MOUNT_NODE_PATH, exist_ok=True)
 
 
+class InvalidPersonCount(Exception):
+    pass
+
+
 class MQTTParamsModel(BaseParamsModel):
     broker: str = "127.0.0.1"
     port: int = 1883
@@ -93,11 +97,15 @@ class AIboxReport(CoralNode):
 
     def __init__(self):
         super().__init__()
-        self.cameras_person_count_windows: Dict[str, deque] = defaultdict(
-            lambda: deque(maxlen=5)
-        )
+        # 摄像头人数
+        self.cameras_frame_data: Dict[str, list] = {}
+        # 摄像头最后一次接收时间
         self.cameras_last_capture_time: Dict[str, float] = {}
-        self.windows_interval = 1
+        # 摄像头能合并一起计算的最大间隔时间
+        self.concat_max_interval = 1
+        # 近几次上报的观察人数列表
+        self.observations = deque(maxlen=8)
+        # kalman滤波器
         self.kf = self.init_kalman_filter()
         # 初始化事件类
         self.event = EventRecord(event_dir=self.params.base_dir)
@@ -167,22 +175,32 @@ class AIboxReport(CoralNode):
         b64_frame = base64.b64encode(_frame).decode()
         return b64_frame
 
-    def process_person_count(self):
-        observations = []
-        for (
-            camera_id,
-            window_person_count_buffer,
-        ) in self.cameras_person_count_windows.items():
-            # 过滤掉最近windows_interval时间段内没更新的摄像头数据
-            # 这类可能会存在摄像头不稳定的情况，window中的数据不一定是最新的，因此过滤掉
+    def process_person_count(self, camera_ids: str):
+        _valid_camera_ids = []
+        _valid_person_count = 0
+        for (camera_id,) in self.cameras_frame_data:
+            # 过滤掉最近concat_max_interval时间段内没更新的摄像头数据
+            # 这类可能会存在摄像头不稳定的情况，camera_id中的数据不一定是最新的，因此过滤掉
             if (
                 time.time() - self.cameras_last_capture_time[camera_id]
-                > self.windows_interval
+                > self.concat_max_interval
             ):
                 continue
-            observations.extend(list(window_person_count_buffer))
+            _valid_camera_ids.append(camera_id)
+            _valid_person_count += self.cameras_frame_data[camera_id][0]
+
+        # 验证此次统计的有效性
+        # ! 这种模式会存在如果有一个摄像头出现问题，则会一直无法正确统计的情况
+        if set(_valid_camera_ids) != set(camera_ids):
+            raise InvalidPersonCount(
+                "无效的一次统计，指定时间内没有统计出所有摄像头的人数"
+            )
+        else:
+            self.observations.append(_valid_person_count)
+
+        # 滤波统计
         pre_state_count = []
-        for obs in observations:
+        for obs in self.observations:
             self.kf.predict()
             self.kf.update(obs)
             pre_state_count.append(self.kf.x[0])
@@ -199,47 +217,68 @@ class AIboxReport(CoralNode):
         :param context: 上下文参数
         :return: 数据
         """
+        objects = self.prepare_objects(payload.objects or [])
         # 记录每个摄像头的人数
         self.cameras_last_capture_time[payload.source_id] = time.time()
-        self.cameras_person_count_windows[payload.source_id].append(
-            len(payload.objects or [])
+        self.cameras_frame_data[payload.source_id] = (
+            len(payload.objects or []),
+            objects,
+            payload.raw,
         )
 
         mqtt_client: mqtt.Client = context["mqtt"]
         gpio_client: GpioControl = context["gpio"]
-        person_count = self.process_person_count()
-        objects = self.prepare_objects(payload.objects or [])
-        frame_msg = {
-            "uuid": payload.raw_id,
-            "source": payload.source_id,
-            # !docker部署需要设置 network=host模式
-            "mac_address": self.mac_addr,
-            # ! 人数采用滤波过滤方式检测widows_interval秒内的人数, 因此人数可能会与objects中的数量不符
-            # ! 人数建议采用person_count给出的数值
-            "person_count": person_count,
-            "objects": objects,
-            # 单位: ms
-            "duration": payload.nodes_cost * 1000,
-            # 图片数据按base64编码传输
-            "image": (
-                self.encode_frame(payload.raw) if self.params.report_image else None
-            ),
-        }
+        try:
+            # 根据有效的统计人数来做反馈，若人数统计无效，则抛出异常，此次不做上报
+            person_count = self.process_person_count(payload.raw_params["camera_ids"])
+        except InvalidPersonCount as e:
+            logger.warning(f"{e}")
+        else:
+            report_msg = {
+                "uuid": payload.raw_id,
+                "source": payload.source_id,
+                # !docker部署需要设置 network=host模式
+                "mac_address": self.mac_addr,
+                # ! 人数采用滤波过滤方式检测人数, 因此人数可能会与objects中的数量不符
+                # ! 人数建议采用person_count给出的数值
+                "person_count": person_count,
+                # 处理时间，取当前帧的处理时间数据
+                "duration": int(payload.nodes_cost * 1000),
+                # 上报时间
+                "report_time": int(time.time() * 1000),
+                "extras": {},
+            }
+            if self.params.report_image:
+                image_with_objects = [
+                    {
+                        "objects": obj,
+                        # 图片数据按base64编码传输
+                        "image": (
+                            self.encode_frame(raw) if self.params.report_image else None
+                        ),
+                    }
+                    for _, obj, raw in self.cameras_frame_data.values()
+                ]
+                report_msg["extras"].update({"image_with_objects": image_with_objects})
 
-        mqtt_client.publish(self.topic, json.dumps(frame_msg))
+            mqtt_client.publish(self.topic, json.dumps(report_msg))
 
-        # 触发信号, 开
-        if person_count and payload.objects:
-            with gpio_client:
-                gpio_client.trigger_on()
-            self.event.add_event(
-                {
-                    # 取时间: 年-月-日 时:分:秒.毫秒
-                    "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
-                    "person_count": person_count,
-                    "objects_count": len(objects),
-                }
-            )
+            # 触发信号, 开
+            if person_count:
+                with gpio_client:
+                    gpio_client.trigger_on()
+                pre_camera_count = [
+                    count for count, _, _ in self.cameras_frame_data.values()
+                ]
+                self.event.add_event(
+                    {
+                        # 取时间: 年-月-日 时:分:秒.毫秒
+                        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
+                        "person_count": person_count,
+                        "objects_count": sum(pre_camera_count),
+                        "pre_camera_count": pre_camera_count,
+                    }
+                )
         return None
 
 

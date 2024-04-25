@@ -61,6 +61,8 @@ class AIboxCamera(CoralNode):
         vc = cv2.VideoCapture(url)
         context["vc"] = vc
         context.update(camera)
+        # 写入所有摄像头ID到每一帧画面中
+        context["params"]["camera_ids"] = [_cam["name"] for _cam in cameras]
         # 更新web的全局变量
         web.contexts[camera["name"]] = context
 
