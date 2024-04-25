@@ -11,6 +11,8 @@ class ParamsModel(BaseModel):
 class CameraParamsModel(BaseModel):
     name: str
     url: str = Field(description="摄像头url")
+    width: int = 640
+    height: int = 480
     params: ParamsModel = ParamsModel()
 
 

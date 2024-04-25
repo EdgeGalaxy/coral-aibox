@@ -11,6 +11,7 @@ python = "^3.8"
 fastapi = "^0.110.1"
 loop-pycoral = {version = "^0.1.5", source = "looptech"}
 uvicorn = "^0.29.0"
+pygobject = "^3.48.2"
 
 [[tool.poetry.source]]
 name = "tsinghua"
