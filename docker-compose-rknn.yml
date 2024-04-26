@@ -4,7 +4,7 @@ services:
   aibox-camera:
     build:
       context: ./aibox-camera
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_rknn
     image: ${USERNAME:-local}/aibox-camera:${IMAGE_TAG:-v0.1.0}
     privileged: true
     network_mode: host

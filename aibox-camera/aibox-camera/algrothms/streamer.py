@@ -43,7 +43,12 @@ class VideoAHDStreamer:
     AHD_SRC = "v4l2src device={video_idx} ! video/x-raw,format=YUY2,width={width},height={height},framerate=30/1 ! appsink name=sink"
 
     def __init__(self, video_idx: str, width: int, height: int):
-        import gi
+        try:
+            import gi
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
+                "Use MODEL_TYPE=rknn, GStreamer is not installed!"
+            )
 
         gi.require_version("Gst", "1.0")
         from gi.repository import Gst
