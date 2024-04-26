@@ -92,7 +92,7 @@ class VideoAHDStreamer:
     def read(self):
         try:
             return True, self.frame_queue.popleft()
-        except TypeError:
+        except IndexError:
             return False, None
 
     def run(self):
