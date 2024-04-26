@@ -12,7 +12,7 @@ from coral import (
 
 import web
 from schema import CameraParamsModel
-from algrothms.streamer import VideoStreamer
+from algrothms.streamer import VideoCv2Streamer
 
 
 @PTManager.register()
@@ -57,7 +57,7 @@ class AIboxCamera(CoralNode):
 
         camera = cameras[index]
         url: str = camera["url"]
-        vc = VideoStreamer(url, width=camera["width"], height=camera["height"])
+        vc = VideoCv2Streamer(url, width=camera["width"], height=camera["height"])
         context["vc"] = vc
         context.update(camera)
         # 写入所有摄像头ID到每一帧画面中
@@ -100,7 +100,7 @@ class AIboxCamera(CoralNode):
             self.shutdown()
             self.restart_program()
 
-        vc: VideoStreamer = context["vc"]
+        vc: VideoCv2Streamer = context["vc"]
         ret, frame = vc.read()
         if not ret:
             raise ValueError("摄像头读取失败")
