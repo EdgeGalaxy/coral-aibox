@@ -9,6 +9,7 @@ from coral import (
     PTManager,
     NodeType,
 )
+from coral.exception import CoralSenderIgnoreException
 
 import web
 from schema import CameraParamsModel
@@ -103,7 +104,7 @@ class AIboxCamera(CoralNode):
         vc: VideoStreamer = context["vc"]
         ret, frame = vc.read()
         if not ret:
-            raise ValueError("摄像头读取失败")
+            raise CoralSenderIgnoreException("读取频率过高, 队列为空")
 
         return FirstPayload(
             source_id=context["name"], raw=frame, raw_params=context["params"]

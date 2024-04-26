@@ -57,6 +57,7 @@ class VideoAHDStreamer:
         Gst.init(None)
 
         pipe = self.AHD_SRC.format(video_idx=video_idx, width=width, height=height)
+        logger.info(f"gstreamer pipe: {pipe}")
         # 使用尽可能高效的管道设置
         self.pipeline = Gst.parse_launch(pipe)
         self.appsink = self.pipeline.get_by_name("sink")
@@ -64,7 +65,6 @@ class VideoAHDStreamer:
             self.appsink.connect("new-sample", self.on_new_sample)
 
         self.frame_queue = deque(maxlen=16)
-        self._running = True
         # 自动运行后台线程
         self.run()
 
@@ -104,6 +104,7 @@ class VideoAHDStreamer:
         self.pipeline.set_state(Gst.State.PLAYING)
         loop = GLib.MainLoop()
         try:
+            self._running = True
             loop.run()
         except KeyboardInterrupt:
             logger.warning("Stopping... ")
