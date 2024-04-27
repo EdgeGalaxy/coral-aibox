@@ -29,7 +29,7 @@ from schema import (
 # 全局变量
 node_id = None
 contexts = {}
-cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1))
+cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=5))
 
 
 """
@@ -97,7 +97,13 @@ def show_faces():
     context = contexts[0]
     inference: Inference = context["context"]["model"]
     featuredb = inference.featuredb
-    return featuredb.show_users_faces()
+    users = featuredb.show_users_faces()
+    # 按照是否有新命名排序
+    sorted_users = sorted(
+        [(user_id, 1 if user_id.startswith("UNKNOWN") else 0) for user_id in users],
+        key=lambda x: x[1],
+    )
+    return {user_id: users[user_id] for user_id, _ in sorted_users}
 
 
 @router.post("/users/remark")

@@ -16,6 +16,8 @@ import {
 
 import { getInternalHost } from "@/components/api/utils";
 import { DeleteOutlined } from "@ant-design/icons";
+import { ImageCard } from "@/components/cardImage";
+
 
 export default function LoadPersonPage() {
   const [baseUrl, setBaseUrl] = useState("");
@@ -226,16 +228,9 @@ export default function LoadPersonPage() {
           </Row>
         </div>
       </div>
-      <div className="grid grid-cols-4 m-8">
-        {personFileList.map((file) => (
-          <div className="w-48 h-48 relative" key={file.uid}>
-            <Image
-              src={file.url}
-              className="w-full h-full object-cover"
-              alt="图片"
-            />
-            {onRemove(file)}
-          </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+        {personFileList.map((file, index) => (
+            <ImageCard key={index} imageUrl={file.url as string} handleDelete={() => handleRemove(file)} />
         ))}
       </div>
     </div>

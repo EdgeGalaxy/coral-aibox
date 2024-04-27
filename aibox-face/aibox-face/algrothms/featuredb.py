@@ -169,14 +169,15 @@ class FeatureDB:
 
         return True
 
-    def compare(self, feature: np.ndarray):
+    def compare(self, feature: np.ndarray, sim_threshold: float = None):
         if len(self.features) == 0:
             return None
+        sim_thresh = sim_threshold if sim_threshold else self.sim_threshold
 
         index_cossims = self.cosine_similarity(feature, np.vstack(self.features).T)[0]
         # 找出最大的相似度
         s = np.argmax(index_cossims)
-        if index_cossims[s] > self.sim_threshold:
+        if index_cossims[s] > sim_thresh:
             max_similar_key = self.images[s]
             # 找出最大相似度的索引, 根据索引获取用户ID
             user_id = self.mapper.get(max_similar_key, None)
@@ -185,8 +186,12 @@ class FeatureDB:
         return ""
 
     def predict(self, image: np.ndarray, save: bool = False) -> str:
+        # !此处主要考虑save为true时，尽量将相似的人脸放到一起，好在前端整理数据
+        # !不一定严谨
+        sim_thresh = 0.7 if save else self.sim_threshold
+        # 预测 & 比较
         feature = self.model.predict(image)
-        user_id = self.compare(feature)
+        user_id = self.compare(feature, sim_thresh)
 
         if save:
             self.save(image, feature, user_id)

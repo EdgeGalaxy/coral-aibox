@@ -188,7 +188,7 @@ const _FileList = ({
 
   // 过滤掉自身folder
   const selectOptions = usersData
-    .filter((item) => item.name != folderID)
+    .filter((item) => (item.name != folderID && !item.name.startsWith('UNKNOWN')))
     .map((item) => {
       return {
         label: item.name,

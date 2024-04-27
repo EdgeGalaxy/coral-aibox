@@ -84,23 +84,29 @@ class FeatureDB:
             os.remove(os.path.join(self.db_path, person_id + ".jpg"))
             os.remove(os.path.join(self.db_path, person_id + ".npy"))
 
-    def compare(self, feature: np.ndarray):
+    def compare(self, feature: np.ndarray, sim_thresh: float = None):
         if len(self.fake_persons_features) == 0:
             return None, 0
+
+        sim_thresh = sim_thresh if sim_thresh else self.sim_threshold
 
         index_cossims = self.cosine_similarity(
             feature, np.vstack(self.fake_persons_features).T
         )[0]
         s = np.argmax(index_cossims)
-        above_threshold_indices = np.where(index_cossims > self.sim_threshold)[0]
-        if index_cossims[s] > self.sim_threshold:
+        above_threshold_indices = np.where(index_cossims > sim_thresh)[0]
+        if index_cossims[s] > sim_thresh:
             return self.fake_persons_image[s], len(above_threshold_indices)
 
         return None, 0
 
     def predict(self, image: np.ndarray, save: bool = False) -> bool:
+        # !此处主要考虑save为true时，尽量将差不多相似的误检照片放一起
+        # !同时避免同一个人的误检一直存入库中，不一定严谨
+        sim_thresh = 0.75 if save else self.sim_threshold
+
         feature = self.model.feature(image)
-        match_key, above_count = self.compare(feature)
+        match_key, above_count = self.compare(feature, sim_thresh)
 
         if save:
             self.save(image, feature, above_count)

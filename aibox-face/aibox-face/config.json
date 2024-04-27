@@ -39,7 +39,7 @@
             "user_faces_size": 10,
             "sim_threshold": 0.8
         },
-        "is_record": false,
+        "is_record": true,
         "is_open": true
     }
 }

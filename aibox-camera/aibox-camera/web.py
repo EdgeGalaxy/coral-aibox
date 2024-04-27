@@ -1,8 +1,10 @@
+from collections import defaultdict, deque
 import io
 import os
 import json
 import shutil
-from typing import List
+import time
+from typing import Dict, List
 from threading import Thread
 
 import cv2
@@ -19,6 +21,7 @@ from schema import ParamsModel, CameraParamsModel, CameraOps
 node_id = None
 contexts = {}
 restart = False
+cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=5))
 
 
 """
@@ -111,12 +114,15 @@ def cameras():
 @router.get("/cameras/{camera_id}/stream")
 def video_stream(camera_id: str, with_mask: bool = False):
     def gen_frame():
-        vc: cv2.VideoCapture = contexts[camera_id]["vc"]
         points: List[List[int]] = contexts[camera_id]["params"]["points"]
         while True:
-            ret, frame = vc.read()
-            if not ret:
-                raise HTTPException(status_code=500, detail="摄像头读取失败")
+            try:
+                frame = cameras_queue[camera_id].popleft()
+            except IndexError:
+                # 队列不存在值
+                time.sleep(0.01)
+                continue
+
             if with_mask:
                 draw_mask_lines(frame, points)
             ret, frame = cv2.imencode(".jpg", frame)
