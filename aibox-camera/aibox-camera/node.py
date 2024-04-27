@@ -60,7 +60,9 @@ class AIboxCamera(CoralNode):
 
         camera = cameras[index]
         url: str = camera["url"]
-        vc = VideoStreamer(url, width=camera["width"], height=camera["height"])
+        vc = VideoStreamer(
+            url, width=camera.get("width", None), height=camera.get("height", None)
+        )
         context["vc"] = vc
         context.update(camera)
         # 写入所有摄像头ID到每一帧画面中

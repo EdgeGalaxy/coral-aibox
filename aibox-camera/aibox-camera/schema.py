@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Union
 
 from pydantic import Field, BaseModel
 
@@ -11,8 +11,8 @@ class ParamsModel(BaseModel):
 class CameraParamsModel(BaseModel):
     name: str
     url: str = Field(description="摄像头url")
-    width: int = 640
-    height: int = 480
+    width: Optional[Union[int, None]] = None
+    height: Optional[Union[int, None]] = None
     params: ParamsModel = ParamsModel()
 
 

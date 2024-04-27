@@ -11,7 +11,7 @@ MODEL_TYPE = os.environ.get("MODEL_TYPE", "onnx")
 
 
 class VideoStreamer:
-    def __init__(self, video_idx: str, width: int, height: int) -> None:
+    def __init__(self, video_idx: str, width: int = None, height: int = None) -> None:
         if MODEL_TYPE == "rknn":
             self.streamer = VideoAHDStreamer(video_idx, width, height)
         else:
@@ -23,13 +23,14 @@ class VideoStreamer:
 
 class VideoCv2Streamer:
 
-    def __init__(self, video_idx: str, width: int, height: int):
+    def __init__(self, video_idx: str, width: int = None, height: int = None):
         if video_idx.isdigit():
             video_idx = int(video_idx)
         self.cap = cv2.VideoCapture(video_idx)
 
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        if not width or not height:
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
         if not self.cap.isOpened():
             raise ValueError("can't open camera!")
@@ -41,8 +42,9 @@ class VideoCv2Streamer:
 class VideoAHDStreamer:
 
     AHD_SRC = "v4l2src device=/dev/video{video_idx} ! video/x-raw,format=NV12,width={width},height={height},framerate=30/1 ! videoconvert n-threads=4 ! video/x-raw,format=BGR ! appsink name=sink emit-signals=True max-buffers=2 drop=True"
+    AHD_SRC_NO_WH = "v4l2src device=/dev/video{video_idx} ! video/x-raw,format=NV12,framerate=30/1 ! videoconvert n-threads=4 ! video/x-raw,format=BGR ! appsink name=sink emit-signals=True max-buffers=2 drop=True"
 
-    def __init__(self, video_idx: str, width: int, height: int):
+    def __init__(self, video_idx: str, width: int = None, height: int = None):
         try:
             import gi
         except ModuleNotFoundError:
@@ -55,8 +57,10 @@ class VideoAHDStreamer:
 
         # 初始化 GStreamer
         Gst.init(None)
-
-        pipe = self.AHD_SRC.format(video_idx=video_idx, width=width, height=height)
+        if not width or not height:
+            pipe = self.AHD_SRC_NO_WH.format(video_idx=video_idx)
+        else:
+            pipe = self.AHD_SRC.format(video_idx=video_idx, width=width, height=height)
         logger.info(f"gstreamer pipe: {pipe}")
         # 使用尽可能高效的管道设置
         self.pipeline = Gst.parse_launch(pipe)
