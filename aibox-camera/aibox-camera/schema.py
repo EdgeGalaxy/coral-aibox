@@ -20,3 +20,7 @@ class CameraOps:
     ADD = "add"
     CHANGE = "change"
     DELETE = "delete"
+
+
+class ActivedCodeModel(BaseModel):
+    code: str

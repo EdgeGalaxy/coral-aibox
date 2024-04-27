@@ -36,6 +36,7 @@ class AIboxCamera(CoralNode):
         super().__init__()
         # 更新node_id变量，并启动web服务
         web.node_id = self.config.node_id
+        web.is_actived = self.is_active
         web.async_run(self.config.node_id)
 
     def init(self, index: int, context: dict):

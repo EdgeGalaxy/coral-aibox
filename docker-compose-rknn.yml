@@ -11,6 +11,7 @@ services:
     environment:
       - MODEL_TYPE=rknn
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-camera.json
+      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     volumes:
       - /dev:/dev
       - $HOME/.coral:/root/.coral

@@ -8,6 +8,8 @@ services:
     image: ${USERNAME:-local}/aibox-camera:${IMAGE_TAG:-v0.1.0}
     privileged: true
     network_mode: host
+    environment:
+      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     volumes:
       - /dev:/dev
       - $HOME/.coral:/root/.coral

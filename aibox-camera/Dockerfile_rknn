@@ -20,7 +20,7 @@ RUN python3 -m pip install -U pip setuptools wheel && \
     pip3 install poetry==1.8.2 
 
 COPY poetry.lock pyproject.toml /workspace/
-RUN poetry install --only main && \
+RUN poetry install --with rknn && \
     rm -rf /root/.local
 
 COPY . .

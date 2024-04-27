@@ -11,7 +11,6 @@ python = "^3.8"
 fastapi = "^0.110.1"
 loop-pycoral = {version = "^0.1.5", source = "looptech"}
 uvicorn = "^0.29.0"
-pygobject = "^3.48.2"
 
 [[tool.poetry.source]]
 name = "tsinghua"
@@ -22,6 +21,10 @@ priority = "primary"
 name = "looptech"
 url = "http://47.116.14.85:9000/simple"
 priority = "supplemental"
+
+
+[tool.poetry.group.rknn.dependencies]
+pygobject = "^3.48.2"
 
 [build-system]
 requires = ["poetry-core"]

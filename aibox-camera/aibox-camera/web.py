@@ -21,6 +21,7 @@ from schema import ParamsModel, CameraParamsModel, CameraOps
 node_id = None
 contexts = {}
 restart = False
+is_actived = False
 cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=5))
 
 
@@ -109,6 +110,11 @@ def durable_config(
 @router.get("/cameras")
 def cameras():
     return list(contexts.keys())
+
+
+@router.get("/cameras/is_actived")
+def is_actived_view():
+    return is_actived
 
 
 @router.get("/cameras/{camera_id}/stream")

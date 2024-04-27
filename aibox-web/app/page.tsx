@@ -6,6 +6,7 @@ import { Image, Select } from "antd";
 import { AddCamera } from "@/components/addCamera";
 import { DeleteCamera } from "@/components/deleteCamera";
 import { getInternalHost } from "@/components/api/utils";
+import { ActiveModal } from "@/components/activeModel";
 
 const { Option } = Select;
 
@@ -13,6 +14,7 @@ export default function Home() {
   const [ baseUrl, setBaseUrl ] = useState("");
   const [cameras, SetCameras] = useState([]);
   const [prefixPath, setPrefixPath] = useState("8010/api/aibox_camera/cameras");
+  const [ isActived, setIsActived ] = useState(false);
 
   const selectItems = ["原视频", "推理视频"];
 
@@ -37,6 +39,10 @@ export default function Home() {
     fetch(`${baseUrl}:8010/api/aibox_camera/cameras`)
       .then((response) => response.json())
       .then((cameras) => SetCameras(cameras));
+    
+    fetch(`${baseUrl}:8010/api/aibox_camera/cameras/is_actived`)
+      .then((response) => response.json())
+      .then((isActived) => setIsActived(isActived));
   }, [baseUrl]);
 
   if (cameras.length === 0) {
@@ -45,6 +51,7 @@ export default function Home() {
 
   return (
     <>
+      <ActiveModal isOpen={!isActived} />
       <div className="flex m-4 items-center">
         <p className="mr-2 font-mono font-bold text-center">选择摄像头: </p>
         <Select
