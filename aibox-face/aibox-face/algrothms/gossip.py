@@ -11,9 +11,9 @@ class GossipCommunicate:
 
     def __init__(
         self,
-        mqtt_client: mqtt.Client,
         featuredb: FeatureDB,
         mac_addr: str,
+        mqtt_client: mqtt.Client = None,
         enable: bool = True,
     ) -> None:
         self.enable = enable

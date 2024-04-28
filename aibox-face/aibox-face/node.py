@@ -73,10 +73,10 @@ class AIboxFace(CoralNode):
         # 系统内传播的Gossip
         gossip_enable = True if self.metrics.enable and INTERNAL_IP else False
         gossip = GossipCommunicate(
-            self.metrics.mqtt_client,
             featuredb=featuredb,
             mac_addr=self.mac_addr,
             enable=gossip_enable,
+            mqtt_client=self.metrics.mqtt_client if self.metrics.enable else None,
         )
         context["gossip"] = gossip
         # 更新contexts
