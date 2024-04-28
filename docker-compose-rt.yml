@@ -30,6 +30,7 @@ services:
       - MODEL_TYPE=rt
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-person.json
+      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     volumes:
       - /dev:/dev
       - $HOME/.coral:/root/.coral
@@ -48,6 +49,7 @@ services:
       - MODEL_TYPE=rt
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-face.json
+      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     volumes:
       - /dev:/dev
       - $HOME/.coral:/root/.coral
@@ -65,6 +67,7 @@ services:
     environment:
       - MODEL_TYPE=rt
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-record.json
+      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     volumes:
       - /dev:/dev
       - $HOME/.coral:/root/.coral
@@ -79,6 +82,7 @@ services:
     environment:
       - MODEL_TYPE=rt
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-report.json
+      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     depends_on:
       - aibox-face
       - aibox-person

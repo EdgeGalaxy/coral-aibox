@@ -1,0 +1,57 @@
+FROM node:20-alpine AS node-build
+# 前端
+WORKDIR /app/aibox-web
+COPY aibox-web/yarn.lock aibox-web/package*.json ./
+RUN yarn install --frozen-lockfile
+COPY aibox-web /app/aibox-web
+RUN yarn run build
+
+
+FROM bboyhanat/jetson-nano-cu102-trt7:v1.7
+
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get install -y --no-install-recommends \
+    python3.8 python3.8-dev python3-pip python3.8-venv && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 && \
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+
+RUN apt-get install -y supervisor curl
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash
+RUN apt-get install -y nodejs
+RUN npm install -g yarn
+RUN mkdir -p /var/log/supervisor
+# 清理缓存
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ENV TZ="Asia/Shanghai"
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+# 设置时区
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo 'Asia/Shanghai' >/etc/timezone
+
+WORKDIR /workspace
+
+RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip3 config set global.timeout 300 && \
+    pip3 config set install.trusted-host pypi.tuna.tsinghua.edu.cn
+
+RUN python3 -m pip install -U pip setuptools wheel && \
+    pip3 install poetry==1.8.2
+
+COPY poetry.lock pyproject.toml /workspace/
+RUN poetry install --without onnx,rknn && \
+    rm -rf /root/.local
+
+ENV MODEL_TYPE=rt
+ENV WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/rt/weights/
+
+COPY . .
+
+COPY --from=node-build /app/aibox-web/.next /workspace/aibox-web/.next
+
+CMD ["/usr/bin/supervisord", "-c", "supervisord.conf"]

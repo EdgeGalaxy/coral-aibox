@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "coral-aibox"
+version = "0.1.0"
+description = ""
+authors = ["zhaokefei <zhaokefei@tezign.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.110.1"
+loop-pycoral = {version = "^0.1.5", source = "looptech"}
+uvicorn = "^0.29.0"
+meta-cv = "^0.1.9"
+filterpy = "^1.4.5"
+
+
+
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "looptech"
+url = "http://47.116.14.85:9000/simple"
+priority = "supplemental"
+
+
+[tool.poetry.group.rt.dependencies]
+meta-rt = "^0.1.4"
+
+
+[tool.poetry.group.onnx.dependencies]
+meta-onnx = "^0.1.2"
+
+
+[tool.poetry.group.rknn.dependencies]
+rknn-toolkit-lite2 = {path = "aibox-person/libs/rknn_toolkit_lite2-1.6.0-cp38-cp38-linux_aarch64.whl"}
+meta-rknn = "^0.1.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

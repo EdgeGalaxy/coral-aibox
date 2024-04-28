@@ -42,7 +42,9 @@ class AIboxCamera(CoralNode):
     config_path = "config.json"
     node_type = NodeType.input
 
-    web.check_config_fp_or_set_default(CoralNode.get_config()[0], "config.json")
+    web.check_config_fp_or_set_default(
+        CoralNode.get_config()[0], CoralNode.default_config_fp()
+    )
 
     def __init__(self):
         super().__init__()

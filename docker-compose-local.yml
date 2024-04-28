@@ -20,6 +20,8 @@ services:
       context: ./aibox-person
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-person:${IMAGE_TAG:-v0.1.0}
+    environment:
+      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     privileged: true
     depends_on:
       - aibox-camera
@@ -34,6 +36,8 @@ services:
       context: ./aibox-face
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-face:${IMAGE_TAG:-v0.1.0}
+    environment:
+      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     privileged: true
     depends_on:
       - aibox-person
@@ -48,6 +52,8 @@ services:
       context: ./aibox-record
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-record:${IMAGE_TAG:-v0.1.0}
+    environment:
+      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     privileged: true
     depends_on:
       - aibox-person
@@ -62,6 +68,8 @@ services:
       context: ./aibox-report
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-report:${IMAGE_TAG:-v0.1.0}
+    environment:
+      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     privileged: true
     depends_on:
       - aibox-face

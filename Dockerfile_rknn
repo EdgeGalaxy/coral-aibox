@@ -1,0 +1,48 @@
+FROM node:20-alpine AS node-build
+# 前端
+WORKDIR /app/aibox-web
+COPY aibox-web/yarn.lock aibox-web/package*.json ./
+RUN yarn install --frozen-lockfile
+COPY aibox-web /app/aibox-web
+RUN yarn run build
+
+
+FROM bboyhanat/ubuntu2004-ros2foxy-rknn150:v1.4
+
+ENV TZ="Asia/Shanghai"
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+# 设置时区
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo 'Asia/Shanghai' > /etc/timezone
+# opencv 相关安装so文件
+RUN apt-get update && apt-get install -y supervisor curl
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash
+RUN apt-get install -y nodejs
+RUN npm install -g yarn
+RUN mkdir -p /var/log/supervisor
+
+WORKDIR /workspace
+
+RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip3 config set global.timeout 300 && \
+    pip3 config set install.trusted-host pypi.tuna.tsinghua.edu.cn
+
+RUN python3 -m pip install -U pip setuptools wheel && \
+    pip3 install poetry==1.8.2
+
+COPY poetry.lock pyproject.toml /workspace/
+ADD aibox-person/libs/* /workspace/aibox-person/libs/
+RUN poetry install --without rt,onnx && rm -rf /root/.local
+ADD aibox-person/aarch64 /workspace/aarch64
+RUN cp aarch64/usr/bin/* /usr/bin && cp aarch64/usr/libs/* /usr/lib && restart_rknn.sh
+
+ENV MODEL_TYPE=rknn
+ENV WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/rknn/weights/
+
+COPY --from=node-build /app/aibox-web/.next /workspace/aibox-web/.next
+
+COPY . .
+
+CMD ["/usr/bin/supervisord", "-c", "supervisord.conf"]
