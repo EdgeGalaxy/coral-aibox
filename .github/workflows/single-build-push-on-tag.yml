@@ -38,7 +38,7 @@ jobs:
           platforms: linux/arm64
           file: ./Dockerfile_rknn
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/aibox-rknn-single:${{ steps.extract_tag.outputs.TAG_NAME }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-rknn-single:${{ steps.extract_tag.outputs.TAG_NAME }}
 
 
   build-and-push-rt-single:
@@ -73,4 +73,4 @@ jobs:
           platforms: linux/arm64
           file: ./Dockerfile_rt
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/aibox-rt-single:${{ steps.extract_tag.outputs.TAG_NAME }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-rt-single:${{ steps.extract_tag.outputs.TAG_NAME }}
