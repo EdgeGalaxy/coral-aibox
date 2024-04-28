@@ -21,8 +21,9 @@ class GossipCommunicate:
         self.client = mqtt_client
         self.mac_addr = mac_addr
         self._topic = f"aibox/gossip/faces/{mac_addr}"
-        # 订阅topic
-        self.start_subscribe()
+        if self.enable:
+            # 订阅topic
+            self.start_subscribe()
 
     def start_subscribe(self):
         for topic in self.topics.values():
