@@ -31,10 +31,15 @@ jobs:
         id: extract_tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Build and push Docker images for rknn
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/aibox-rknn-single:${{ steps.extract_tag.outputs.TAG_NAME }} -f Dockerfile_rknn .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/aibox-rknn-single:${{ steps.extract_tag.outputs.TAG_NAME }} 
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/arm64
+          file: ./Dockerfile_rknn
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/aibox-rknn-single:${{ steps.extract_tag.outputs.TAG_NAME }}
+
 
   build-and-push-rt-single:
     runs-on: ubuntu-20.04
@@ -61,7 +66,9 @@ jobs:
         id: extract_tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Build and push Docker images for rknn
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/aibox-rt-single:${{ steps.extract_tag.outputs.TAG_NAME }} -f Dockerfile_rt .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/aibox-rt-single:${{ steps.extract_tag.outputs.TAG_NAME }} 
+        with:
+          context: .
+          platforms: linux/arm64
+          file: ./Dockerfile_rt
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/aibox-rt-single:${{ steps.extract_tag.outputs.TAG_NAME }}

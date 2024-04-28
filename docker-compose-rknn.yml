@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile_rknn
     image: ${USERNAME:-local}/aibox-camera:${IMAGE_TAG:-v0.1.0}
     privileged: true
+    platform: linux/arm64
     network_mode: host
     environment:
       - MODEL_TYPE=rknn
@@ -24,6 +25,7 @@ services:
       dockerfile: Dockerfile_rknn
     image: ${USERNAME:-local}/aibox-person:rknn-${IMAGE_TAG:-v0.1.0}
     privileged: true
+    platform: linux/arm64
     depends_on:
       - aibox-camera
     network_mode: host
@@ -44,6 +46,7 @@ services:
       dockerfile: Dockerfile_rknn
     image: ${USERNAME:-local}/aibox-face:rknn-${IMAGE_TAG:-v0.1.0}
     privileged: true
+    platform: linux/arm64
     depends_on:
       - aibox-person
     network_mode: host
@@ -64,6 +67,7 @@ services:
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-record:${IMAGE_TAG:-v0.1.0}
     privileged: true
+    platform: linux/arm64
     depends_on:
       - aibox-person
     network_mode: host
@@ -83,6 +87,7 @@ services:
       dockerfile: Dockerfile_rknn
     image: ${USERNAME:-local}/aibox-report:${IMAGE_TAG:-v0.1.0}
     privileged: true
+    platform: linux/arm64
     environment:
       - MODEL_TYPE=rknn
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-report.json
@@ -102,6 +107,7 @@ services:
       context: ./aibox-web
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-web:${IMAGE_TAG:-v0.1.0}
+    platform: linux/arm64
     network_mode: host
     privileged: true
     volumes:
