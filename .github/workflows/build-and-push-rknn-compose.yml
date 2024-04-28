@@ -37,7 +37,7 @@ jobs:
         with:
           context: ./aibox-camera
           platforms: linux/arm64
-          file: Dockerfile_rknn
+          file: ./aibox-camera/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-camera:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
 
@@ -72,7 +72,7 @@ jobs:
         with:
           context: ./aibox-person
           platforms: linux/arm64
-          file: Dockerfile_rknn
+          file: ./aibox-person/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-person:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
 
@@ -107,7 +107,7 @@ jobs:
         with:
           context: ./aibox-face
           platforms: linux/arm64
-          file: Dockerfile_rknn
+          file: ./aibox-face/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-face:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
 
@@ -142,7 +142,7 @@ jobs:
         with:
           context: ./aibox-report
           platforms: linux/arm64
-          file: Dockerfile_rknn
+          file: ./aibox-report/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-report:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
 
@@ -177,7 +177,7 @@ jobs:
         with:
           context: ./aibox-record
           platforms: linux/arm64
-          file: Dockerfile
+          file: ./aibox-record/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-record:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
 
@@ -212,6 +212,6 @@ jobs:
         with:
           context: ./aibox-web
           platforms: linux/arm64
-          file: Dockerfile
+          file: ./aibox-web/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-web:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
