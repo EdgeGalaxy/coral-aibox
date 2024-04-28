@@ -29,6 +29,7 @@ from schema import (
 # 全局变量
 node_id = None
 contexts = {}
+stop_stream = False
 cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=5))
 
 
@@ -257,8 +258,17 @@ def change_params(item: WebNodeParams):
     return item.model_dump()
 
 
+@router.get("/cameras/stop_stream")
+def stop_stream_view():
+    global stop_stream
+    stop_stream = True
+    return {"result": "success"}
+
+
 @router.get("/cameras/{camera_id}/stream")
 def get_frames(camera_id: str):
+    global stop_stream
+    stop_stream = False
 
     def process_frames():
         while True:
@@ -270,6 +280,10 @@ def get_frames(camera_id: str):
                 # 队列不存在值
                 time.sleep(0.01)
                 continue
+
+            if stop_stream:
+                logger.info(f"{camera_id} stop stream!")
+                break
 
             frame: np.ndarray = payload.raw
 

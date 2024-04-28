@@ -7,6 +7,7 @@ import { AddCamera } from "@/components/addCamera";
 import { DeleteCamera } from "@/components/deleteCamera";
 import { getInternalHost } from "@/components/api/utils";
 import { ActiveModal } from "@/components/activeModel";
+import { ChangeResolution, LevelKeys } from "@/components/changeResolution";
 
 const { Option } = Select;
 
@@ -15,14 +16,25 @@ export default function Home() {
   const [cameras, SetCameras] = useState([]);
   const [prefixPath, setPrefixPath] = useState("8010/api/aibox_camera/cameras");
   const [ isActived, setIsActived ] = useState(false);
+  const [ defaultLevel, setDefaultLevel ] = useState<LevelKeys>("origin");
 
   const selectItems = ["原视频", "推理视频"];
 
   const onChange = (value: string) => {
     if (value === "原视频") {
       setPrefixPath("8010/api/aibox_camera/cameras");
+      fetch(`${baseUrl}:8030/api/aibox_face/cameras/stop_stream`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('inference camera data', data)
+        })
     } else if (value === "推理视频") {
       setPrefixPath("8030/api/aibox_face/cameras");
+      fetch(`${baseUrl}:8010/api/aibox_camera/cameras/stop_stream`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('origin camera data', data)
+        })
     }
   };
   useEffect(() => {
@@ -43,6 +55,10 @@ export default function Home() {
     fetch(`${baseUrl}:8010/api/aibox_camera/cameras/is_actived`)
       .then((response) => response.json())
       .then((isActived) => setIsActived(isActived));
+    
+    fetch(`${baseUrl}:8010/api/aibox_camera/cameras/resolution`)
+      .then((response) => response.json())
+      .then((level) => setDefaultLevel(level));
   }, [baseUrl]);
 
   if (cameras.length === 0) {
@@ -71,8 +87,11 @@ export default function Home() {
         <div className="mr-2">
           <AddCamera baseUrl={baseUrl}/>
         </div>
-        <div>
+        <div className="mr-2">
           <DeleteCamera baseUrl={baseUrl} cameraIds={cameras} />
+        </div>
+        <div>
+          <ChangeResolution baseUrl={baseUrl} defaultLevel={defaultLevel} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">

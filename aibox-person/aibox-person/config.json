@@ -39,7 +39,7 @@
             "db_size": 1000,
             "sim_threshold": 0.9
         },
-        "is_record": true,
+        "is_record": false,
         "is_open": true
     }
 }

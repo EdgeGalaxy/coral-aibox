@@ -20,6 +20,18 @@ from algrothms.streamer import VideoStreamer
 @PTManager.register()
 class AIboxCameraParamsModel(BaseParamsModel):
     cameras: List[CameraParamsModel]
+    resolution: str = "origin"
+
+    @property
+    def width(self):
+        if self.resolution == "origin":
+            return None
+        elif self.resolution == "middle":
+            return 720
+        elif self.resolution == "low":
+            return 480
+        else:
+            return None
 
 
 class AIboxCamera(CoralNode):
@@ -60,13 +72,12 @@ class AIboxCamera(CoralNode):
 
         camera = cameras[index]
         url: str = camera["url"]
-        vc = VideoStreamer(
-            url, width=camera.get("width", None), height=camera.get("height", None)
-        )
+        vc = VideoStreamer(url, width=self.params.width)
         context["vc"] = vc
         context.update(camera)
         # 写入所有摄像头ID到每一帧画面中
         context["params"]["camera_ids"] = [_cam["name"] for _cam in cameras]
+        context["resolution"] = self.params.resolution
         # 更新web的全局变量
         web.contexts[camera["name"]] = context
 

@@ -11,8 +11,6 @@ class ParamsModel(BaseModel):
 class CameraParamsModel(BaseModel):
     name: str
     url: str = Field(description="摄像头url")
-    width: Optional[Union[int, None]] = None
-    height: Optional[Union[int, None]] = None
     params: ParamsModel = ParamsModel()
 
 
@@ -24,3 +22,7 @@ class CameraOps:
 
 class ActivedCodeModel(BaseModel):
     code: str
+
+
+class ChangeResolutionModel(BaseModel):
+    level: str

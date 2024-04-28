@@ -11,16 +11,17 @@ import cv2
 import uvicorn
 import numpy as np
 from loguru import logger
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from schema import ParamsModel, CameraParamsModel, CameraOps
+from schema import ChangeResolutionModel, ParamsModel, CameraParamsModel, CameraOps
 
 # 全局变量
 node_id = None
 contexts = {}
 restart = False
+stop_stream = False
 is_actived = False
 cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=5))
 
@@ -107,9 +108,34 @@ def durable_config(
         json.dump(data, f, indent=4)
 
 
+def durable_resolution_config(resolution: str):
+    from coral import CoralNode
+
+    config_fp, _ = CoralNode.get_config()
+    with open(config_fp, "r") as f:
+        data = json.load(f)
+
+    data["params"]["resolution"] = resolution
+
+    with open(config_fp, "w") as f:
+        json.dump(data, f, indent=4)
+
+
 @router.get("/cameras")
 def cameras():
     return list(contexts.keys())
+
+
+@router.get("/cameras/resolution")
+def resolution():
+    return contexts[list(contexts.keys())[0]]["resolution"]
+
+
+@router.post("/cameras/resolution")
+def change_resolution(item: ChangeResolutionModel):
+    durable_resolution_config(item.level)
+    restart_main_thread()
+    return {"result": "success"}
 
 
 @router.get("/cameras/is_actived")
@@ -117,8 +143,18 @@ def is_actived_view():
     return is_actived
 
 
+@router.get("/cameras/stop_stream")
+def stop_stream_view():
+    global stop_stream
+    stop_stream = True
+    return {"result": "success"}
+
+
 @router.get("/cameras/{camera_id}/stream")
 def video_stream(camera_id: str, with_mask: bool = False):
+    global stop_stream
+    stop_stream = False
+
     def gen_frame():
         points: List[List[int]] = contexts[camera_id]["params"]["points"]
         while True:
@@ -128,6 +164,10 @@ def video_stream(camera_id: str, with_mask: bool = False):
                 # 队列不存在值
                 time.sleep(0.01)
                 continue
+
+            if stop_stream:
+                logger.info(f"{camera_id} stop stream!")
+                break
 
             if with_mask:
                 draw_mask_lines(frame, points)

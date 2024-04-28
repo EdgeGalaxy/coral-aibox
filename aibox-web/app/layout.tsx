@@ -18,7 +18,8 @@ import {
   
 } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getInternalHost } from "@/components/api/utils";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -86,9 +87,36 @@ export default function RootLayout({
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+  const [ baseUrl, setBaseUrl ] = useState("");
 
   // 获取当前路径
   const currentPath = usePathname()
+
+  useEffect(() => {
+    const fetchInternalIP = async () => {
+      const internalHost = await getInternalHost();
+      console.log('internalHost', internalHost)
+      setBaseUrl(internalHost)
+      return internalHost
+    }
+    fetchInternalIP()
+  }, []);
+
+  useEffect(() => {
+    if (currentPath != "/") {
+      fetch(`${baseUrl}:8010/api/aibox_camera/cameras/stop_stream`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('origin camera data', data)
+        })
+      
+      fetch(`${baseUrl}:8030/api/aibox_face/cameras/stop_stream`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('inference camera data', data)
+        })
+    }
+  }, [baseUrl, currentPath])
 
   // 确定哪个菜单项应该高亮
   const selectedKeys = menuItems
