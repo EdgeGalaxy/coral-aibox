@@ -46,7 +46,7 @@ class VideoCv2Streamer:
 
 class VideoAHDStreamer:
 
-    AHD_SRC = "v4l2src device=/dev/video{video_idx} ! videoscale ! video/x-raw,format=NV12,width={width},framerate=30/1 ! videoconvert n-threads=4 ! video/x-raw,format=BGR ! appsink name=sink emit-signals=True max-buffers=2 drop=True"
+    AHD_SRC = "v4l2src device=/dev/video{video_idx} !  videoscale ! video/x-raw,format=NV12,width={width},height={height},framerate=30/1 ! videoconvert n-threads=4 ! video/x-raw,format=BGR ! appsink name=sink emit-signals=True max-buffers=2 drop=True"
     AHD_SRC_NO_WH = "v4l2src device=/dev/video{video_idx} ! video/x-raw,format=NV12,framerate=30/1 ! videoconvert n-threads=4 ! video/x-raw,format=BGR ! appsink name=sink emit-signals=True max-buffers=2 drop=True"
 
     def __init__(self, video_idx: str, width: int = None):
@@ -65,7 +65,9 @@ class VideoAHDStreamer:
         if not width:
             pipe = self.AHD_SRC_NO_WH.format(video_idx=video_idx)
         else:
-            pipe = self.AHD_SRC.format(video_idx=video_idx, width=width)
+            pipe = self.AHD_SRC.format(
+                video_idx=video_idx, width=width, height=int(width / 1.5)
+            )
         logger.info(f"gstreamer pipe: {pipe}")
         # 使用尽可能高效的管道设置
         self.pipeline = Gst.parse_launch(pipe)
