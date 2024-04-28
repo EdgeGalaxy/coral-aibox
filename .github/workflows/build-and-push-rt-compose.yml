@@ -35,9 +35,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./aibox-camera
           platforms: linux/arm64
-          file: ./aibox-camera/Dockerfile
+          file: Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-camera:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
 
@@ -70,9 +70,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./aibox-person
           platforms: linux/arm64
-          file: ./aibox-person/Dockerfile_rt
+          file: Dockerfile_rt
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-person:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
 
@@ -105,9 +105,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./aibox-face
           platforms: linux/arm64
-          file: ./aibox-face/Dockerfile_rt
+          file: Dockerfile_rt
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-face:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
 
@@ -140,9 +140,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./aibox-report
           platforms: linux/arm64
-          file: ./aibox-report/Dockerfile_rt
+          file: Dockerfile_rt
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-report:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
 
@@ -175,9 +175,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./aibox-record
           platforms: linux/arm64
-          file: ./aibox-record/Dockerfile
+          file: Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-record:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
 
@@ -210,8 +210,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./aibox-web
           platforms: linux/arm64
-          file: ./aibox-web/Dockerfile
+          file: Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-web:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
