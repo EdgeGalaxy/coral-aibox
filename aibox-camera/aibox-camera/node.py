@@ -27,9 +27,9 @@ class AIboxCameraParamsModel(BaseParamsModel):
         if self.resolution == "origin":
             return None
         elif self.resolution == "middle":
-            return 720
+            return 1080
         elif self.resolution == "low":
-            return 480
+            return 720
         else:
             return None
 
@@ -99,6 +99,7 @@ class AIboxCamera(CoralNode):
 
         # 退出当前进程, 运行两次，冷退出,
         # ! 确保图片内存缓存记录落盘
+        os.kill(os.getpid(), 2)
         os.kill(os.getpid(), 2)
         os.kill(os.getpid(), 9)
 

@@ -187,10 +187,14 @@ def video_stream(camera_id: str, with_mask: bool = False):
 
 @router.get("/cameras/{camera_id}/mask", summary="绘制Mask")
 def draw_mask(camera_id: str, points: str = None):
-    vc: cv2.VideoCapture = contexts[camera_id]["vc"]
-    ret, frame = vc.read()
-    if not ret:
-        raise HTTPException(status_code=500, detail="摄像头读取失败")
+    while True:
+        try:
+            frame = cameras_queue[camera_id].popleft()
+            break
+        except IndexError:
+            # 队列不存在值
+            time.sleep(0.01)
+            continue
 
     if points:
         points = points.split(",")
@@ -200,6 +204,7 @@ def draw_mask(camera_id: str, points: str = None):
         draw_mask_lines(frame, points)
     ret, frame = cv2.imencode(".jpg", frame)
     if not ret:
+        logger.exception("图像编码失败！")
         raise HTTPException(status_code=500, detail="图像编码失败！")
     bframe = io.BytesIO(frame.tobytes())
     return StreamingResponse(bframe, media_type="image/jpeg")

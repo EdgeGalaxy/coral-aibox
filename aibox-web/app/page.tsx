@@ -15,7 +15,7 @@ export default function Home() {
   const [ baseUrl, setBaseUrl ] = useState("");
   const [cameras, SetCameras] = useState([]);
   const [prefixPath, setPrefixPath] = useState("8010/api/aibox_camera/cameras");
-  const [ isActived, setIsActived ] = useState(false);
+  const [ isActived, setIsActived ] = useState(true);
   const [ defaultLevel, setDefaultLevel ] = useState<LevelKeys>("origin");
 
   const selectItems = ["原视频", "推理视频"];
@@ -107,7 +107,7 @@ export default function Home() {
               />
               <div className="flex justify-center">
                 <p className="font-mono text-center text-base font-blod">
-                  {camera_id}
+                  {`${camera_id}-${defaultLevel}`}
                 </p>
               </div>
             </div>
