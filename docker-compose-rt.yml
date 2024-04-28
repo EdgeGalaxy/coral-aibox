@@ -10,6 +10,7 @@ services:
     network_mode: host
     environment:
       - MODEL_TYPE=rt
+      - LOGURU_LEVEL=INFO
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-camera.json
       - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     volumes:

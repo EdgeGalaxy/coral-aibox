@@ -10,6 +10,7 @@ services:
     network_mode: host
     environment:
       - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - LOGURU_LEVEL=INFO
     volumes:
       - /dev:/dev
       - $HOME/.coral:/root/.coral
