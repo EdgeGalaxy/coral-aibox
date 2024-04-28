@@ -7,7 +7,7 @@ ENV LANG=C.UTF-8
 # 设置时区
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo 'Asia/Shanghai' >/etc/timezone
-RUN apt-get update && apt-get install -y libgl1 libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0
+RUN apt-get update && apt-get install -y libgl1 libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0 cmake
 RUN LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libgomp.so.1:$LD_PRELOAD
 
 WORKDIR /workspace

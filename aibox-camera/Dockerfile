@@ -8,7 +8,7 @@ ENV LANG=C.UTF-8
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo 'Asia/Shanghai' >/etc/timezone
 # opencv 相关安装so文件
-RUN apt-get update && apt-get install -y libgl1 libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0
+RUN apt-get update && apt-get install -y libgl1 libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0 cmake
 
 WORKDIR /workspace
 
