@@ -6,41 +6,6 @@ on:
       - '*'
 
 jobs:
-  build-and-push-rknn-single:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Login to Docker Registry
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile_rknn') }}
-
-      - name: Extract tag name
-        id: extract_tag
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/arm64
-          file: ./Dockerfile_rknn
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-rknn-single:${{ steps.extract_tag.outputs.TAG_NAME }}
-
-
   build-and-push-rt-single:
     runs-on: ubuntu-20.04
     steps:
