@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-push-rknn-single:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/aibox-rknn-single:${{ steps.extract_tag.outputs.TAG_NAME }} 
 
   build-and-push-rt-single:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Check out code
         uses: actions/checkout@v4
