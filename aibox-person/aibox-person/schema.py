@@ -55,12 +55,12 @@ class ModelParamsModel(BaseModel):
 
 
 class DetectionParamsModel(ModelParamsModel):
-    width: int = 1088
-    height: int = 608
+    width: int = 640
+    height: int = 480
     device_id: int = 0
     class_names: List[str] = ["person"]
-    nms_thresh: float = 0.4
-    confidence_thresh: float = 0.5
+    nms_thresh: float = 0.6
+    confidence_thresh: float = 0.4
 
 
 class FeatureDBParamsModel(ModelParamsModel):
