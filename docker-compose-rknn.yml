@@ -112,3 +112,4 @@ services:
     privileged: true
     volumes:
       - $HOME/.coral:/root/.coral
+    restart: unless-stopped

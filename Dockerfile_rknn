@@ -35,6 +35,7 @@ RUN python3 -m pip install -U pip setuptools wheel && \
 
 COPY poetry.lock pyproject.toml /workspace/
 ADD aibox-person/libs/* /workspace/aibox-person/libs/
+ADD aibox-report/libs/* /workspace/aibox-report/libs/
 RUN poetry install --without rt,onnx && rm -rf /root/.local
 ADD aibox-person/aarch64 /workspace/aarch64
 RUN cp aarch64/usr/bin/* /usr/bin && cp aarch64/usr/libs/* /usr/lib && restart_rknn.sh
