@@ -20,15 +20,15 @@
     },
     "params": {
         "detection": {
-            "weight_name": "bytetrack_s",
-            "width": 1088,
-            "height": 608,
+            "weight_name": "yolov8s-crowd_and_mot",
+            "width": 640,
+            "height": 480,
             "device_id": 0,
             "class_names": [
                 "person"
             ],
-            "nms_thresh": 0.4,
-            "confidence_thresh": 0.45
+            "nms_thresh": 0.6,
+            "confidence_thresh": 0.4
         },
         "featuredb": {
             "weight_name": "resnet18-f37072fd",

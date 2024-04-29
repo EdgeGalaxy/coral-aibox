@@ -19,12 +19,12 @@ class Inference:
         model_type: str,
         device_id: int,
         class_names: List[str] = ["person"],
-        nms_thresh: float = 0.4,
+        nms_thresh: float = 0.6,
         use_preprocess: bool = True,
-        confidence_thresh: float = 0.5,
+        confidence_thresh: float = 0.4,
     ):
         meta = get_import_meta(model_type)
-        self.model = meta.PersonDetection(
+        self.model = meta.Detection(
             model_path=weight_path,
             input_height=height,
             input_width=width,
