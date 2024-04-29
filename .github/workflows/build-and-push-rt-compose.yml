@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Jetson Compose Build Push
 
 on:
   push:

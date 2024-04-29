@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Rknn Docker Build Push
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
-          path: /var/lib/docker
+          path: /tmp/.buildx-cache
           key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile_rknn') }}
 
       - name: Extract tag name
@@ -39,4 +39,11 @@ jobs:
           file: ./Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-rknn-single:${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 

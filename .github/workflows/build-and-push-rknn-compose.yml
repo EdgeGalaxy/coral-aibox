@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Rknn Compose Build Push
 
 on:
   push:
@@ -24,8 +24,8 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rknn.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-camera/Dockerfile_rknn') }}
 
       - name: Extract tag name
         id: extract_tag
@@ -40,6 +40,13 @@ jobs:
           file: ./aibox-camera/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-camera:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   person:
     runs-on: ubuntu-20.04
@@ -59,8 +66,8 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rknn.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-person/Dockerfile_rknn') }}
 
       - name: Extract tag name
         id: extract_tag
@@ -75,6 +82,13 @@ jobs:
           file: ./aibox-person/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-person:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   face:
     runs-on: ubuntu-20.04
@@ -94,8 +108,8 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rknn.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-face/Dockerfile_rknn') }}
 
       - name: Extract tag name
         id: extract_tag
@@ -110,6 +124,13 @@ jobs:
           file: ./aibox-face/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-face:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   report:
     runs-on: ubuntu-20.04
@@ -129,8 +150,8 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rknn.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-report/Dockerfile_rknn') }}
 
       - name: Extract tag name
         id: extract_tag
@@ -145,6 +166,13 @@ jobs:
           file: ./aibox-report/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-report:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   record:
     runs-on: ubuntu-20.04
@@ -164,8 +192,8 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rknn.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-record/Dockerfile') }}
 
       - name: Extract tag name
         id: extract_tag
@@ -180,6 +208,13 @@ jobs:
           file: ./aibox-record/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-record:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   web:
     runs-on: ubuntu-20.04
@@ -199,8 +234,8 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rknn.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-web/Dockerfile') }}
 
       - name: Extract tag name
         id: extract_tag
@@ -215,3 +250,10 @@ jobs:
           file: ./aibox-web/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-web:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
