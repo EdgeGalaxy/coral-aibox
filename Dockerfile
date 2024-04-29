@@ -19,7 +19,7 @@ RUN echo 'Asia/Shanghai' >/etc/timezone
 RUN apt-get update && apt-get install -y libgl1 supervisor curl
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash
 RUN apt-get install -y nodejs
-RUN npm install -g yarn next
+RUN npm install -g yarn next@latest react@latest react-dom@latest
 RUN mkdir -p /var/log/supervisor
 
 WORKDIR /workspace
@@ -36,6 +36,6 @@ RUN poetry install --without rt,rknn && \
 
 COPY . .
 
-COPY --from=node-build /app/aibox-web/.next /workspace/aibox-web/.next
+COPY --from=node-build /app/aibox-web /workspace/aibox-web
 
 CMD ["/usr/bin/supervisord", "-c", "supervisord.conf"]

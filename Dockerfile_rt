@@ -48,6 +48,6 @@ ENV WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/
 
 COPY . .
 
-COPY --from=node-build /app/aibox-web/.next /workspace/aibox-web/.next
+COPY --from=node-build /app/aibox-web /workspace/aibox-web
 
 CMD ["/usr/bin/supervisord", "-c", "supervisord.conf"]
