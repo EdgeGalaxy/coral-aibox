@@ -15,6 +15,12 @@ uvicorn = "^0.29.0"
 
 
 
+
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "primary"
+
 [[tool.poetry.source]]
 name = "looptech"
 url = "http://47.116.14.85:9000/simple"
