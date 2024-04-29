@@ -90,16 +90,18 @@ def durable_config(
 
     cameras: List = data["params"]["cameras"]
     camera_ids = {camera["name"]: idx for idx, camera in enumerate(cameras)}
+    # !此处为适配node节点内的代码而写，需要优化
+    camera_data = camera.model_dump()
     if ops == CameraOps.CHANGE:
         idx = camera_ids[camera_id]
-        cameras[idx] = camera.model_dump()
+        cameras[idx] = camera_data
     elif ops == CameraOps.DELETE:
         idx = camera_ids[camera_id]
         del cameras[idx]
         data["process"]["count"] = len(cameras)
     elif ops == CameraOps.ADD:
         # 新增数据
-        cameras.append(camera.model_dump())
+        cameras.append(camera_data)
         data["process"]["count"] = len(cameras)
     else:
         raise ValueError(f"不支持的操作 {ops}")

@@ -12,6 +12,8 @@ from coral import (
     RawPayload,
 )
 
+from loguru import logger
+
 import web
 from algrothms.featuredb import FeatureDB
 from algrothms.inference import Inference
@@ -100,6 +102,9 @@ class AIboxPerson(CoralNode):
                 objects = self.filter_objects(mask, objects, iou_thresh)
         else:
             objects = []
+
+        if objects:
+            logger.info(f"人物识别结果: {len(objects)}")
         return ObjectsPayload(objects=objects, mode=InterfaceMode.APPEND)
 
     @classmethod

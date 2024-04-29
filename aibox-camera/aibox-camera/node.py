@@ -78,7 +78,7 @@ class AIboxCamera(CoralNode):
         context["vc"] = vc
         context.update(camera)
         # 写入所有摄像头ID到每一帧画面中
-        context["params"]["camera_ids"] = [_cam["name"] for _cam in cameras]
+        # context["params"]["camera_ids"] = [_cam["name"] for _cam in cameras]
         context["resolution"] = self.params.resolution
         # 更新web的全局变量
         web.contexts[camera["name"]] = context
@@ -128,9 +128,12 @@ class AIboxCamera(CoralNode):
         # 将摄像头拷贝数据web读取写入队列
         web.cameras_queue[context["name"]].append(frame.copy())
 
-        return FirstPayload(
-            source_id=context["name"], raw=frame, raw_params=context["params"]
-        )
+        raw_params = {
+            **context["params"],
+            "camera_ids": [cam.name for cam in self.params.cameras],
+        }
+
+        return FirstPayload(source_id=context["name"], raw=frame, raw_params=raw_params)
 
 
 if __name__ == "__main__":

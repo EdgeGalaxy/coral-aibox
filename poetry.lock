@@ -746,6 +746,20 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "gpio-control"
+version = "0.2.0"
+description = "gpio42 control"
+optional = false
+python-versions = "*"
+files = [
+    {file = "gpio_control-0.2.0-cp38-cp38-linux_aarch64.whl", hash = "sha256:23f64f792f49bbb2c79d3257e45cf5832ab96e71a33e4383b610df2ca6b84e2b"},
+]
+
+[package.source]
+type = "file"
+url = "aibox-report/libs/gpio_control-0.2.0-cp38-cp38-linux_aarch64.whl"
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -850,6 +864,21 @@ zipp = {version = ">=3.1.0", markers = "python_version < \"3.10\""}
 [package.extras]
 docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (<7.2.5)", "sphinx (>=3.5)", "sphinx-lint"]
 testing = ["jaraco.test (>=5.4)", "pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy", "pytest-ruff (>=0.2.1)", "zipp (>=3.17)"]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tsinghua"
+
+[[package]]
+name = "jetson-gpio"
+version = "2.1.6"
+description = "A module to control Jetson GPIO channels"
+optional = false
+python-versions = "*"
+files = [
+    {file = "Jetson.GPIO-2.1.6.tar.gz", hash = "sha256:af8ff56b554e1f36662d19fff3d23e7c5ac261ac51ce7b1894447e64746760a2"},
+]
 
 [package.source]
 type = "legacy"
@@ -2618,4 +2647,4 @@ reference = "tsinghua"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "3f33357c3dc404a1cd81aac90173682efbaff6bdb0d105936ba564ea9a738b62"
+content-hash = "ff95a22792eda57119b766d1c5fb875ea07e8872af5aa47f6dcb06001c81556e"
