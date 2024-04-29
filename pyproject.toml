@@ -14,9 +14,6 @@ meta-cv = "^0.1.9"
 filterpy = "^1.4.5"
 
 
-
-
-
 [[tool.poetry.source]]
 name = "looptech"
 url = "http://47.116.14.85:9000/simple"
@@ -34,6 +31,7 @@ meta-onnx = "^0.1.2"
 [tool.poetry.group.rknn.dependencies]
 rknn-toolkit-lite2 = {path = "aibox-person/libs/rknn_toolkit_lite2-1.6.0-cp38-cp38-linux_aarch64.whl"}
 meta-rknn = "^0.1.2"
+pygobject = "^3.48.2"
 
 [build-system]
 requires = ["poetry-core"]
