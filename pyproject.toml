@@ -15,10 +15,7 @@ filterpy = "^1.4.5"
 
 
 
-[[tool.poetry.source]]
-name = "tsinghua"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-priority = "primary"
+
 
 [[tool.poetry.source]]
 name = "looptech"
