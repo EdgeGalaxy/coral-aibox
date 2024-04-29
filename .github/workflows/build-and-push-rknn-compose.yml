@@ -25,7 +25,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-camera/Dockerfile_rknn') }}
+          key: ${{ runner.os }}-docker-camera_rknn
 
       - name: Extract tag name
         id: extract_tag
@@ -67,7 +67,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-person/Dockerfile_rknn') }}
+          key: ${{ runner.os }}-docker-person_rknn
 
       - name: Extract tag name
         id: extract_tag
@@ -109,7 +109,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-face/Dockerfile_rknn') }}
+          key: ${{ runner.os }}-docker-face_rknn
 
       - name: Extract tag name
         id: extract_tag
@@ -151,7 +151,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-report/Dockerfile_rknn') }}
+          key: ${{ runner.os }}-docker-report_rknn
 
       - name: Extract tag name
         id: extract_tag
@@ -193,7 +193,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-record/Dockerfile') }}
+          key: ${{ runner.os }}-docker-record
 
       - name: Extract tag name
         id: extract_tag
@@ -235,7 +235,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/aibox-web/Dockerfile') }}
+          key: ${{ runner.os }}-docker-web
 
       - name: Extract tag name
         id: extract_tag

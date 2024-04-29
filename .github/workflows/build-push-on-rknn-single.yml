@@ -25,7 +25,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile_rknn') }}
+          key: ${{ runner.os }}-docker-rknn_single
 
       - name: Extract tag name
         id: extract_tag
