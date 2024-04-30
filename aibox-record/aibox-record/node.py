@@ -95,7 +95,12 @@ class AIboxRecord(CoralNode):
         """
         recorder: Recorder = context["recorder"]
         image = payload.raw.copy()
-        recorder.write(image, payload.objects, target_dir_name=payload.source_id)
+        recorder.write(
+            image,
+            payload.objects,
+            target_dir_name=payload.source_id,
+            points=payload.raw_params["points"],
+        )
         return None
 
 

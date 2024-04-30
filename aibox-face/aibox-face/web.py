@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from algrothms.inference import Inference
 from algrothms.gossip import GossipCommunicate
-from algrothms.utils import draw_image_with_boxes, BASE_URL
+from algrothms.utils import draw_image_with_boxes, BASE_URL, draw_mask
 from schema import (
     RecordFeatureModel,
     WebNodeParams,
@@ -290,6 +290,7 @@ def get_frames(camera_id: str):
             draw_image_with_boxes(
                 frame, payload.objects, int(payload.nodes_cost * 1000), fps
             )
+            frame = draw_mask(frame, payload.raw_params["points"])
             ret, frame = cv2.imencode(".jpg", frame)
             if not ret:
                 raise HTTPException(status_code=500, detail="图像编码失败！")

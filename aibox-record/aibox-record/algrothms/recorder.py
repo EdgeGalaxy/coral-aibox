@@ -41,7 +41,11 @@ class Recorder:
         logger.info("release writer")
 
     def write(
-        self, frame: np.ndarray, objects: List[ObjectPayload], target_dir_name: str
+        self,
+        frame: np.ndarray,
+        objects: List[ObjectPayload],
+        target_dir_name: str,
+        points: List[List[int]] = [],
     ):
         if not self._enable:
             return
@@ -74,6 +78,8 @@ class Recorder:
 
         frame = self._draw_time_info(frame)
         frame = self._draw_person_rect(frame, objects)
+        if points:
+            frame = self._draw_mask(frame, points)
         self._writer.write(frame)
 
     def auto_recycle(self):
@@ -160,3 +166,15 @@ class Recorder:
             )
 
         return frame
+
+    def _draw_mask(frame: np.ndarray, points: List[List[int]]):
+        points = np.array(points, dtype=np.int32)
+        cv2.polylines(
+            frame, [points], isClosed=True, color=(255, 255, 255), thickness=2
+        )
+        # 创建一个与frame相同大小的遮罩层
+        mask = np.zeros(frame.shape, dtype=np.uint8)
+        cv2.fillPoly(mask, [points], (255, 255, 255))
+        alpha = 0.3  # 半透明程度
+        # 应用遮罩使得遮罩区域内的图像不变，外部区域半透明
+        return cv2.addWeighted(mask, alpha, frame, 1 - alpha, 0, frame)

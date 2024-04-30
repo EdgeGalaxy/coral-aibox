@@ -30,6 +30,17 @@ def get_internal_ip():
     return ip_address
 
 
+def draw_mask(frame: np.ndarray, points: List[List[int]]):
+    points = np.array(points, dtype=np.int32)
+    cv2.polylines(frame, [points], isClosed=True, color=(255, 255, 255), thickness=2)
+    # 创建一个与frame相同大小的遮罩层
+    mask = np.zeros(frame.shape, dtype=np.uint8)
+    cv2.fillPoly(mask, [points], (255, 255, 255))
+    alpha = 0.3  # 半透明程度
+    # 应用遮罩使得遮罩区域内的图像不变，外部区域半透明
+    return cv2.addWeighted(mask, alpha, frame, 1 - alpha, 0, frame)
+
+
 def draw_image_with_boxes(
     image: np.ndarray, objects: List[ObjectPayload], delay_time: float, fps: int
 ):

@@ -41,6 +41,7 @@ class AIboxPerson(CoralNode):
         # 更新node_id变量，并启动web服务
         web.node_id = self.config.node_id
         web.async_run(self.config.node_id, self.params.featuredb.db_path)
+        self.masks = {}
 
     def init(self, index: int, context: dict):
         """
@@ -87,14 +88,21 @@ class AIboxPerson(CoralNode):
         if self.params.is_open:
             model: Inference = context["model"]
             iou_thresh = payload.raw_params["iou_scale"]
-            # 获取mask
-            if context.get("mask") is None:
+            points = payload.raw_params["points"]
+            # mask不存在或者参数与创建mask时值不同时，就更新
+            if (
+                not self.masks.get(payload.source_id)
+                or self.masks[payload.source_id]["iou_thresh"] != iou_thresh
+                or self.masks[payload.source_id]["points"] != points
+            ):
                 mask = self.gen_mask(payload.raw, payload.raw_params)
-                # 更新context内容，供web侧获取最新值
-                context["mask"] = mask
-                context["iou_thresh"] = iou_thresh
+                self.masks[payload.source_id] = {
+                    "iou_thresh": iou_thresh,
+                    "points": points,
+                    "mask": mask,
+                }
             else:
-                mask = context["mask"]
+                mask = self.masks[payload.source_id]["mask"]
             defects = model.predict(payload.raw, self.params.is_record)
             objects = [ObjectPayload(**defect) for defect in defects]
             # 过滤与mask不重合的objects
@@ -108,7 +116,7 @@ class AIboxPerson(CoralNode):
 
         if filter_objects or objects:
             logger.info(
-                f"原始人物识别结果: {len(filter_objects)} , 过滤后人物识别结果: {len(objects)}"
+                f"原始人物识别结果: {len(objects)} , 过滤后人物识别结果: {len(filter_objects)}"
             )
         return ObjectsPayload(objects=filter_objects, mode=InterfaceMode.APPEND)
 

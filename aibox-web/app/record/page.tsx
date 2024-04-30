@@ -35,6 +35,7 @@ export default function RecordPage() {
     children: <div className="grid grid-cols-4 m-8">{camerasRecords[key].map((record) => (
       <div className="m-8" key={record}>
         <video controls src={`${baseUrl}:8050/static/${record}`} key={record} />
+        <p className="text-center">{record}</p>
       </div>
     ))}</div>
   }));
