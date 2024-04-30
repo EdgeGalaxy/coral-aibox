@@ -14,9 +14,9 @@ from pydantic import BaseModel, computed_field, field_validator, Field
 MOUNT_NODE_PATH = os.path.join(MOUNT_PATH, "aibox")
 os.makedirs(MOUNT_NODE_PATH, exist_ok=True)
 MODEL_TYPE = os.environ.get("MODEL_TYPE", "onnx")
-WEIGHTS_REMOTE_HOST = os.environ.get(
-    "WEIGHTS_REMOTE_HOST",
-    "https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/onnx/weights/",
+CONFIG_REMOTE_HOST = os.environ.get(
+    "CONFIG_REMOTE_HOST",
+    "https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/onnx/",
 )
 
 
@@ -35,7 +35,7 @@ class ModelParamsModel(BaseModel):
         os.makedirs(_dir, exist_ok=True)
         _file = os.path.join(_dir, fn)
         if not os.path.exists(_file):
-            url = urljoin(WEIGHTS_REMOTE_HOST, fn)
+            url = urljoin(CONFIG_REMOTE_HOST, "weights" + fn)
             logger.warning(f"file {_file} not exists, download from {url}")
             r = requests.get(url)
             if r.ok:
@@ -67,7 +67,7 @@ class FeatureDBParamsModel(ModelParamsModel):
     width: int = 112
     height: int = 112
     device_id: int = 0
-    base_dir: str
+    base_dir: str = "db/face"
     user_faces_size: int = 10
     sim_threshold: float = 0.9
 
@@ -80,9 +80,11 @@ class FeatureDBParamsModel(ModelParamsModel):
 
 
 class AIboxFaceParamsModel(BaseParamsModel):
-    detection: DetectionParamsModel
-    featuredb: FeatureDBParamsModel
-    is_open: bool = Field(default=True, description="是否开启人脸识别")
+    detection: DetectionParamsModel = DetectionParamsModel(weight_name="face_detection")
+    featuredb: FeatureDBParamsModel = FeatureDBParamsModel(
+        weight_name="face_recognition"
+    )
+    is_open: bool = Field(default=False, description="是否开启人脸识别")
     is_record: bool = Field(
         default=False, description="是否记录当前获取的图像信息和特征"
     )

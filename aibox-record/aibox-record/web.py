@@ -3,8 +3,10 @@ import json
 import shutil
 from typing import List
 from threading import Thread
+from urllib.parse import urljoin
 
 from fastapi.staticfiles import StaticFiles
+import requests
 import uvicorn
 from loguru import logger
 from fastapi import FastAPI, APIRouter
@@ -40,6 +42,34 @@ def async_run(_node_id: str, mount_path: str) -> None:
     Thread(
         target=uvicorn.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 8050}
     ).start()
+
+
+def check_config_fp_or_set_default(config_fp: str):
+    """
+    校验配置文件是否存在，不存在则下载默认配置
+
+    :param config_fp: 环境变量配置文件路径
+    :param default_config_fp: 默认本地项目的配置文件路径
+    """
+    CONFIG_REMOTE_HOST = os.environ.get(
+        "CONFIG_REMOTE_HOST",
+        "https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/onnx/",
+    )
+    CONFIG_URL = urljoin(CONFIG_REMOTE_HOST, "configs/aibox-record.json")
+    config_dir = os.path.split(config_fp)[0]
+    if config_dir:
+        os.makedirs(config_dir, exist_ok=True)
+    if not os.path.exists(config_fp):
+        logger.warning(f"{config_fp} not exists, download from {CONFIG_URL}!")
+        r = requests.get(CONFIG_URL)
+        if r.ok:
+            with open(config_fp, "wb") as f:
+                f.write(r.content)
+            logger.warning(f"file {config_fp} download success!")
+        else:
+            raise ValueError(
+                f"file {config_fp} not exists, download from {CONFIG_URL} error: {r.text}!"
+            )
 
 
 @router.get("/video/records")

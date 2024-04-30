@@ -41,7 +41,7 @@ ADD aibox-person/aarch64 /workspace/aarch64
 RUN cp aarch64/usr/bin/* /usr/bin && cp aarch64/usr/libs/* /usr/lib && restart_rknn.sh
 
 ENV MODEL_TYPE=rknn
-ENV WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/rknn/weights/
+ENV CONFIG_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/
 
 COPY . .
 

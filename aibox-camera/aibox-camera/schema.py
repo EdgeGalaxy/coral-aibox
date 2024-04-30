@@ -9,8 +9,8 @@ class ParamsModel(BaseModel):
 
 
 class CameraParamsModel(BaseModel):
-    name: str
-    url: str = Field(description="摄像头url")
+    name: str = "camera01"
+    url: str = Field(default="0", description="摄像头url")
     params: ParamsModel = ParamsModel()
 
 

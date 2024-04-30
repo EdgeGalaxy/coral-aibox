@@ -9,7 +9,7 @@ services:
     privileged: true
     network_mode: host
     environment:
-      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
       - LOGURU_LEVEL=INFO
     volumes:
       - /dev:/dev
@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-person:${IMAGE_TAG:-v0.1.0}
     environment:
-      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
     privileged: true
     depends_on:
       - aibox-camera
@@ -38,7 +38,7 @@ services:
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-face:${IMAGE_TAG:-v0.1.0}
     environment:
-      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
     privileged: true
     depends_on:
       - aibox-person
@@ -54,7 +54,7 @@ services:
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-record:${IMAGE_TAG:-v0.1.0}
     environment:
-      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
     privileged: true
     depends_on:
       - aibox-person
@@ -70,7 +70,7 @@ services:
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-report:${IMAGE_TAG:-v0.1.0}
     environment:
-      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
     privileged: true
     depends_on:
       - aibox-face
@@ -87,6 +87,11 @@ services:
       dockerfile: Dockerfile
     image: ${USERNAME:-local}/aibox-web:${IMAGE_TAG:-v0.1.0}
     privileged: true
+    environment:
+      - MQTT_BROKER=${MQTT_BROKER:-127.0.0.1}
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_USERNAME=${MQTT_USERNAME:-admin}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-amdin}
     ports:
       - 3000:3000
     volumes:

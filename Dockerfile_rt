@@ -44,7 +44,7 @@ RUN poetry install --without onnx,rknn && \
     rm -rf /root/.local
 
 ENV MODEL_TYPE=rt
-ENV WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/rt/weights/
+ENV CONFIG_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/nx/
 
 COPY . .
 

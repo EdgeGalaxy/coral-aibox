@@ -1,8 +1,7 @@
 import os
-import shutil
 from typing import Dict
 
-from pydantic import Field, field_validator
+from pydantic import Field
 from coral import (
     CoralNode,
     BaseParamsModel,
@@ -19,23 +18,6 @@ from algrothms.recorder import Recorder
 
 MOUNT_NODE_PATH = os.path.join(MOUNT_PATH, "aibox")
 os.makedirs(MOUNT_NODE_PATH, exist_ok=True)
-
-
-def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
-    """
-    校验配置文件是否存在，不存在则拷贝
-
-    :param config_fp: 环境变量配置文件路径
-    :param default_config_fp: 默认本地项目的配置文件路径
-    """
-    config_dir = os.path.split(config_fp)[0]
-    if config_dir:
-        os.makedirs(config_dir, exist_ok=True)
-    if not os.path.exists(config_fp):
-        logger.warning(f"{config_fp} not exists, copy from {default_config_fp}!")
-        shutil.copyfile(default_config_fp, config_fp)
-    if config_fp == default_config_fp:
-        logger.warning(f"config_fp is default {default_config_fp}!")
 
 
 @PTManager.register()
@@ -60,9 +42,7 @@ class AIboxRecord(CoralNode):
     config_path = "config.json"
     node_type = NodeType.trigger
 
-    check_config_fp_or_set_default(
-        CoralNode.get_config()[0], CoralNode.default_config_fp()
-    )
+    web.check_config_fp_or_set_default(CoralNode.get_config()[0])
 
     def __init__(self):
         super().__init__()

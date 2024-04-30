@@ -6,7 +6,7 @@ import time
 import base64
 import shutil
 from typing import Dict, List
-from collections import defaultdict, deque
+from collections import deque
 
 import cv2
 import numpy as np
@@ -22,7 +22,7 @@ from coral import (
 )
 from coral.constants import MOUNT_PATH
 from coral.metrics import init_mqtt, mqtt
-from pydantic import Field, field_validator
+from pydantic import Field
 
 import web
 from algrothms.event import EventRecord
@@ -38,10 +38,16 @@ class InvalidPersonCount(Exception):
 
 
 class MQTTParamsModel(BaseParamsModel):
-    broker: str = "127.0.0.1"
-    port: int = 1883
-    username: str = "admin"
-    password: str = "admin"
+    broker: str = Field(
+        default_factory=lambda: os.environ.get("MQTT_BROKER", "127.0.0.1")
+    )
+    port: int = Field(default_factory=lambda: int(os.environ.get("MQTT_PORT", 1883)))
+    username: str = Field(
+        default_factory=lambda: os.environ.get("MQTT_USERNAME", "admin")
+    )
+    password: str = Field(
+        default_factory=lambda: os.environ.get("MQTT_PASSWORD", "admin")
+    )
 
 
 class GpioParamsModel(BaseParamsModel):
@@ -67,23 +73,6 @@ class AIboxReportParamsModel(BaseParamsModel):
         return _dir
 
 
-def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
-    """
-    校验配置文件是否存在，不存在则拷贝
-
-    :param config_fp: 环境变量配置文件路径
-    :param default_config_fp: 默认本地项目的配置文件路径
-    """
-    config_dir = os.path.split(config_fp)[0]
-    if config_dir:
-        os.makedirs(config_dir, exist_ok=True)
-    if not os.path.exists(config_fp):
-        logger.warning(f"{config_fp} not exists, copy from {default_config_fp}!")
-        shutil.copyfile(default_config_fp, config_fp)
-    if config_fp == default_config_fp:
-        logger.warning(f"config_fp is default {default_config_fp}!")
-
-
 class AIboxReport(CoralNode):
 
     # 配置文件，默认文件config.json, 可通过环境变量 CORAL_NODE_CONFIG_PATH 覆盖
@@ -92,9 +81,7 @@ class AIboxReport(CoralNode):
     config_path = "config.json"
     node_type = NodeType.trigger
 
-    check_config_fp_or_set_default(
-        CoralNode.get_config()[0], CoralNode.default_config_fp()
-    )
+    web.check_config_fp_or_set_default(CoralNode.get_config()[0])
 
     def __init__(self):
         super().__init__()

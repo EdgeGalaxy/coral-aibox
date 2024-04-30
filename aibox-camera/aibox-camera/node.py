@@ -1,7 +1,6 @@
 import time
 from typing import Dict, List
 
-import cv2
 from coral import (
     CoralNode,
     BaseParamsModel,
@@ -19,7 +18,7 @@ from algrothms.streamer import VideoStreamer
 
 @PTManager.register()
 class AIboxCameraParamsModel(BaseParamsModel):
-    cameras: List[CameraParamsModel]
+    cameras: List[CameraParamsModel] = [CameraParamsModel()]
     resolution: str = "origin"
 
     @property
@@ -42,9 +41,7 @@ class AIboxCamera(CoralNode):
     config_path = "config.json"
     node_type = NodeType.input
 
-    web.check_config_fp_or_set_default(
-        CoralNode.get_config()[0], CoralNode.default_config_fp()
-    )
+    web.check_config_fp_or_set_default(CoralNode.get_config()[0])
 
     def __init__(self):
         super().__init__()

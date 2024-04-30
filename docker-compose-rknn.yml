@@ -12,8 +12,9 @@ services:
     environment:
       - MODEL_TYPE=rknn
       - LOGURU_LEVEL=INFO
+      - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-camera.json
-      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
     volumes:
       - /dev:/dev
       - $HOME/.coral:/root/.coral
@@ -32,9 +33,9 @@ services:
     environment:
       - MODEL_TYPE=rknn
       - LOGURU_LEVEL=INFO
-      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/rknn/weights/
+      - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-person.json
-      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
     volumes:
       - /dev:/dev
       - /proc/device-tree/compatible:/proc/device-tree/compatible
@@ -54,9 +55,9 @@ services:
     environment:
       - MODEL_TYPE=rknn
       - LOGURU_LEVEL=INFO
-      - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/rknn/weights/
+      - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-face.json
-      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
     volumes:
       - /dev:/dev
       - /proc/device-tree/compatible:/proc/device-tree/compatible
@@ -76,8 +77,9 @@ services:
     environment:
       - MODEL_TYPE=rknn
       - LOGURU_LEVEL=INFO
+      - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-record.json
-      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
     volumes:
       - /dev:/dev
       - /proc/device-tree/compatible:/proc/device-tree/compatible
@@ -94,8 +96,13 @@ services:
     environment:
       - MODEL_TYPE=rknn
       - LOGURU_LEVEL=INFO
+      - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-report.json
-      - ACTIVATION_CODE=${ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - MQTT_BROKER=${MQTT_BROKER:-127.0.0.1}
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_USERNAME=${MQTT_USERNAME:-admin}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-admin}
     depends_on:
       - aibox-face
       - aibox-person
