@@ -66,7 +66,7 @@ class VideoAHDStreamer:
             pipe = self.AHD_SRC_NO_WH.format(video_idx=video_idx)
         else:
             pipe = self.AHD_SRC.format(
-                video_idx=video_idx, width=width, height=int(width / 1.5)
+                video_idx=video_idx, width=width, height=int(width / (16 / 9))
             )
         logger.info(f"gstreamer pipe: {pipe}")
         # 使用尽可能高效的管道设置

@@ -27,9 +27,9 @@ class AIboxCameraParamsModel(BaseParamsModel):
         if self.resolution == "origin":
             return None
         elif self.resolution == "middle":
-            return 1080
+            return 1280
         elif self.resolution == "low":
-            return 720
+            return 640
         else:
             return None
 
