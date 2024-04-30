@@ -7,6 +7,6 @@
         "receivers": [{ "node_id": "aibox_face" }]
     },
     "params": {
-        "base_dir": "record"
+        "base_dir_name": "record"
     }
 }

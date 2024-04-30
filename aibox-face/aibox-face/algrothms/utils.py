@@ -64,13 +64,13 @@ def draw_image_with_boxes(
     )
 
     for object in objects:
-        if not object.objects:
-            # box为红色框，label为粉红色
-            _draw(image, object, box_color=(0, 0, 255), label_color=(255, 192, 203))
-        else:
-            # box为绿色框，label为绿色
-            for sub_object in object.objects:
-                _draw(image, sub_object, box_color=(0, 255, 0), label_color=(0, 255, 0))
+        # box为绿色框，label为绿色
+        sub_objects = object.objects or []
+        for sub_object in sub_objects:
+            _draw(image, sub_object, box_color=(0, 255, 0), label_color=(0, 255, 0))
+
+        # box为红色框，label为粉红色
+        _draw(image, object, box_color=(0, 0, 255), label_color=(255, 192, 203))
 
     return image
 

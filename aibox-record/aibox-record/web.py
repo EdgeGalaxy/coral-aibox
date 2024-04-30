@@ -56,7 +56,8 @@ def get_records():
                 os.path.join(camera_dir_fn, f)
                 for f in os.listdir(camera_dir_fp)
                 if f.endswith(".mp4")
-            ]
+            ],
+            reverse=True,
         )
-        results[camera_dir_fn] = video_fns
+        results[camera_dir_fn] = video_fns[1:]
     return results

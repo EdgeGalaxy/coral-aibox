@@ -58,12 +58,11 @@ class AIboxReportParamsModel(BaseParamsModel):
         default=1, description="预测值人数窗口最大间隔时间，在这时间内的才做统计"
     )
     report_image: bool = True
-    base_dir: str = Field(description="事件保存路径")
+    base_dir_name: str = Field(default="report", description="事件保存路径")
 
-    @field_validator("base_dir")
-    @classmethod
-    def validate_base_dir(cls, v: str):
-        _dir = os.path.join(MOUNT_NODE_PATH, v)
+    @property
+    def base_dir(self):
+        _dir = os.path.join(MOUNT_NODE_PATH, self.base_dir_name)
         os.makedirs(_dir, exist_ok=True)
         return _dir
 

@@ -91,3 +91,4 @@ services:
       - 3000:3000
     volumes:
       - $HOME/.coral:/root/.coral
+    restart: unless-stopped

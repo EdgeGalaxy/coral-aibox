@@ -1,3 +1,4 @@
+import atexit
 import os
 import time
 import shutil
@@ -20,7 +21,7 @@ class Recorder:
         self,
         base_dir,
         record_interval=600,
-        auto_recycle_threshold=2,
+        auto_recycle_threshold=5,
         enable=True,
     ):
         self._writer = None
@@ -32,6 +33,12 @@ class Recorder:
         os.makedirs(self.base_dir, exist_ok=True)
         # 启动后台清理程序, 每5分钟清理一次
         bg_tasks.add_job(self.auto_recycle, "interval", minutes=5)
+        atexit.register(self.release_writer)
+
+    def release_writer(self):
+        if self._writer:
+            self._writer.release()
+        logger.info("release writer")
 
     def write(
         self, frame: np.ndarray, objects: List[ObjectPayload], target_dir_name: str
@@ -51,12 +58,15 @@ class Recorder:
             or (now - self._last_record_at).seconds > self.record_interval
         ):
             video_save_fp = os.path.join(
-                save_dir, f"{now.strftime('%Y-%m-%d_%H:%M:%S')}.mp4"
+                save_dir, f"{now.strftime('%Y-%m-%d-%H-%M')}.mp4"
             )
+            # 释放上一个视频的writer
+            self.release_writer()
             self._writer = cv2.VideoWriter(
                 video_save_fp,
-                fourcc=cv2.VideoWriter_fourcc(*"mp4v"),
-                fps=25,
+                fourcc=cv2.VideoWriter_fourcc(*"h264"),
+                apiPreference=cv2.CAP_FFMPEG,
+                fps=12,
                 frameSize=(frame.shape[1], frame.shape[0]),
                 isColor=True,
             )
@@ -69,8 +79,11 @@ class Recorder:
     def auto_recycle(self):
         # 自动删除老数据，直到磁盘空间达到预期
         gb = 1024**3
+        _, _, free_b = shutil.disk_usage("/")
+        logger.info(
+            f"start auto recycle. threshold: {self._auto_recycle_threshold}GB , crt free: {free_b / gb}GB"
+        )
         while True:
-            _, _, free_b = shutil.disk_usage("/")
             # 当剩余空间小于指定阈值，触发删除逻辑，从最老的数据开始删除 （至少保留3个视频文件）
             if free_b < self._auto_recycle_threshold * gb:
                 # 遍历相机目录，删除最老的文件
@@ -88,6 +101,8 @@ class Recorder:
                         time.sleep(1)
             else:
                 break
+        _, _, done_free_b = shutil.disk_usage("/")
+        logger.info(f"auto recycle done. crt free: {done_free_b / gb}GB")
 
     def _resize(self, frame):
         h, w = frame.shape[:2]
@@ -111,8 +126,37 @@ class Recorder:
         )
         return frame
 
+    @staticmethod
+    def _draw_infer_rect_text(
+        image: np.ndarray,
+        object: ObjectPayload,
+        box_color=(0, 255, 0),
+        label_color=(0, 0, 255),
+    ):
+        x1, y1, x2, y2 = object.box.x1, object.box.y1, object.box.x2, object.box.y2
+        cv2.rectangle(image, (x1, y1), (x2, y2), box_color, 2)
+        cv2.putText(
+            image,
+            object.label,
+            (x1, y1 - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            label_color,
+            2,
+        )
+
     def _draw_person_rect(self, frame: np.ndarray, objects: List[ObjectPayload]):
-        for obj in objects:
-            x1, y1, x2, y2 = obj.box.x1, obj.box.y1, obj.box.x2, obj.box.y2
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), thickness=1)
+        for object in objects:
+            # box为绿色框，label为绿色
+            sub_objects = object.objects or []
+            for sub_object in sub_objects:
+                self._draw_infer_rect_text(
+                    frame, sub_object, box_color=(0, 255, 0), label_color=(0, 255, 0)
+                )
+
+            # box为红色框，label为粉红色
+            self._draw_infer_rect_text(
+                frame, object, box_color=(0, 0, 255), label_color=(255, 192, 203)
+            )
+
         return frame

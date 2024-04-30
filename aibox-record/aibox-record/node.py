@@ -14,7 +14,7 @@ from loguru import logger
 from coral.constants import MOUNT_PATH
 
 import web
-from algrothms.core import Recorder
+from algrothms.recorder import Recorder
 
 
 MOUNT_NODE_PATH = os.path.join(MOUNT_PATH, "aibox")
@@ -40,15 +40,14 @@ def check_config_fp_or_set_default(config_fp: str, default_config_fp: str):
 
 @PTManager.register()
 class AIboxRecordParamsModel(BaseParamsModel):
-    base_dir: str = Field(description="保存路径")
+    base_dir_name: str = Field(default="record", description="保存路径")
     interval: int = Field(default=600, description="间隔时间")
     enable: bool = Field(default=True, description="是否开启")
-    max_gb: int = Field(default=2, description="最大存储空间")
+    max_gb: int = Field(default=5, description="最大存储空间")
 
-    @field_validator("base_dir")
-    @classmethod
-    def validate_save_dir(cls, v: str):
-        _dir = os.path.join(MOUNT_NODE_PATH, v)
+    @property
+    def base_dir(self):
+        _dir = os.path.join(MOUNT_NODE_PATH, self.base_dir_name)
         os.makedirs(_dir, exist_ok=True)
         return _dir
 
