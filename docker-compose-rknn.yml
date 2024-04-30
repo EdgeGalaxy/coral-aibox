@@ -31,6 +31,7 @@ services:
     network_mode: host
     environment:
       - MODEL_TYPE=rknn
+      - LOGURU_LEVEL=INFO
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/rknn/weights/
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-person.json
       - ACTIVATION_CODE=${ACTIVATION_CODE:-}
@@ -52,6 +53,7 @@ services:
     network_mode: host
     environment:
       - MODEL_TYPE=rknn
+      - LOGURU_LEVEL=INFO
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/rknn/weights/
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-face.json
       - ACTIVATION_CODE=${ACTIVATION_CODE:-}
@@ -73,6 +75,7 @@ services:
     network_mode: host
     environment:
       - MODEL_TYPE=rknn
+      - LOGURU_LEVEL=INFO
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-record.json
       - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     volumes:
@@ -90,6 +93,7 @@ services:
     platform: linux/arm64
     environment:
       - MODEL_TYPE=rknn
+      - LOGURU_LEVEL=INFO
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-report.json
       - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     depends_on:

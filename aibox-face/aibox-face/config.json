@@ -37,7 +37,7 @@
             "device_id": 0,
             "base_dir": "db/face",
             "user_faces_size": 10,
-            "sim_threshold": 0.8
+            "sim_threshold": 0.7
         },
         "is_record": false,
         "is_open": false

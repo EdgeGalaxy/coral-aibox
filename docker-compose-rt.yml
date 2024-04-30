@@ -48,6 +48,7 @@ services:
     network_mode: host
     environment:
       - MODEL_TYPE=rt
+      - LOGURU_LEVEL=INFO
       - WEIGHTS_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/aibox-pro2/nx/weights/
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-face.json
       - ACTIVATION_CODE=${ACTIVATION_CODE:-}
@@ -67,6 +68,7 @@ services:
     network_mode: host
     environment:
       - MODEL_TYPE=rt
+      - LOGURU_LEVEL=INFO
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-record.json
       - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     volumes:
@@ -82,6 +84,7 @@ services:
     privileged: true
     environment:
       - MODEL_TYPE=rt
+      - LOGURU_LEVEL=INFO
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-report.json
       - ACTIVATION_CODE=${ACTIVATION_CODE:-}
     depends_on:

@@ -105,7 +105,7 @@ class AIboxReport(CoralNode):
         # 摄像头能合并一起计算的最大间隔时间
         self.concat_max_interval = 1
         # 近几次上报的观察人数列表
-        self.observations = deque(maxlen=8)
+        self.observations = deque(maxlen=30)
         # kalman滤波器
         self.kf = self.init_kalman_filter()
         # 初始化事件类
@@ -205,8 +205,14 @@ class AIboxReport(CoralNode):
             self.kf.predict()
             self.kf.update(obs)
             pre_state_count.append(self.kf.x[0])
-        count = math.ceil(self.kf.x[0])
-        logger.debug(f"预测值窗口中每一帧人数：{pre_state_count}, 最终人数：{count}")
+        count = (
+            math.ceil(self.kf.x[0])
+            if self.kf.x[0] - math.floor(self.kf.x[0]) > 0.5
+            else math.floor(self.kf.x[0])
+        )
+        logger.debug(
+            f"预测值窗口中每一帧人数：{pre_state_count}, 最终人数：[ {count} ]"
+        )
         # 向上取整返回最终的人数
         return count
 

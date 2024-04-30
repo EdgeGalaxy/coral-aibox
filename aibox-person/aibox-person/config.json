@@ -20,7 +20,7 @@
     },
     "params": {
         "detection": {
-            "weight_name": "yolov8s-crowd_and_mot",
+            "weight_name": "yolov8m-crowd_and_mot",
             "width": 640,
             "height": 480,
             "device_id": 0,

@@ -99,13 +99,18 @@ class AIboxPerson(CoralNode):
             objects = [ObjectPayload(**defect) for defect in defects]
             # 过滤与mask不重合的objects
             if mask is not None:
-                objects = self.filter_objects(mask, objects, iou_thresh)
+                filter_objects = self.filter_objects(mask, objects, iou_thresh)
+            else:
+                filter_objects = objects
         else:
             objects = []
+            filter_objects = []
 
-        if objects:
-            logger.info(f"人物识别结果: {len(objects)}")
-        return ObjectsPayload(objects=objects, mode=InterfaceMode.APPEND)
+        if filter_objects or objects:
+            logger.info(
+                f"原始人物识别结果: {len(filter_objects)} , 过滤后人物识别结果: {len(objects)}"
+            )
+        return ObjectsPayload(objects=filter_objects, mode=InterfaceMode.APPEND)
 
     @classmethod
     def gen_mask(cls, raw: np.ndarray, raw_params: Dict[str, Any]):
