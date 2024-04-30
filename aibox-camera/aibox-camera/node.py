@@ -102,7 +102,9 @@ class AIboxCamera(CoralNode):
         # 退出当前进程, 运行两次，冷退出,
         # ! 确保图片内存缓存记录落盘
         os.kill(os.getpid(), 2)
+        time.sleep(0.1)
         os.kill(os.getpid(), 2)
+        time.sleep(0.5)
         os.kill(os.getpid(), 9)
 
     def sender(self, payload: RawPayload, context: Dict) -> FirstPayload:
