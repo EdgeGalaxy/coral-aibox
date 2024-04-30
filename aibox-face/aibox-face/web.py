@@ -290,7 +290,8 @@ def get_frames(camera_id: str):
             draw_image_with_boxes(
                 frame, payload.objects, int(payload.nodes_cost * 1000), fps
             )
-            frame = draw_mask(frame, payload.raw_params["points"])
+            if payload.raw_params["points"]:
+                frame = draw_mask(frame, payload.raw_params["points"])
             ret, frame = cv2.imencode(".jpg", frame)
             if not ret:
                 raise HTTPException(status_code=500, detail="图像编码失败！")
