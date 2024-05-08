@@ -107,24 +107,25 @@ def delete_fake_person(fake_person_id: str):
 
 @router.post("/record/featuredb")
 def record_feature(item: RecordFeatureModel):
-    context = contexts[0]
-    params = context["params"]
-    # params 为 AIboxPersonParamsModel
-    params.is_record = item.is_record
-    if item.is_record:
-        logger.info(f"{node_id} start record feature!!")
-    else:
-        logger.info(f"{node_id} stop record feature!!")
-    params.is_open = item.is_open
-    params.detection.confidence_thresh = item.confidence_thresh
-    params.featuredb.sim_threshold = item.sim_threshold
+    for idx in contexts:
+        context = contexts[idx]
+        params = context["params"]
+        # params 为 AIboxPersonParamsModel
+        params.is_record = item.is_record
+        if item.is_record:
+            logger.info(f"{node_id} start record feature!!")
+        else:
+            logger.info(f"{node_id} stop record feature!!")
+        params.is_open = item.is_open
+        params.detection.confidence_thresh = item.confidence_thresh
+        params.featuredb.sim_threshold = item.sim_threshold
 
-    # 动态更新模型阈值
-    inference: Inference = context["context"]["model"]
-    inference.model.nms_thresh = item.confidence_thresh
-    inference.featuredb.sim_threshold = item.sim_threshold
+        # 动态更新模型阈值
+        inference: Inference = context["context"]["model"]
+        inference.model.nms_thresh = item.confidence_thresh
+        inference.featuredb.sim_threshold = item.sim_threshold
 
-    new_params = params.model_dump()
+    new_params = contexts[0]["params"].model_dump()
     # 更新数据
     durable_config(new_params)
     return {"result": "success"}
@@ -159,9 +160,10 @@ def get_params():
 def change_params(item: WebNodeParams):
     from schema import AIboxPersonParamsModel
 
-    context = contexts[0]
-    params = context["params"].model_dump()
-    params.update(item.model_dump())
-    context["params"] = AIboxPersonParamsModel(**params)
+    for idx in contexts:
+        context = contexts[idx]
+        params = context["params"].model_dump()
+        params.update(item.model_dump())
+        context["params"] = AIboxPersonParamsModel(**params)
     durable_config(item.model_dump())
     return item.model_dump()

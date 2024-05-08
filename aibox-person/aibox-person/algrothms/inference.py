@@ -68,9 +68,7 @@ class Inference:
                     continue
 
                 defect = {
-                    "label": (
-                        self.model.class_names[int(cls)] if is_person else "UNKNOWN"
-                    ),
+                    "label": (self.model.class_names[int(cls)]),
                     "class_id": int(cls),
                     "prob": round(float(conf), 4),
                     "box": {

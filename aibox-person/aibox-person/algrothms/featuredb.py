@@ -114,7 +114,7 @@ class FeatureDB:
         if save:
             self.save(image, feature, above_count)
 
-        return True if not match_key else False
+        return True if match_key is None else False
 
     def save(self, image: np.ndarray, feature: np.ndarray, above_count: int):
         if len(self.fake_persons_features) > self.db_size:

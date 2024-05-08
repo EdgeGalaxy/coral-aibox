@@ -55,16 +55,16 @@ export default function LoadPersonPage() {
           sim_threshold: data["featuredb"]["sim_threshold"],
           confidence_thresh: data["detection"]["confidence_thresh"],
         });
+        setConfidenceThresh(data["detection"]["confidence_thresh"]);
+        setSimilarThresh(data["featuredb"]["sim_threshold"]);
       });
 
     // person images
     fetch(personImagesUrl)
       .then((response) => response.json())
       .then((persons) => {
-        console.log("personImagesUrl", persons);
         const fakePersonFileList: UploadFile<any>[] = [];
         for (const person of persons) {
-          console.log("person", person);
           const personImageUrl = `${baseUrl}:8020/static/${person}`;
           const personFile: UploadFile = {
             // person形如： xxxx.jpg, uid 需要 xxxx
@@ -74,12 +74,15 @@ export default function LoadPersonPage() {
             status: "done",
             url: personImageUrl,
           };
-          console.log("personFile", personFile);
           fakePersonFileList.push(personFile);
         }
         setPersonFileList(fakePersonFileList);
       });
   }, [baseUrl]);
+
+  useEffect(() => {
+    console.log("switchs", switchs);
+  }, [switchs]);
 
   const onPersonSwitchChange = (key: string, checked: boolean | number) => {
     setIsLoading(true);

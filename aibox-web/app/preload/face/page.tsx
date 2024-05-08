@@ -45,6 +45,8 @@ export default function PreloadFacePage() {
         is_open: data["is_open"],
         sim_threshold: data["featuredb"]["sim_threshold"],
         confidence_thresh: data["detection"]["confidence_thresh"],})
+        setConfidenceThresh(data["detection"]["confidence_thresh"]),
+        setSimilarThresh(data["featuredb"]["sim_threshold"])
       })
     // users fetch
     fetch(usersFaceUrl)
