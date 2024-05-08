@@ -96,6 +96,9 @@ class FeatureDB:
         s = np.argmax(index_cossims)
         above_threshold_indices = np.where(index_cossims > sim_thresh)[0]
         if index_cossims[s] > sim_thresh:
+            logger.warning(
+                f"match fake person: {self.fake_persons_image[s]} threshold: {index_cossims[s]} above max threshold {sim_thresh}"
+            )
             return self.fake_persons_image[s], len(above_threshold_indices)
 
         return None, 0

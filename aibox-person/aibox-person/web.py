@@ -119,6 +119,11 @@ def record_feature(item: RecordFeatureModel):
     params.detection.confidence_thresh = item.confidence_thresh
     params.featuredb.sim_threshold = item.sim_threshold
 
+    # 动态更新模型阈值
+    inference: Inference = context["context"]["model"]
+    inference.model.nms_thresh = item.confidence_thresh
+    inference.featuredb.sim_threshold = item.sim_threshold
+
     new_params = params.model_dump()
     # 更新数据
     durable_config(new_params)

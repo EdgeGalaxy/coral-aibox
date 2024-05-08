@@ -63,6 +63,10 @@ class Inference:
                     # todo 先匹配坐标IOU
                     is_person = self.featuredb.predict(person_img, is_record)
 
+                # 过滤掉特征匹配到的错误人物数据
+                if not is_person:
+                    continue
+
                 defect = {
                     "label": (
                         self.model.class_names[int(cls)] if is_person else "UNKNOWN"

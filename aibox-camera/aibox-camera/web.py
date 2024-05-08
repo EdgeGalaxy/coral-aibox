@@ -1,20 +1,20 @@
-from collections import defaultdict, deque
-import io
 import os
 import json
-import shutil
 import time
+import base64
 from typing import Dict, List
 from threading import Thread
 from urllib.parse import urljoin
+from collections import defaultdict, deque
 
 import cv2
 import requests
 import uvicorn
 import numpy as np
 from loguru import logger
+from coral.constants import MOUNT_PATH
 from fastapi import FastAPI, APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from schema import ChangeResolutionModel, ParamsModel, CameraParamsModel, CameraOps
@@ -26,6 +26,9 @@ restart = False
 stop_stream = False
 is_actived = False
 cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=5))
+
+MOUNT_NODE_PATH = os.path.join(MOUNT_PATH, "aibox")
+os.makedirs(MOUNT_NODE_PATH, exist_ok=True)
 
 
 """
@@ -101,7 +104,7 @@ def durable_config(
     with open(config_fp, "r") as f:
         data = json.load(f)
 
-    cameras: List = data["params"]["cameras"]
+    cameras: List = data["params"].get("cameras", [CameraParamsModel().model_dump()])
     camera_ids = {camera["name"]: idx for idx, camera in enumerate(cameras)}
     # !此处为适配node节点内的代码而写，需要优化
     camera_data = camera.model_dump()
@@ -217,12 +220,11 @@ def draw_mask(camera_id: str, points: str = None):
             [int(points[idx]), int(points[idx + 1])] for idx in range(0, len(points), 2)
         ]
         draw_mask_lines(frame, points)
-    ret, frame = cv2.imencode(".jpg", frame)
-    if not ret:
-        logger.exception("图像编码失败！")
-        raise HTTPException(status_code=500, detail="图像编码失败！")
-    bframe = io.BytesIO(frame.tobytes())
-    return StreamingResponse(bframe, media_type="image/jpeg")
+    _dir = os.path.join(MOUNT_NODE_PATH, "cameras", camera_id)
+    os.makedirs(_dir, exist_ok=True)
+    fp = os.path.join(_dir, "mask.jpg")
+    cv2.imwrite(fp, frame)
+    return FileResponse(fp, media_type="image/jpeg")
 
 
 @router.get("/cameras/{camera_id}/config")
