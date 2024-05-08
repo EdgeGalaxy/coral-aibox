@@ -35,7 +35,7 @@ class ModelParamsModel(BaseModel):
         os.makedirs(_dir, exist_ok=True)
         _file = os.path.join(_dir, fn)
         if not os.path.exists(_file):
-            url = urljoin(CONFIG_REMOTE_HOST, "weights" + fn)
+            url = urljoin(CONFIG_REMOTE_HOST, "weights/" + fn)
             logger.warning(f"file {_file} not exists, download from {url}")
             r = requests.get(url)
             if r.ok:
