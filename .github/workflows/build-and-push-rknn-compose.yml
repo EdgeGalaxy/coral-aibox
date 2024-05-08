@@ -22,15 +22,16 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-camera_rknn
+          key: ${{ runner.os }}-rknn-camera-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-camera-
 
       - name: Extract tag name
         id: extract_tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -64,10 +65,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-person_rknn
+          key: ${{ runner.os }}-rknn-person-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-person-
 
       - name: Extract tag name
         id: extract_tag
@@ -106,10 +109,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-face_rknn
+          key: ${{ runner.os }}-rknn-face-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-face-
 
       - name: Extract tag name
         id: extract_tag
@@ -148,10 +153,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-report_rknn
+          key: ${{ runner.os }}-rknn-report-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-report-
 
       - name: Extract tag name
         id: extract_tag
@@ -190,10 +197,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-record
+          key: ${{ runner.os }}-rknn-record-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-record-
 
       - name: Extract tag name
         id: extract_tag
@@ -232,10 +241,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-web
+          key: ${{ runner.os }}-rknn-web-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-web-
 
       - name: Extract tag name
         id: extract_tag

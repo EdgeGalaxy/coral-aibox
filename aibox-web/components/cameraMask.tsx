@@ -14,8 +14,7 @@ type CameraConfig = {
 
 
 const _CameraMask = ({ camera_id } : { camera_id: string }) => {
-  const [ baseUrl, setBaseUrl ] = useState("");
-  const [ url, setUrl ] = useState("");
+  const [ BaseMaskUrl, setUrl ] = useState("");
   const [ cameraConfigUrl, setCameraConfigUrl] = useState("");
   const [coordinates, setCoordinates] = useState<{ x: number; y: number }[]>([]);
   const [snapshotUrl, setSnapshotUrl] = useState<string>("");
@@ -25,8 +24,7 @@ const _CameraMask = ({ camera_id } : { camera_id: string }) => {
     const fetchInternalIP = async () => {
       const internalHost = await getInternalHost();
       console.log('internalHost', internalHost)
-      setBaseUrl(internalHost)
-      setUrl(`${internalHost}:8010/api/aibox_camera/cameras/${camera_id}/mask`)
+      setUrl(`${internalHost}:8010/api/aibox_camera/cameras/${camera_id}/draw-mask`)
       setCameraConfigUrl(`${internalHost}:8010/api/aibox_camera/cameras/${camera_id}/config`)
       return internalHost
     }
@@ -34,6 +32,12 @@ const _CameraMask = ({ camera_id } : { camera_id: string }) => {
   }, []);
 
   useEffect(() => {
+    if (cameraConfigUrl === "") {
+      return
+    }
+    if (BaseMaskUrl === "") {
+      return
+    }
     fetch(cameraConfigUrl)
       .then((response) => {
         if (!response.ok) {
@@ -45,21 +49,26 @@ const _CameraMask = ({ camera_id } : { camera_id: string }) => {
         const points: number[][] = config['points']
         setCameraConfig(config)
         if (points.length === 0) {
-            setSnapshotUrl(url)
+            setSnapshotUrl(BaseMaskUrl)
           return
         }
         const pointsStr: string = points.flatMap(point => point).join(',')
-        const maskUrl = url + `?points=${pointsStr}`
+        const maskUrl = BaseMaskUrl + `?points=${pointsStr}`
         setSnapshotUrl(maskUrl)
+        setCoordinates(points.map(point => ({ x: point[0], y: point[1] })))
       });
-  }, [camera_id, baseUrl, cameraConfigUrl]);
+  }, [camera_id, BaseMaskUrl]);
 
   // 为了首次加载出图片
   useEffect(() => {
+    if (snapshotUrl === "") {
+      return
+    }
     const pointsStr = coordinates.map(point => `${point.x},${point.y}`).join(',')
-    const maskUrl = url + `?points=${pointsStr}`
+    const maskUrl = BaseMaskUrl + `?points=${pointsStr}`
     console.log('maskurl', maskUrl)
     setSnapshotUrl(maskUrl)
+    handlePreviewClick()
   }, [snapshotUrl]);
 
   const updateCoordinate = (newCoordinates: { x: number; y: number }) => {
@@ -68,19 +77,19 @@ const _CameraMask = ({ camera_id } : { camera_id: string }) => {
 
   const handlePreviewClick = () => {
     const pointsStr = coordinates.map(point => `${point.x},${point.y}`).join(',')
-    const maskUrl = url + `?points=${pointsStr}`
+    const maskUrl = BaseMaskUrl + `?points=${pointsStr}`
     setSnapshotUrl(maskUrl)
   };
 
   const handleClearClick = () => {
-    setSnapshotUrl(url)
+    setSnapshotUrl(BaseMaskUrl)
     setCoordinates([])
   };
 
   const handleSaveClick = () => {
     const points = coordinates.map(point => [point.x, point.y])
     const pointsStr = coordinates.map(point => `${point.x},${point.y}`).join(',')
-    const maskUrl = url + `?points=${pointsStr}`
+    const maskUrl = BaseMaskUrl + `?points=${pointsStr}`
     setSnapshotUrl(maskUrl)
     setCameraConfig({ ...cameraConfig, points: points })
 

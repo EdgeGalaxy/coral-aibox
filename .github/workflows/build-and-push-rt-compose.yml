@@ -22,10 +22,13 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rt.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rt-camera-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rt-camera-
+
 
       - name: Extract tag name
         id: extract_tag
@@ -40,6 +43,8 @@ jobs:
           file: ./aibox-camera/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-camera:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
 
   person:
     runs-on: ubuntu-20.04
@@ -57,10 +62,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rt.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rt-person-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rt-person-
 
       - name: Extract tag name
         id: extract_tag
@@ -75,6 +82,8 @@ jobs:
           file: ./aibox-person/Dockerfile_rt
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-person:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
 
   face:
     runs-on: ubuntu-20.04
@@ -92,10 +101,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rt.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rt-face-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rt-face-
 
       - name: Extract tag name
         id: extract_tag
@@ -110,6 +121,8 @@ jobs:
           file: ./aibox-face/Dockerfile_rt
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-face:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
 
   report:
     runs-on: ubuntu-20.04
@@ -127,10 +140,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rt.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rt-report-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rt-report-
 
       - name: Extract tag name
         id: extract_tag
@@ -145,6 +160,8 @@ jobs:
           file: ./aibox-report/Dockerfile_rt
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-report:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
 
   record:
     runs-on: ubuntu-20.04
@@ -162,10 +179,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rt.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rt-record-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rt-record-
 
       - name: Extract tag name
         id: extract_tag
@@ -180,6 +199,9 @@ jobs:
           file: ./aibox-record/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-record:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
 
   web:
     runs-on: ubuntu-20.04
@@ -197,10 +219,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
-          path: /var/lib/docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose-rt.yml') }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rknn-web-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-web-
 
       - name: Extract tag name
         id: extract_tag
@@ -215,3 +239,5 @@ jobs:
           file: ./aibox-web/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-web:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new

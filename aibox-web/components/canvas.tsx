@@ -9,8 +9,6 @@ type props = {
 const _Mask = ({ url, updateCoordinate }: props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [ width, setWidth ] = useState(0);
-  const [ height, setHeight ] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -50,17 +48,13 @@ const _Mask = ({ url, updateCoordinate }: props) => {
 
     const image = new Image();
     console.log('url', url)
-    image.onload = () => {
-      console.log(image)
-        context.drawImage(image, 0, 0, image.width, image.height);
-        setWidth(image.width);
-        setHeight(image.height);
-    }
     image.src = url;
-
-    if (image.complete) {
-      context.drawImage(image, 0, 0, image.width, image.height);
+    image.onload = () => {
+        canvas.width = image.width;
+        canvas.height = image.height;
+        context.drawImage(image, 0, 0);
     }
+
   }, [url])
 
   function drawDot(context: CanvasRenderingContext2D, x1: number, y1: number) {
@@ -74,8 +68,6 @@ const _Mask = ({ url, updateCoordinate }: props) => {
   return (
       <canvas
         ref={canvasRef}
-        width={width}
-        height={height}
       >
         Your browser does not support the HTML5 canvas tag.
       </canvas>

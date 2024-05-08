@@ -203,7 +203,7 @@ def video_stream(camera_id: str, with_mask: bool = False):
     )
 
 
-@router.get("/cameras/{camera_id}/mask", summary="绘制Mask")
+@router.get("/cameras/{camera_id}/draw-mask", summary="绘制Mask")
 def draw_mask(camera_id: str, points: str = None):
     while True:
         try:
