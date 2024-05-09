@@ -61,11 +61,12 @@ class Recorder:
             not self._last_record_at
             or (now - self._last_record_at).seconds > self.record_interval
         ):
+            # 释放上一个视频的writer
+            self.release_writer()
+
             video_save_fp = os.path.join(
                 save_dir, f"{now.strftime('%Y-%m-%d-%H-%M')}.mp4"
             )
-            # 释放上一个视频的writer
-            self.release_writer()
             self._writer = cv2.VideoWriter(
                 video_save_fp,
                 fourcc=cv2.VideoWriter_fourcc(*"h264"),
@@ -74,6 +75,7 @@ class Recorder:
                 frameSize=(frame.shape[1], frame.shape[0]),
                 isColor=True,
             )
+            logger.info(f"start write video: {video_save_fp}")
             self._last_record_at = datetime.now()
 
         frame = self._draw_time_info(frame)

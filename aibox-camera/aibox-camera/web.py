@@ -11,6 +11,7 @@ import cv2
 import requests
 import uvicorn
 import numpy as np
+import SharedArray as sa
 from loguru import logger
 from coral.constants import MOUNT_PATH
 from fastapi import FastAPI, APIRouter, HTTPException
@@ -59,6 +60,15 @@ def async_run(_node_id: str) -> None:
 def restart_main_thread():
     global restart
     restart = True
+    if not hasattr(sa, "list"):
+        return
+    # 重启时删除所有共享内存
+    # ! 注，这样做是因为docker compose重启时无法触发atexit register的函数
+    # ! 临时代码，此处需要在底层优化
+    shared_memorys = sa.list()
+    for array_desc in shared_memorys:
+        sa.delete(array_desc.name.decode())
+    logger.info(f"delete all shared memory: {len(shared_memorys)}")
 
 
 def draw_mask_lines(frame, points: List[List[int]]):
