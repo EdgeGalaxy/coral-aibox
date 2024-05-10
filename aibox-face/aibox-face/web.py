@@ -311,8 +311,18 @@ def get_frames(camera_id: str):
             draw_image_with_boxes(
                 frame, payload.objects, int(payload.nodes_cost * 1000), fps
             )
+            # 画mask
             if payload.raw_params["points"]:
                 frame = draw_mask(frame, payload.raw_params["points"])
+
+            # 修改分辨率
+            if payload.raw_params["camera_height"]:
+                oh, ow = frame.shape[:2]
+                scale = payload.raw_params["camera_height"] / ow
+                frame = cv2.resize(
+                    frame, (int(payload.raw_params["camera_height"]), int(oh * scale))
+                )
+
             ret, frame = cv2.imencode(".jpg", frame)
             if not ret:
                 raise HTTPException(status_code=500, detail="图像编码失败！")

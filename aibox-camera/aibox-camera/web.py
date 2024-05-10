@@ -1,7 +1,6 @@
 import os
 import json
 import time
-import base64
 from typing import Dict, List
 from threading import Thread
 from urllib.parse import urljoin
@@ -11,7 +10,6 @@ import cv2
 import requests
 import uvicorn
 import numpy as np
-import SharedArray as sa
 from loguru import logger
 from coral.constants import MOUNT_PATH
 from fastapi import FastAPI, APIRouter, HTTPException
@@ -24,6 +22,7 @@ from schema import ChangeResolutionModel, ParamsModel, CameraParamsModel, Camera
 node_id = None
 contexts = {}
 restart = False
+stop = False
 stop_stream = False
 is_actived = False
 cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=5))
@@ -57,18 +56,25 @@ def async_run(_node_id: str) -> None:
     ).start()
 
 
+def resolution_height_mapper(resolution: str) -> int:
+    if resolution == "origin":
+        return None
+    elif resolution == "middle":
+        return 480
+    elif resolution == "low":
+        return 360
+    else:
+        return None
+
+
 def restart_main_thread():
     global restart
     restart = True
-    if not hasattr(sa, "list"):
-        return
-    # 重启时删除所有共享内存
-    # ! 注，这样做是因为docker compose重启时无法触发atexit register的函数
-    # ! 临时代码，此处需要在底层优化
-    shared_memorys = sa.list()
-    for array_desc in shared_memorys:
-        sa.delete(array_desc.name.decode())
-    logger.info(f"delete all shared memory: {len(shared_memorys)}")
+
+
+def stop_main_thread():
+    global stop
+    stop = True
 
 
 def draw_mask_lines(frame, points: List[List[int]]):
@@ -124,13 +130,14 @@ def durable_config(
     elif ops == CameraOps.DELETE:
         idx = camera_ids[camera_id]
         del cameras[idx]
-        data["process"]["count"] = len(cameras)
     elif ops == CameraOps.ADD:
         # 新增数据
         cameras.append(camera_data)
-        data["process"]["count"] = len(cameras)
     else:
         raise ValueError(f"不支持的操作 {ops}")
+
+    data["process"]["count"] = len(cameras)
+    data["params"]["cameras"] = cameras
 
     with open(config_fp, "w") as f:
         json.dump(data, f, indent=4)
@@ -161,8 +168,10 @@ def resolution():
 
 @router.post("/cameras/resolution")
 def change_resolution(item: ChangeResolutionModel):
+    # 动态修改分辨率
+    for camera_id in contexts:
+        contexts[camera_id]["resolution"] = item.level
     durable_resolution_config(item.level)
-    restart_main_thread()
     return {"result": "success"}
 
 
@@ -179,12 +188,12 @@ def stop_stream_view():
 
 
 @router.get("/cameras/{camera_id}/stream")
-def video_stream(camera_id: str, with_mask: bool = False):
+def video_stream(camera_id: str):
     global stop_stream
     stop_stream = False
 
     def gen_frame():
-        points: List[List[int]] = contexts[camera_id]["params"]["points"]
+        camera_height = resolution_height_mapper(contexts[camera_id]["resolution"])
         while True:
             try:
                 frame = cameras_queue[camera_id].popleft()
@@ -197,8 +206,12 @@ def video_stream(camera_id: str, with_mask: bool = False):
                 logger.info(f"{camera_id} stop stream!")
                 break
 
-            if with_mask:
-                draw_mask_lines(frame, points)
+            # 修改分辨率
+            if camera_height:
+                oh, ow = frame.shape[:2]
+                scale = camera_height / oh
+                frame = cv2.resize(frame, (int(ow * scale), int(camera_height)))
+
             ret, frame = cv2.imencode(".jpg", frame)
             if not ret:
                 raise HTTPException(status_code=500, detail="图像编码失败！")

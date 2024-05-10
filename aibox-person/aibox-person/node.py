@@ -132,7 +132,9 @@ class AIboxPerson(CoralNode):
         filter_objects = []
         for object in objects:
             x1, y1, x2, y2 = object.box.x1, object.box.y1, object.box.x2, object.box.y2
-            box_in_mask = np.sum(mask[x1:x2, y1:y2])
+            # 取box下方1/4的区域
+            y1_4 = y1 + (y2 - y1) // 4
+            box_in_mask = np.sum(mask[x1:x2, y1_4:y2])
             box_area = (x2 - x1 + 1) * (y2 - y1 + 1)
             if box_area > 0 and (box_in_mask / box_area) >= iou_thresh:
                 filter_objects.append(object)

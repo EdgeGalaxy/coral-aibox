@@ -1,4 +1,8 @@
+import os
+import sys
+import subprocess
 import time
+import signal
 from typing import Dict, List
 
 from coral import (
@@ -9,6 +13,7 @@ from coral import (
     PTManager,
     NodeType,
 )
+from loguru import logger
 from coral.exception import CoralSenderIgnoreException
 
 import web
@@ -16,21 +21,30 @@ from schema import CameraParamsModel
 from algrothms.streamer import VideoStreamer
 
 
+def signal_restart(signal, frame):
+    logger.info("receive signal: {}".format(signal))
+    web.stop_main_thread()
+    import SharedArray as sa
+
+    if not hasattr(sa, "list"):
+        logger.warning("platform not support SharedArray list function!")
+    else:
+        shared_memorys = sa.list()
+        for memory in shared_memorys:
+            sa.delete(memory.name)
+        logger.info(f"delete all shared memory: {len(shared_memorys)}")
+
+    sys.exit(0)
+
+
+# 注册信号触发
+signal.signal(signal.SIGTERM, signal_restart)
+
+
 @PTManager.register()
 class AIboxCameraParamsModel(BaseParamsModel):
     cameras: List[CameraParamsModel] = [CameraParamsModel()]
     resolution: str = "origin"
-
-    @property
-    def width(self):
-        if self.resolution == "origin":
-            return None
-        elif self.resolution == "middle":
-            return 1280
-        elif self.resolution == "low":
-            return 640
-        else:
-            return None
 
 
 class AIboxCamera(CoralNode):
@@ -71,7 +85,7 @@ class AIboxCamera(CoralNode):
 
         camera = cameras[index]
         url: str = camera["url"]
-        vc = VideoStreamer(url, width=self.params.width)
+        vc = VideoStreamer(url)
         context["vc"] = vc
         context.update(camera)
         # 写入所有摄像头ID到每一帧画面中
@@ -80,12 +94,8 @@ class AIboxCamera(CoralNode):
         # 更新web的全局变量
         web.contexts[camera["name"]] = context
 
-    @classmethod
-    def restart_program(cls):
+    def restart_program(self):
         """重启当前程序。"""
-        import os
-        import sys
-        import subprocess
 
         python = sys.executable
         # 如果你的脚本接受命令行参数，可以通过sys.argv传递
@@ -96,12 +106,16 @@ class AIboxCamera(CoralNode):
         # 下面的命令会启动一个新的Python进程，使用相同的参数运行本脚本
         subprocess.Popen([python] + args)
 
+        self.os_kill()
+
+    @staticmethod
+    def os_kill():
         # 退出当前进程, 运行两次，冷退出,
         # ! 确保图片内存缓存记录落盘
         os.kill(os.getpid(), 2)
-        time.sleep(0.1)
+        time.sleep(0.3)
         os.kill(os.getpid(), 2)
-        time.sleep(0.5)
+        time.sleep(1)
         os.kill(os.getpid(), 9)
 
     def sender(self, payload: RawPayload, context: Dict) -> FirstPayload:
@@ -115,13 +129,18 @@ class AIboxCamera(CoralNode):
         # 此处控制线程退出
         if web.restart:
             web.restart = False
+            logger.info("receive restart signal")
             self.shutdown()
             self.restart_program()
+
+        if web.stop:
+            web.stop = False
+            logger.info("receive stop signal")
+            self.os_kill()
 
         vc: VideoStreamer = context["vc"]
         ret, frame = vc.read()
         if not ret:
-            time.sleep(0.01)
             raise CoralSenderIgnoreException("读取频率过高, 队列为空")
 
         # 将摄像头拷贝数据web读取写入队列
@@ -129,6 +148,7 @@ class AIboxCamera(CoralNode):
 
         raw_params = {
             **context["params"],
+            "camera_height": web.resolution_height_mapper(context["resolution"]),
             "camera_ids": [cam.name for cam in self.params.cameras],
         }
 

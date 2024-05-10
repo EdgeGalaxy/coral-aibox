@@ -1,6 +1,6 @@
 import os
+import time
 import platform
-from uuid import uuid4
 
 import cv2
 import numpy as np
@@ -60,7 +60,8 @@ class FeatureDB:
     def cosine_similarity(self, a, b):
         dot_product = np.dot(a, b)
         norm_a = np.linalg.norm(a)
-        norm_b = np.linalg.norm(b)
+        # 计算b的每个列向量的范数
+        norm_b = np.linalg.norm(b, axis=0)
         similarity = dot_product / (norm_a * norm_b)
         return similarity
 
@@ -127,7 +128,7 @@ class FeatureDB:
             )
             return
 
-        key = str(uuid4())[:8]
+        key = str(int(time.time() * 1000))
         self.fake_persons_image.append(key)
         self.fake_persons_features.append(feature)
 

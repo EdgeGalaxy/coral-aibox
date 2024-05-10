@@ -93,7 +93,11 @@ def get_fake_persons():
     context = contexts[0]
     inference: Inference = context["context"]["model"]
     featuredb = inference.featuredb
-    return [image + ".jpg" for image in featuredb.get_fake_person_ids()]
+    person_ids = featuredb.get_fake_person_ids()
+    order_person_ids = sorted(
+        [int(person_id) for person_id in person_ids], reverse=True
+    )
+    return [str(person_id) + ".jpg" for person_id in order_person_ids]
 
 
 @router.delete("/fake/persons/{fake_person_id}")

@@ -28,8 +28,8 @@ const _changeResolution = ({ baseUrl, defaultLevel }: props) => {
 
   const LEVELS_CN: { [key: string]: string } = {
     "原视频": "origin",
-    "高清": "middle",
-    "标清": "low",
+    "标清(480P)": "middle",
+    "流畅(360P)": "low",
   }
 
   const reversedLevels: { [key: string]: string } = {};
@@ -95,10 +95,9 @@ const _changeResolution = ({ baseUrl, defaultLevel }: props) => {
         open={visible}
         onOk={handleSubmit}
         onCancel={handleCancel}
-        okText="更新并重启"
+        okText="更新"
         cancelText="取消"
       >
-        <p className="text-red-600 font-bold font-2xl">修改分辨率需要重新绘制Mask!</p>
         <Form form={form} layout="vertical" name="form_in_modal">
           <Form.Item
             name="level"

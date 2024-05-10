@@ -8,7 +8,9 @@ type props = {
 
 const _Mask = ({ url, updateCoordinate }: props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [isDrawing, setIsDrawing] = useState<boolean>(false);
+  const [ratio, setRatio] = useState<number>(1);
+  const height = 480;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -22,7 +24,10 @@ const _Mask = ({ url, updateCoordinate }: props) => {
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       drawDot(context, x, y);
-      updateCoordinate({ x, y });
+      const tx = Math.floor(x / ratio);
+      const ty = Math.floor(y / ratio);
+      console.log('tx', tx, 'ty', ty, 'x', x, 'y', y)
+      updateCoordinate({x: tx, y: ty});
       setIsDrawing(true);
     };
 
@@ -47,12 +52,19 @@ const _Mask = ({ url, updateCoordinate }: props) => {
     if (!context) return;
 
     const image = new Image();
-    console.log('url', url)
     image.src = url;
     image.onload = () => {
-        canvas.width = image.width;
-        canvas.height = image.height;
-        context.drawImage(image, 0, 0);
+        // 获取当前组件div的宽高
+        const calRatio = height / image.height;
+        const canvas_width = height * image.width / image.height;
+        // 设置缩放的ratio
+        setRatio(calRatio);
+        // 设置canvas的宽高
+        canvas.width = canvas_width;
+        canvas.height = height;
+        image.width = canvas_width;
+        image.height = height;
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
     }
 
   }, [url])

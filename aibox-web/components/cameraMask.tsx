@@ -125,7 +125,7 @@ const _CameraMask = ({ camera_id } : { camera_id: string }) => {
             <Mask url={snapshotUrl} updateCoordinate={updateCoordinate}/>
             <p className="font-mono text-center text-base font-blod">{camera_id}</p>
             </div>
-        <div className="flex-col">
+        <div className="flex flex-col">
           <Button className="m-2" type="primary" onClick={handlePreviewClick}>预览Mask</Button>
           <Button className="m-2" type="primary" onClick={handleClearClick}>清除Mask</Button>
           <Button className="m-2" type="primary" onClick={handleSaveClick}>保存Mask</Button>

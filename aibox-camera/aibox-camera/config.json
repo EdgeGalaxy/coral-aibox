@@ -7,7 +7,7 @@
     },
     "process": {
         "enable_parallel": true,
-        "count": 1
+        "count": 2
     },
     "generic": {
         "enable_shared_memory": true
@@ -21,25 +21,50 @@
                     "iou_scale": 0.03,
                     "points": [
                         [
-                            316,
-                            85
+                            402,
+                            189
                         ],
                         [
-                            1057,
-                            71
+                            708,
+                            190
                         ],
                         [
-                            1090,
-                            643
+                            708,
+                            481
                         ],
                         [
-                            280,
-                            618
+                            352,
+                            528
+                        ]
+                    ]
+                }
+            },
+            {
+                "name": "2",
+                "url": "0",
+                "params": {
+                    "iou_scale": 0.03,
+                    "points": [
+                        [
+                            480,
+                            111
+                        ],
+                        [
+                            876,
+                            123
+                        ],
+                        [
+                            897,
+                            510
+                        ],
+                        [
+                            408,
+                            534
                         ]
                     ]
                 }
             }
         ],
-        "resolution": "origin"
+        "resolution": "low"
     }
 }
