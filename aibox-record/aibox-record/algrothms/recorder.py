@@ -169,7 +169,7 @@ class Recorder:
 
         return frame
 
-    def _draw_mask(frame: np.ndarray, points: List[List[int]]):
+    def _draw_mask(self, frame: np.ndarray, points: List[List[int]]):
         points = np.array(points, dtype=np.int32)
         cv2.polylines(
             frame, [points], isClosed=True, color=(255, 255, 255), thickness=2
