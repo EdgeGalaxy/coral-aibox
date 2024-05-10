@@ -71,7 +71,7 @@ class FeatureDB:
     def cosine_similarity(self, a, b):
         dot_product = np.dot(a, b)
         norm_a = np.linalg.norm(a)
-        norm_b = np.linalg.norm(b)
+        norm_b = np.linalg.norm(b, axis=0)
         similarity = dot_product / (norm_a * norm_b)
         return similarity
 
@@ -188,7 +188,7 @@ class FeatureDB:
     def predict(self, image: np.ndarray, save: bool = False) -> str:
         # !此处主要考虑save为true时，尽量将相似的人脸放到一起，好在前端整理数据
         # !不一定严谨
-        sim_thresh = 0.7 if save else self.sim_threshold
+        sim_thresh = 0.8 if save else self.sim_threshold
         # 预测 & 比较
         feature = self.model.predict(image)
         user_id = self.compare(feature, sim_thresh)

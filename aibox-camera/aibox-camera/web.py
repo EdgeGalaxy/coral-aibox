@@ -1,5 +1,7 @@
+import io
 import os
 import json
+import shutil
 import time
 from typing import Dict, List
 from threading import Thread
@@ -123,14 +125,15 @@ def durable_config(
     cameras: List = data["params"].get("cameras", [CameraParamsModel().model_dump()])
     camera_ids = {camera["name"]: idx for idx, camera in enumerate(cameras)}
     # !此处为适配node节点内的代码而写，需要优化
-    camera_data = camera.model_dump()
     if ops == CameraOps.CHANGE:
+        camera_data = camera.model_dump()
         idx = camera_ids[camera_id]
         cameras[idx] = camera_data
     elif ops == CameraOps.DELETE:
         idx = camera_ids[camera_id]
         del cameras[idx]
     elif ops == CameraOps.ADD:
+        camera_data = camera.model_dump()
         # 新增数据
         cameras.append(camera_data)
     else:
@@ -246,6 +249,9 @@ def draw_mask(camera_id: str, points: str = None):
     _dir = os.path.join(MOUNT_NODE_PATH, "cameras", camera_id)
     os.makedirs(_dir, exist_ok=True)
     fp = os.path.join(_dir, "mask.jpg")
+    # 先删除旧文件
+    if os.path.exists(fp):
+        os.remove(fp)
     cv2.imwrite(fp, frame)
     return FileResponse(fp, media_type="image/jpeg")
 

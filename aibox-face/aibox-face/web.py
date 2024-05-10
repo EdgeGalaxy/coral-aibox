@@ -316,12 +316,11 @@ def get_frames(camera_id: str):
                 frame = draw_mask(frame, payload.raw_params["points"])
 
             # 修改分辨率
-            if payload.raw_params["camera_height"]:
+            camera_height = payload.raw_params.get("camera_height", None)
+            if camera_height:
                 oh, ow = frame.shape[:2]
-                scale = payload.raw_params["camera_height"] / ow
-                frame = cv2.resize(
-                    frame, (int(payload.raw_params["camera_height"]), int(oh * scale))
-                )
+                scale = camera_height / oh
+                frame = cv2.resize(frame, (int(ow * scale), int(camera_height)))
 
             ret, frame = cv2.imencode(".jpg", frame)
             if not ret:

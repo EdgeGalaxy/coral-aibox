@@ -114,7 +114,7 @@ class AIboxPerson(CoralNode):
 
         if filter_objects or objects:
             logger.info(
-                f"原始人物识别结果: {len(objects)} , 过滤后人物识别结果: {len(filter_objects)}"
+                f"摄像头: {payload.source_id} 原始人物识别结果: {len(objects)} , 过滤后人物识别结果: {len(filter_objects)}"
             )
         return ObjectsPayload(objects=filter_objects, mode=InterfaceMode.APPEND)
 

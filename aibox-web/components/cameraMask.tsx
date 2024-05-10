@@ -13,7 +13,7 @@ type CameraConfig = {
 }
 
 
-const _CameraMask = ({ camera_id } : { camera_id: string }) => {
+const _CameraMask = ({ camera_id, baseUrl } : { camera_id: string, baseUrl: string }) => {
   const [ BaseMaskUrl, setUrl ] = useState("");
   const [ cameraConfigUrl, setCameraConfigUrl] = useState("");
   const [coordinates, setCoordinates] = useState<{ x: number; y: number }[]>([]);
@@ -21,23 +21,21 @@ const _CameraMask = ({ camera_id } : { camera_id: string }) => {
   const [cameraConfig, setCameraConfig] = useState<CameraConfig>({} as CameraConfig);
 
   useEffect(() => {
-    const fetchInternalIP = async () => {
-      const internalHost = await getInternalHost();
-      console.log('internalHost', internalHost)
-      setUrl(`${internalHost}:8010/api/aibox_camera/cameras/${camera_id}/draw-mask`)
-      setCameraConfigUrl(`${internalHost}:8010/api/aibox_camera/cameras/${camera_id}/config`)
-      return internalHost
-    }
-    fetchInternalIP()
-  }, []);
+    setUrl(`${baseUrl}:8010/api/aibox_camera/cameras/${camera_id}/draw-mask`)
+    setCameraConfigUrl(`${baseUrl}:8010/api/aibox_camera/cameras/${camera_id}/config`)
+    setCoordinates([])
+  }, [camera_id]);
 
   useEffect(() => {
     if (cameraConfigUrl === "") {
+      console.log('empty cameraConfigUrl', cameraConfigUrl)
       return
     }
     if (BaseMaskUrl === "") {
+      console.log('empty BaseMaskUrl', BaseMaskUrl)
       return
     }
+
     fetch(cameraConfigUrl)
       .then((response) => {
         if (!response.ok) {
@@ -47,6 +45,7 @@ const _CameraMask = ({ camera_id } : { camera_id: string }) => {
       })
       .then((config: CameraConfig) => {
         const points: number[][] = config['points']
+        console.log('points', points)
         setCameraConfig(config)
         if (points.length === 0) {
             setSnapshotUrl(BaseMaskUrl)
@@ -57,7 +56,7 @@ const _CameraMask = ({ camera_id } : { camera_id: string }) => {
         setSnapshotUrl(maskUrl)
         setCoordinates(points.map(point => ({ x: point[0], y: point[1] })))
       });
-  }, [camera_id, BaseMaskUrl]);
+  }, [BaseMaskUrl, cameraConfigUrl]);
 
   // 为了首次加载出图片
   useEffect(() => {

@@ -113,9 +113,9 @@ class AIboxCamera(CoralNode):
         # 退出当前进程, 运行两次，冷退出,
         # ! 确保图片内存缓存记录落盘
         os.kill(os.getpid(), 2)
-        time.sleep(0.3)
+        time.sleep(0.1)
         os.kill(os.getpid(), 2)
-        time.sleep(1)
+        time.sleep(0.3)
         os.kill(os.getpid(), 9)
 
     def sender(self, payload: RawPayload, context: Dict) -> FirstPayload:
@@ -141,6 +141,7 @@ class AIboxCamera(CoralNode):
         vc: VideoStreamer = context["vc"]
         ret, frame = vc.read()
         if not ret:
+            time.sleep(0.01)
             raise CoralSenderIgnoreException("读取频率过高, 队列为空")
 
         # 将摄像头拷贝数据web读取写入队列

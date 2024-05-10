@@ -37,7 +37,7 @@
             "device_id": 0,
             "base_dir": "db/person",
             "db_size": 1000,
-            "sim_threshold": 0.25
+            "sim_threshold": 1.0
         },
         "is_record": false,
         "is_open": true

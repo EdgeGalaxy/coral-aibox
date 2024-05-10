@@ -32,6 +32,7 @@ export default function Configuration() {
   }, [baseUrl]);
 
   const onSelectChange = (value: string) => {
+    console.log('selectCameraID', value)
     setSelectCameraID(value);
   }
 
@@ -56,7 +57,7 @@ export default function Configuration() {
           ))}
         </Select>
       </div>
-      <CameraMask camera_id={selectCameraID} />
+      <CameraMask camera_id={selectCameraID} baseUrl={baseUrl} />
     </div>
   );
 }

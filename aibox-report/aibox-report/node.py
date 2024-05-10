@@ -90,9 +90,9 @@ class AIboxReport(CoralNode):
         # 摄像头最后一次接收时间
         self.cameras_last_capture_time: Dict[str, float] = {}
         # 摄像头能合并一起计算的最大间隔时间
-        self.concat_max_interval = 1
+        self.concat_max_interval = 2
         # 近几次上报的观察人数列表
-        self.observations = deque(maxlen=30)
+        self.observations = deque(maxlen=15)
         # kalman滤波器
         self.kf = self.init_kalman_filter()
         # 初始化事件类
