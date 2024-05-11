@@ -63,7 +63,7 @@ class AIboxReportParamsModel(BaseParamsModel):
     windows_interval: int = Field(
         default=3, description="预测值人数窗口最大间隔时间，在这时间内的才做统计"
     )
-    report_image: bool = True
+    report_image: bool = False
     base_dir_name: str = Field(default="report", description="事件保存路径")
 
     @property

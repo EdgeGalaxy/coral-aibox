@@ -4,16 +4,31 @@
         "enable_shared_memory": true
     },
     "meta": {
-        "receivers": [{ "node_id": "aibox_face" }]
+        "receivers": [
+            {
+                "node_id": "aibox_face"
+            }
+        ]
     },
     "params": {
-		"report_image": false,
+        "report_image": false,
         "mqtt": {
             "broker": "47.116.14.85",
             "port": 9022,
             "username": "admin",
             "password": "admin"
         },
-        "base_dir": "report"
+        "base_dir": "report",
+        "gpio": {
+            "enable": true,
+            "pins": [
+                7,
+                29,
+                31
+            ],
+            "interval": 1
+        },
+        "windows_interval": 3,
+        "base_dir_name": "report"
     }
 }
