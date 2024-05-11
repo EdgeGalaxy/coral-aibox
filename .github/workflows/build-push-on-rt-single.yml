@@ -30,6 +30,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rt-single-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rt-single-  
+
       - name: Extract tag name
         id: extract_tag
         run: |
@@ -47,7 +55,12 @@ jobs:
           file: ./Dockerfile_rt
           push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-rt-single:${{ steps.extract_tag.outputs.TAG_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+          name: Move cache
+          run: |
+            rm -rf /tmp/.buildx-cache
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache    
 
 

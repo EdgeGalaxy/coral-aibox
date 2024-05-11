@@ -28,7 +28,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-rknn-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rknn-camera-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-camera-  
 
       - name: Extract tag name
         id: extract_tag
@@ -47,8 +55,13 @@ jobs:
           file: ./aibox-camera/Dockerfile_rknn
           push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-camera:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+          name: Move cache
+          run: |
+            rm -rf /tmp/.buildx-cache
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache    
 
 
 
@@ -67,7 +80,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-rknn-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rknn-person-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-person-  
 
       - name: Extract tag name
         id: extract_tag
@@ -87,8 +108,13 @@ jobs:
           file: ./aibox-person/Dockerfile_rknn
           push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-person:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+          name: Move cache
+          run: |
+            rm -rf /tmp/.buildx-cache
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache    
 
 
 
@@ -106,7 +132,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-rknn-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rknn-face-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-face-  
 
       - name: Extract tag name
         id: extract_tag
@@ -126,8 +160,13 @@ jobs:
           file: ./aibox-face/Dockerfile_rknn
           push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-face:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+          name: Move cache
+          run: |
+            rm -rf /tmp/.buildx-cache
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache    
 
 
 
@@ -146,7 +185,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-rknn-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rknn-report-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-report-  
 
       - name: Extract tag name
         id: extract_tag
@@ -166,8 +213,13 @@ jobs:
           file: ./aibox-report/Dockerfile_rknn
           push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-report:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+          name: Move cache
+          run: |
+            rm -rf /tmp/.buildx-cache
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache    
 
 
 
@@ -185,7 +237,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-rknn-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rknn-record-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-record-  
 
       - name: Extract tag name
         id: extract_tag
@@ -205,8 +265,13 @@ jobs:
           file: ./aibox-record/Dockerfile
           push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-record:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+          name: Move cache
+          run: |
+            rm -rf /tmp/.buildx-cache
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache    
 
 
 
@@ -225,7 +290,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-rknn-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-rknn-web-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-rknn-web-  
 
       - name: Extract tag name
         id: extract_tag
@@ -245,7 +318,12 @@ jobs:
           file: ./aibox-web/Dockerfile
           push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-web:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+          name: Move cache
+          run: |
+            rm -rf /tmp/.buildx-cache
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache    
 
 
