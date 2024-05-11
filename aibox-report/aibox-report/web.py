@@ -46,6 +46,19 @@ def async_run(_node_id: str, mount_path: str) -> None:
     ).start()
 
 
+def durable_config(node_params: dict):
+    from coral import CoralNode
+
+    config_fp, _ = CoralNode.get_config()
+    with open(config_fp, "r") as f:
+        data = json.load(f)
+
+    data["params"].update(node_params)
+
+    with open(config_fp, "w") as f:
+        json.dump(data, f, indent=4)
+
+
 def check_config_fp_or_set_default(config_fp: str):
     """
     校验配置文件是否存在，不存在则下载默认配置

@@ -61,7 +61,7 @@ class AIboxReportParamsModel(BaseParamsModel):
     mqtt: MQTTParamsModel = MQTTParamsModel()
     gpio: GpioParamsModel = GpioParamsModel()
     windows_interval: int = Field(
-        default=1, description="预测值人数窗口最大间隔时间，在这时间内的才做统计"
+        default=3, description="预测值人数窗口最大间隔时间，在这时间内的才做统计"
     )
     report_image: bool = True
     base_dir_name: str = Field(default="report", description="事件保存路径")
@@ -90,7 +90,7 @@ class AIboxReport(CoralNode):
         # 摄像头最后一次接收时间
         self.cameras_last_capture_time: Dict[str, float] = {}
         # 摄像头能合并一起计算的最大间隔时间
-        self.concat_max_interval = 2
+        self.concat_max_interval = self.params.windows_interval
         # 近几次上报的观察人数列表
         self.observations = deque(maxlen=15)
         # kalman滤波器
@@ -98,6 +98,8 @@ class AIboxReport(CoralNode):
         # 初始化事件类
         self.event = EventRecord(event_dir=self.params.base_dir)
         web.async_run(self.config.node_id, self.params.base_dir)
+        # 持久化数据
+        web.durable_config(self.params.model_dump())
 
     def init(self, index: int, context: dict):
         """
