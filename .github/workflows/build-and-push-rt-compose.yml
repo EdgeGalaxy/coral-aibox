@@ -28,7 +28,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-rt-camera-action@v3
+        uses: docker/set-buildx-action@v3
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -80,7 +80,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-rt-camera-action@v3
+        uses: docker/set-buildx-action@v3
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -132,7 +132,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-rt-camera-action@v3
+        uses: docker/set-buildx-action@v3
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -184,7 +184,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-rt-camera-action@v3
+        uses: docker/set-buildx-action@v3
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -236,7 +236,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-rt-camera-action@v3
+        uses: docker/set-buildx-action@v3
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -289,7 +289,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-rt-camera-action@v3
+        uses: docker/set-buildx-action@v3
 
       - name: Cache Docker layers
         uses: actions/cache@v3
