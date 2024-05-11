@@ -36,7 +36,10 @@ def clear_shared_memory():
     else:
         shared_memorys = sa.list()
         for memory in shared_memorys:
-            sa.delete(memory.name)
+            try:
+                sa.delete(memory.name.decode())
+            except Exception:
+                pass
         logger.info(f"delete all shared memory: {len(shared_memorys)}")
 
 

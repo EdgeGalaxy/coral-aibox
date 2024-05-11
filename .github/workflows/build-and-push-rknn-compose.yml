@@ -22,10 +22,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-rknn-camera-${{ github.sha }}
+          key: ${{ runner.os }}-rknn-camera-cache
           restore-keys: |
             ${{ runner.os }}-rknn-camera-
 
@@ -42,12 +42,13 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-camera:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
 
   person:
     runs-on: ubuntu-20.04
@@ -65,10 +66,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-rknn-person-${{ github.sha }}
+          key: ${{ runner.os }}-rknn-person-cache
           restore-keys: |
             ${{ runner.os }}-rknn-person-
 
@@ -86,7 +87,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-person:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Move cache
         run: |
@@ -109,10 +110,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-rknn-face-${{ github.sha }}
+          key: ${{ runner.os }}-rknn-face-cache
           restore-keys: |
             ${{ runner.os }}-rknn-face-
 
@@ -130,12 +131,13 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-face:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
 
   report:
     runs-on: ubuntu-20.04
@@ -153,10 +155,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-rknn-report-${{ github.sha }}
+          key: ${{ runner.os }}-rknn-report-cache
           restore-keys: |
             ${{ runner.os }}-rknn-report-
 
@@ -174,7 +176,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-report:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Move cache
         run: |
@@ -197,10 +199,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-rknn-record-${{ github.sha }}
+          key: ${{ runner.os }}-rknn-record-cache
           restore-keys: |
             ${{ runner.os }}-rknn-record-
 
@@ -218,12 +220,13 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-record:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
 
   web:
     runs-on: ubuntu-20.04
@@ -241,10 +244,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-rknn-web-${{ github.sha }}
+          key: ${{ runner.os }}-rknn-web-cache
           restore-keys: |
             ${{ runner.os }}-rknn-web-
 
@@ -262,7 +265,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-web:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Move cache
         run: |
