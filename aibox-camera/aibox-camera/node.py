@@ -24,6 +24,11 @@ from algrothms.streamer import VideoStreamer
 def signal_restart(signal, frame):
     logger.info("receive signal: {}".format(signal))
     web.stop_main_thread()
+    clear_shared_memory()
+    sys.exit(0)
+
+
+def clear_shared_memory():
     import SharedArray as sa
 
     if not hasattr(sa, "list"):
@@ -34,11 +39,11 @@ def signal_restart(signal, frame):
             sa.delete(memory.name)
         logger.info(f"delete all shared memory: {len(shared_memorys)}")
 
-    sys.exit(0)
-
 
 # 注册信号触发
 signal.signal(signal.SIGTERM, signal_restart)
+# 清除共享内存
+clear_shared_memory()
 
 
 @PTManager.register()
@@ -55,6 +60,7 @@ class AIboxCamera(CoralNode):
     config_path = "config.json"
     node_type = NodeType.input
 
+    # 初始化web服务
     web.check_config_fp_or_set_default(CoralNode.get_config()[0])
 
     def __init__(self):
