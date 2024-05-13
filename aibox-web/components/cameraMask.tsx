@@ -105,7 +105,7 @@ const _CameraMask = ({ camera_id, baseUrl } : { camera_id: string, baseUrl: stri
     })
       .then((response) => response.json())
       .then((data) => {
-        message.info('保存成功');
+        message.success('保存成功');
       })
       .catch((error) => {
         console.error('保存失败', error);

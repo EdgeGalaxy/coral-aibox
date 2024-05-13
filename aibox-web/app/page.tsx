@@ -12,6 +12,7 @@ import { ChangeResolution, LevelKeys } from "@/components/changeResolution";
 const { Option } = Select;
 
 export default function Home() {
+  const [ loading, setLoading ] = useState(false);
   const [ baseUrl, setBaseUrl ] = useState("");
   const [cameras, SetCameras] = useState([]);
   const [prefixPath, setPrefixPath] = useState("8010/api/aibox_camera/cameras");
@@ -48,6 +49,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
     fetch(`${baseUrl}:8010/api/aibox_camera/cameras`)
       .then((response) => response.json())
       .then((cameras) => SetCameras(cameras));
@@ -59,11 +61,12 @@ export default function Home() {
     fetch(`${baseUrl}:8010/api/aibox_camera/cameras/resolution`)
       .then((response) => response.json())
       .then((level) => setDefaultLevel(level));
+    setLoading(false);
   }, [baseUrl]);
 
-  if (cameras.length === 0) {
-    return <div>Loading...</div>; // 显示加载状态
-  }
+  // if (loading) {
+  //   return <div>Loading...</div>; // 显示加载状态
+  // }
 
   return (
     <>

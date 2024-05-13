@@ -1,6 +1,4 @@
-import os
 import sys
-import subprocess
 import time
 import signal
 from typing import Dict, List
@@ -23,8 +21,8 @@ from algrothms.streamer import VideoStreamer
 
 def signal_restart(signal, frame):
     logger.info("receive signal: {}".format(signal))
-    web.stop_main_thread()
     clear_shared_memory()
+    web.stop_main_thread()
     sys.exit(0)
 
 
@@ -80,8 +78,8 @@ class AIboxCamera(CoralNode):
         :param context: 上下文参数
         """
         cameras = self.params.model_dump()["cameras"]
-        if not cameras:
-            raise ValueError("未配置摄像头")
+        # if not cameras:
+        #     raise ValueError("未配置摄像头")
         if not self.process.enable_parallel:
             raise ValueError(
                 "当前摄像头只支持并行模式, 设置 process -> enable_parallel 为 true"
@@ -103,30 +101,6 @@ class AIboxCamera(CoralNode):
         # 更新web的全局变量
         web.contexts[camera["name"]] = context
 
-    def restart_program(self):
-        """重启当前程序。"""
-
-        python = sys.executable
-        # 如果你的脚本接受命令行参数，可以通过sys.argv传递
-        args = sys.argv[:]
-        # 也可以在这里修改sys.argv中的元素，如果你想改变重启时的命令行参数
-        # args[1:] = ['arg1', 'arg2']
-
-        # 下面的命令会启动一个新的Python进程，使用相同的参数运行本脚本
-        subprocess.Popen([python] + args)
-
-        self.os_kill()
-
-    @staticmethod
-    def os_kill():
-        # 退出当前进程, 运行两次，冷退出,
-        # ! 确保图片内存缓存记录落盘
-        os.kill(os.getpid(), 2)
-        time.sleep(0.1)
-        os.kill(os.getpid(), 2)
-        time.sleep(0.3)
-        os.kill(os.getpid(), 9)
-
     def sender(self, payload: RawPayload, context: Dict) -> FirstPayload:
         """
         数据发送函数
@@ -135,18 +109,6 @@ class AIboxCamera(CoralNode):
         :param context: 上下文参数
         :return: 数据
         """
-        # 此处控制线程退出
-        if web.restart:
-            web.restart = False
-            logger.info("receive restart signal")
-            self.shutdown()
-            self.restart_program()
-
-        if web.stop:
-            web.stop = False
-            logger.info("receive stop signal")
-            self.os_kill()
-
         vc: VideoStreamer = context["vc"]
         ret, frame = vc.read()
         if not ret:

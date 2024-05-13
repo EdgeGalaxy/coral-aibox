@@ -2,6 +2,8 @@ import io
 import os
 import json
 import shutil
+import subprocess
+import sys
 import time
 from typing import Dict, List
 from threading import Thread
@@ -23,8 +25,6 @@ from schema import ChangeResolutionModel, ParamsModel, CameraParamsModel, Camera
 # 全局变量
 node_id = None
 contexts = {}
-restart = False
-stop = False
 stop_stream = False
 is_actived = False
 cameras_queue: Dict[str, deque] = defaultdict(lambda: deque(maxlen=5))
@@ -69,14 +69,32 @@ def resolution_height_mapper(resolution: str) -> int:
         return None
 
 
+def restart_program():
+    """重启当前程序。"""
+    python = sys.executable
+    args = sys.argv[:]
+
+    subprocess.Popen([python] + args)
+
+    os_kill()
+
+
+def os_kill():
+    # 退出当前进程, 运行两次，冷退出,
+    # signal 2 确保图片内存缓存记录落盘
+    os.kill(os.getpid(), 2)
+    time.sleep(0.1)
+    os.kill(os.getpid(), 2)
+    time.sleep(0.3)
+    os.kill(os.getpid(), 9)
+
+
 def restart_main_thread():
-    global restart
-    restart = True
+    Thread(target=restart_program).start()
 
 
 def stop_main_thread():
-    global stop
-    stop = True
+    Thread(target=os_kill).start()
 
 
 def draw_mask_lines(frame, points: List[List[int]]):
@@ -124,6 +142,7 @@ def durable_config(
 
     cameras: List = data["params"].get("cameras", [CameraParamsModel().model_dump()])
     camera_ids = {camera["name"]: idx for idx, camera in enumerate(cameras)}
+    camera_urls = {camera["url"]: idx for idx, camera in enumerate(cameras)}
     # !此处为适配node节点内的代码而写，需要优化
     if ops == CameraOps.CHANGE:
         camera_data = camera.model_dump()
@@ -133,6 +152,10 @@ def durable_config(
         idx = camera_ids[camera_id]
         del cameras[idx]
     elif ops == CameraOps.ADD:
+        if camera_id in camera_ids:
+            raise ValueError(f"相机名称需要保持唯一, 已存在相机 {camera_id}")
+        if camera.url in camera_urls:
+            raise ValueError(f"相机地址需要保持唯一, 已存在相机 {camera.url}")
         camera_data = camera.model_dump()
         # 新增数据
         cameras.append(camera_data)
@@ -166,6 +189,8 @@ def cameras():
 
 @router.get("/cameras/resolution")
 def resolution():
+    if len(contexts) == 0:
+        return None
     return contexts[list(contexts.keys())[0]]["resolution"]
 
 
@@ -278,8 +303,11 @@ def change_camera_params(camera_id: str, item: ParamsModel):
 
 @router.post("/cameras/add")
 def add_camera(item: CameraParamsModel):
-    # 持久化
-    durable_config(item.name, item, ops=CameraOps.ADD)
+    try:
+        # 持久化
+        durable_config(item.name, item, ops=CameraOps.ADD)
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
     # 重启服务
     restart_main_thread()
     return item.model_dump()

@@ -1,5 +1,5 @@
 import React, { memo, useState } from "react";
-import { Button, Modal, Form, Input } from "antd";
+import { Button, Modal, Form, Input, message } from "antd";
 
 import { getInternalHost } from "./api/utils";
 
@@ -40,9 +40,11 @@ const _addCamera = ( { baseUrl }: { baseUrl: string }) => {
         })
           .then((response) => response.json())
           .then((data) => {
+            message.success("添加成功");
             console.log("Success:", data);
           })
           .catch((error) => {
+            message.error("添加失败: " + error);
             console.log("error:", error);
           })
           .finally(() => {
