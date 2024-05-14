@@ -75,9 +75,11 @@ class AIboxRecord(CoralNode):
         """
         recorder: Recorder = context["recorder"]
         image = payload.raw.copy()
+        report_data = payload.metas.get(self.meta.receivers[0].node_id)
         recorder.write(
             image,
             payload.objects,
+            person_count=report_data["person_count"],
             target_dir_name=payload.source_id,
             points=payload.raw_params["points"],
         )

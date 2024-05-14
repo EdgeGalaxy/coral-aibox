@@ -4,7 +4,7 @@
         "enable_shared_memory": true
     },
     "meta": {
-        "receivers": [{ "node_id": "aibox_face" }]
+        "receivers": [{ "node_id": "aibox_report" }]
     },
     "params": {
         "base_dir_name": "record"

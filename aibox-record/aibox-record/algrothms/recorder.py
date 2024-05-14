@@ -45,6 +45,7 @@ class Recorder:
         frame: np.ndarray,
         objects: List[ObjectPayload],
         target_dir_name: str,
+        person_count: int,
         points: List[List[int]] = [],
     ):
         if not self._enable:
@@ -78,7 +79,7 @@ class Recorder:
             logger.info(f"start write video: {video_save_fp}")
             self._last_record_at = datetime.now()
 
-        frame = self._draw_time_info(frame)
+        frame = self._draw_time_info(frame, person_count)
         frame = self._draw_person_rect(frame, objects)
         if points:
             frame = self._draw_mask(frame, points)
@@ -120,11 +121,11 @@ class Recorder:
         return frame
 
     @staticmethod
-    def _draw_time_info(frame):
-        time_str = time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    def _draw_time_info(frame: np.ndarray, person_count: int):
+        time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         frame = cv2.putText(
             frame,
-            time_str,
+            f"Total Person: {person_count}  Time: {time_str}",
             (20, 40),
             fontScale=1,
             fontFace=cv2.FONT_HERSHEY_SIMPLEX,

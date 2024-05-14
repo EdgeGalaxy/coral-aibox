@@ -8,7 +8,10 @@
             {
                 "node_id": "aibox_face"
             }
-        ]
+        ],
+        "sender": {
+            "node_id": "aibox_report"
+        }
     },
     "params": {
         "report_image": false,
@@ -26,7 +29,7 @@
                 29,
                 31
             ],
-            "interval": 1
+            "interval": 1.0
         },
         "windows_interval": 3,
         "base_dir_name": "report"

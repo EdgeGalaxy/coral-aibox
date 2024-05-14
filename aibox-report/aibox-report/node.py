@@ -17,8 +17,10 @@ from coral import (
     BaseParamsModel,
     NodeType,
     ObjectPayload,
+    RTManager,
     RawPayload,
     PTManager,
+    ReturnPayloadWithTS,
 )
 from coral.constants import MOUNT_PATH
 from coral.metrics import init_mqtt, mqtt
@@ -71,6 +73,12 @@ class AIboxReportParamsModel(BaseParamsModel):
         _dir = os.path.join(MOUNT_NODE_PATH, self.base_dir_name)
         os.makedirs(_dir, exist_ok=True)
         return _dir
+
+
+@RTManager.register()
+class AIboxReportRTModel(ReturnPayloadWithTS):
+    person_count: int
+    objects_count: int
 
 
 class AIboxReport(CoralNode):
@@ -205,7 +213,7 @@ class AIboxReport(CoralNode):
         # 向上取整返回最终的人数
         return count
 
-    def sender(self, payload: RawPayload, context: Dict):
+    def sender(self, payload: RawPayload, context: Dict) -> AIboxReportRTModel:
         """
         数据发送函数
 
@@ -275,7 +283,9 @@ class AIboxReport(CoralNode):
                         "pre_camera_count": pre_camera_count,
                     }
                 )
-        return None
+        return AIboxReportRTModel(
+            person_count=person_count, objects_count=sum(pre_camera_count)
+        )
 
 
 if __name__ == "__main__":

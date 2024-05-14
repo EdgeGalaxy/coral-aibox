@@ -7,7 +7,7 @@
     },
     "process": {
         "enable_parallel": true,
-        "count": 4
+        "count": 1
     },
     "generic": {
         "enable_shared_memory": true
@@ -16,33 +16,6 @@
         "cameras": [
             {
                 "name": "camera01",
-                "url": "0",
-                "params": {
-                    "iou_scale": 0.03,
-                    "points": []
-                }
-            },
-
-            {
-                "name": "camera02",
-                "url": "0",
-                "params": {
-                    "iou_scale": 0.03,
-                    "points": []
-                }
-            },
-
-            {
-                "name": "camera03",
-                "url": "0",
-                "params": {
-                    "iou_scale": 0.03,
-                    "points": []
-                }
-            },
-
-            {
-                "name": "camera04",
                 "url": "0",
                 "params": {
                     "iou_scale": 0.03,
