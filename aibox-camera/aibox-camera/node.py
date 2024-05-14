@@ -36,7 +36,7 @@ SharedMemoryIDManager.clear_all_memory()
 @PTManager.register()
 class AIboxCameraParamsModel(BaseParamsModel):
     cameras: List[CameraParamsModel] = [CameraParamsModel()]
-    resolution: str = "origin"
+    resolution: str = "low"
 
 
 class AIboxCamera(CoralNode):

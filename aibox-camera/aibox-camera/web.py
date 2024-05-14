@@ -184,7 +184,7 @@ def durable_resolution_config(resolution: str):
 
 @router.get("/cameras")
 def cameras():
-    return list(contexts.keys())
+    return sorted(list(contexts.keys()))
 
 
 @router.get("/cameras/resolution")
