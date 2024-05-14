@@ -39,7 +39,7 @@ class VideoAHDStreamer:
 
     AHD_SRC_NO_WH = "v4l2src device=/dev/video{video_idx} ! video/x-raw,format=NV12,framerate=30/1 ! videoconvert n-threads=4 ! video/x-raw,format=BGR ! appsink name=sink emit-signals=True max-buffers=2 drop=True"
 
-    def __init__(self, video_idx: str, width: int = None):
+    def __init__(self, video_idx: str):
         try:
             import gi
         except ModuleNotFoundError:
@@ -50,12 +50,13 @@ class VideoAHDStreamer:
         gi.require_version("Gst", "1.0")
         from gi.repository import Gst
 
+        self.video_idx = video_idx
         # 初始化 GStreamer
         Gst.init(None)
-        pipe = self.AHD_SRC_NO_WH.format(video_idx=video_idx)
-        logger.info(f"gstreamer pipe: {pipe}")
+        pipe_str = self.AHD_SRC_NO_WH.format(video_idx=video_idx)
+        logger.info(f"gstreamer pipe: {pipe_str}")
         # 使用尽可能高效的管道设置
-        self.pipeline = Gst.parse_launch(pipe)
+        self.pipeline = Gst.parse_launch(pipe_str)
         self.appsink = self.pipeline.get_by_name("sink")
         if self.appsink:
             self.appsink.connect("new-sample", self.on_new_sample)
@@ -80,6 +81,7 @@ class VideoAHDStreamer:
                     shape=(height, width, 3), dtype=np.uint8, buffer=map_info.data
                 )
                 # 添加
+                logger.debug(f"video idx: {self.video_idx} append frame to queue!")
                 self.frame_queue.append(frame.copy())
                 buffer.unmap(map_info)
             return Gst.FlowReturn.OK

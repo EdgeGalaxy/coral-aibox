@@ -12,6 +12,7 @@ from coral import (
     NodeType,
 )
 from loguru import logger
+from coral.sched import SharedMemoryIDManager
 from coral.exception import CoralSenderIgnoreException
 
 import web
@@ -21,30 +22,15 @@ from algrothms.streamer import VideoStreamer
 
 def signal_restart(signal, frame):
     logger.info("receive signal: {}".format(signal))
-    clear_shared_memory()
+    SharedMemoryIDManager.clear_all_memory()
     web.stop_main_thread()
     sys.exit(0)
-
-
-def clear_shared_memory():
-    import SharedArray as sa
-
-    if not hasattr(sa, "list"):
-        logger.warning("platform not support SharedArray list function!")
-    else:
-        shared_memorys = sa.list()
-        for memory in shared_memorys:
-            try:
-                sa.delete(memory.name.decode())
-            except Exception:
-                pass
-        logger.info(f"delete all shared memory: {len(shared_memorys)}")
 
 
 # 注册信号触发
 signal.signal(signal.SIGTERM, signal_restart)
 # 清除共享内存
-clear_shared_memory()
+SharedMemoryIDManager.clear_all_memory()
 
 
 @PTManager.register()
@@ -66,6 +52,7 @@ class AIboxCamera(CoralNode):
 
     def __init__(self):
         super().__init__()
+        self.logger_fps_time = time.time()
         # 更新node_id变量，并启动web服务
         web.node_id = self.config.node_id
         web.is_actived = self.is_active
@@ -112,7 +99,7 @@ class AIboxCamera(CoralNode):
         vc: VideoStreamer = context["vc"]
         ret, frame = vc.read()
         if not ret:
-            time.sleep(0.01)
+            time.sleep(0.02)
             raise CoralSenderIgnoreException("读取频率过高, 队列为空")
 
         # 将摄像头拷贝数据web读取写入队列
@@ -125,6 +112,12 @@ class AIboxCamera(CoralNode):
         }
 
         return FirstPayload(source_id=context["name"], raw=frame, raw_params=raw_params)
+
+    def logger_fps(self):
+        # 每3秒打印一次FPS
+        if time.time() - self.logger_fps_time > 3:
+            super().logger_fps()
+            self.logger_fps_time = time.time()
 
 
 if __name__ == "__main__":
