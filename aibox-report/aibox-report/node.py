@@ -266,14 +266,14 @@ class AIboxReport(CoralNode):
                 report_msg["extras"].update({"image_with_objects": image_with_objects})
 
             mqtt_client.publish(self.topic, json.dumps(report_msg))
-
+            pre_camera_count = [
+                count for count, _, _ in self.cameras_frame_data.values()
+            ]
             # 触发信号, 开
             if person_count:
                 with gpio_client:
                     gpio_client.trigger_on()
-                pre_camera_count = [
-                    count for count, _, _ in self.cameras_frame_data.values()
-                ]
+
                 self.event.add_event(
                     {
                         # 取时间: 年-月-日 时:分:秒.毫秒
@@ -283,6 +283,10 @@ class AIboxReport(CoralNode):
                         "pre_camera_count": pre_camera_count,
                     }
                 )
+
+        # 更新人数
+        web.person_count = person_count
+
         return AIboxReportRTModel(
             person_count=person_count, objects_count=sum(pre_camera_count)
         )

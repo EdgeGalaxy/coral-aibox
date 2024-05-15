@@ -16,9 +16,9 @@ type CameraConfig = {
 const _CameraMask = ({ camera_id, baseUrl } : { camera_id: string, baseUrl: string }) => {
   const [ BaseMaskUrl, setUrl ] = useState("");
   const [ cameraConfigUrl, setCameraConfigUrl] = useState("");
-  const [coordinates, setCoordinates] = useState<{ x: number; y: number }[]>([]);
-  const [snapshotUrl, setSnapshotUrl] = useState<string>("");
-  const [cameraConfig, setCameraConfig] = useState<CameraConfig>({} as CameraConfig);
+  const [ coordinates, setCoordinates] = useState<{ x: number; y: number }[]>([]);
+  const [ snapshotUrl, setSnapshotUrl] = useState<string>("");
+  const [ cameraConfig, setCameraConfig] = useState<CameraConfig>({} as CameraConfig);
 
   useEffect(() => {
     setUrl(`${baseUrl}:8010/api/aibox_camera/cameras/${camera_id}/draw-mask`)

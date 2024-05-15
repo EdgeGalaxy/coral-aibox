@@ -71,8 +71,8 @@ const _Mask = ({ url, updateCoordinate }: props) => {
 
   function drawDot(context: CanvasRenderingContext2D, x1: number, y1: number) {
     context.beginPath();
-    context.arc(x1, y1, 5, 0, Math.PI * 2);
-    context.fillStyle = 'black';
+    context.arc(x1, y1, 6, 0, Math.PI * 2);
+    context.fillStyle = 'green';
     context.fill();
     context.closePath();
   }

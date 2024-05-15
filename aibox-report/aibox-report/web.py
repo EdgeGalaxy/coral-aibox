@@ -1,3 +1,4 @@
+import asyncio
 import os
 import json
 import shutil
@@ -9,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 import requests
 import uvicorn
 from loguru import logger
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
 from algrothms.event import EventRecord
@@ -17,6 +18,7 @@ from algrothms.event import EventRecord
 
 # 全局变量
 node_id = None
+person_count = None
 contexts = {}
 
 
@@ -92,3 +94,17 @@ def get_gpio_events():
     context = contexts[0]
     event: EventRecord = context["context"]["event"]
     return event.events
+
+
+@router.websocket("/ws/person_count")
+async def person_count_ws(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            message = {"count": person_count}
+            await websocket.send_json(message)
+            await asyncio.sleep(0.05)
+    except Exception as e:
+        logger.warning(e)
+    finally:
+        await websocket.close()

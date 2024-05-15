@@ -9,6 +9,7 @@ import { getInternalHost } from "@/components/api/utils";
 import { ActiveModal } from "@/components/activeModel";
 import { ChangeResolution, LevelKeys } from "@/components/changeResolution";
 import { DownOutlined } from "@ant-design/icons";
+import { ShowPerson } from "@/components/showPerson";
 
 const { Option } = Select;
 const MAX_COUNT = 4;
@@ -19,7 +20,8 @@ export default function Home() {
   const [ selectCameras, setSelectCameras ] = useState<string[]>([]);
   const [ prefixPath, setPrefixPath ] = useState<string>("8010/api/aibox_camera/cameras");
   const [ isActived, setIsActived ] = useState<boolean>(true);
-  const [ defaultLevel, setDefaultLevel ] = useState<LevelKeys>("origin");
+  const [ defaultLevel, setDefaultLevel ] = useState<LevelKeys>("low");
+  const [ wsUrl, setWsUrl ] = useState<string>("");
 
   const selectItems = ["原视频", "推理视频"];
 
@@ -55,6 +57,8 @@ export default function Home() {
       const internalHost = await getInternalHost();
       console.log('internalHost', internalHost)
       setBaseUrl(internalHost)
+      const wsHost = internalHost.replace(/http/g, "ws")
+      setWsUrl(`${wsHost}:8040/api/aibox_report/ws/person_count`)
       return internalHost
     }
     fetchInternalIP()
@@ -77,28 +81,31 @@ export default function Home() {
       .then((level) => setDefaultLevel(level));
   }, [baseUrl]);
 
-  // if (loading) {
-  //   return <div>Loading...</div>; // 显示加载状态
-  // }
+  if (wsUrl === "") {
+    return <div>Loading...</div>; // 显示加载状态
+  }
 
   return (
     <>
       <ActiveModal isOpen={!isActived} />
       <div className="flex m-4 items-center">
-        <p className="mr-2 font-mono font-bold text-center">选择视频类型: </p>
-        <Select
-          className="text-center"
-          defaultValue={selectItems[0]}
-          style={{ width: 120, height: 40 }}
-          onChange={onChange}
-        >
-          {selectItems.map((id) => (
-            <Option key={id} value={id}>
-              {id}
-            </Option>
-          ))}
-        </Select>
-          <p className="mx-4 font-mono font-bold text-center">选择摄像头(最多选{MAX_COUNT}个): </p>
+        <div className="flex m-3">
+          <p className="mr-2 font-mono font-bold text-center">选择视频类型: </p>
+          <Select
+            className="text-center"
+            defaultValue={selectItems[0]}
+            style={{ width: 120, height: 40 }}
+            onChange={onChange}
+          >
+            {selectItems.map((id) => (
+              <Option key={id} value={id}>
+                {id}
+              </Option>
+            ))}
+          </Select>
+        </div>
+        <div className="flex m-3">
+        <p className="mr-2 font-mono font-bold text-center">选择摄像头(最多选{MAX_COUNT}个): </p>
           <Select
             mode="multiple"
             value={selectCameras}
@@ -113,6 +120,11 @@ export default function Home() {
               </Option>
             ))}
           </Select>
+        </div>
+
+          <div className="flex m-3">
+            <ShowPerson wsUrl={wsUrl} />
+          </div>
       </div>
       <div className="flex my-8 mx-4 justify-end">
         <div className="mr-2">
