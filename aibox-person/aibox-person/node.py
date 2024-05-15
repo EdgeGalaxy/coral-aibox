@@ -1,3 +1,4 @@
+import time
 from typing import Dict, List, Any
 
 import cv2
@@ -114,7 +115,7 @@ class AIboxPerson(CoralNode):
 
         if filter_objects or objects:
             logger.info(
-                f"摄像头: {payload.source_id} 原始人物识别结果: {len(objects)} , 过滤后人物识别结果: {len(filter_objects)}"
+                f"摄像头: {payload.source_id} 原始人物识别结果: {len(objects)} , 过滤后人物识别结果: {len(filter_objects)} 节点处理耗时: {(time.time() - payload.timestamp) * 1000} ms"
             )
         return ObjectsPayload(objects=filter_objects, mode=InterfaceMode.APPEND)
 

@@ -85,7 +85,7 @@ def get_records():
             [
                 os.path.join(camera_dir_fn, f)
                 for f in os.listdir(camera_dir_fp)
-                if f.endswith(".mp4")
+                if f.endswith(".webm")
             ],
             reverse=True,
         )

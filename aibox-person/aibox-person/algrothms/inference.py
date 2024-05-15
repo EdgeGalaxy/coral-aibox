@@ -1,4 +1,5 @@
 import platform
+import time
 from typing import List
 
 import cv2

@@ -19,13 +19,21 @@ RUN echo 'Asia/Shanghai' > /etc/timezone
 # opencv 相关安装so文件
 RUN apt-get update && apt-get install -y supervisor curl
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash
-RUN apt-get install -y nodejs libgl1 libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0 cmake
+RUN apt-get install -y nodejs libgl1 libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0 cmake ffmpeg
 RUN LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libgomp.so.1:$LD_PRELOAD
 RUN npm install -g yarn next@latest react@latest react-dom@latest
 RUN mkdir -p /var/log/supervisor
 
-WORKDIR /workspace
 
+# 前端构建
+WORKDIR /workspace/aibox-web
+COPY aibox-web/yarn.lock aibox-web/package*.json ./
+RUN yarn install --frozen-lockfile
+COPY aibox-web /workspace/aibox-web
+RUN yarn run build
+
+
+WORKDIR /workspace
 RUN python3 -m pip install -U pip setuptools wheel && \
     pip3 install poetry==1.8.2
 

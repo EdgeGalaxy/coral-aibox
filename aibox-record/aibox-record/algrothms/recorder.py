@@ -31,8 +31,6 @@ class Recorder:
         self._auto_recycle_threshold = auto_recycle_threshold
         self._enable = enable
         os.makedirs(self.base_dir, exist_ok=True)
-        # 启动后台清理程序, 每5分钟清理一次
-        bg_tasks.add_job(self.auto_recycle, "interval", minutes=5)
         atexit.register(self.release_writer)
 
     def release_writer(self):
@@ -66,11 +64,11 @@ class Recorder:
             self.release_writer()
 
             video_save_fp = os.path.join(
-                save_dir, f"{now.strftime('%Y-%m-%d-%H-%M')}.mp4"
+                save_dir, f"{now.strftime('%Y-%m-%d-%H-%M')}.webm"
             )
             self._writer = cv2.VideoWriter(
                 video_save_fp,
-                fourcc=cv2.VideoWriter_fourcc(*"h264"),
+                fourcc=cv2.VideoWriter_fourcc(*"vp80"),
                 apiPreference=cv2.CAP_FFMPEG,
                 fps=12,
                 frameSize=(frame.shape[1], frame.shape[0]),
@@ -85,20 +83,21 @@ class Recorder:
             frame = self._draw_mask(frame, points)
         self._writer.write(frame)
 
-    def auto_recycle(self):
+    @classmethod
+    def auto_recycle(cls, base_dir: str, recycle_threshold: int = 5):
         # 自动删除老数据，直到磁盘空间达到预期
         gb = 1024**3
         _, _, free_b = shutil.disk_usage("/")
         logger.info(
-            f"start auto recycle. threshold: {self._auto_recycle_threshold}GB , crt free: {free_b / gb}GB"
+            f"start auto recycle. dir: {base_dir}, threshold: {recycle_threshold}GB , crt free: {free_b / gb}GB"
         )
         while True:
             # 当剩余空间小于指定阈值，触发删除逻辑，从最老的数据开始删除 （至少保留3个视频文件）
-            if free_b < self._auto_recycle_threshold * gb:
+            if free_b < recycle_threshold * gb:
                 # 遍历相机目录，删除最老的文件
-                _cameras_dir = os.listdir(self.base_dir)
+                _cameras_dir = os.listdir(base_dir)
                 for _camera_dir in _cameras_dir:
-                    _camera_dir_fp = os.path.join(self.base_dir, _camera_dir)
+                    _camera_dir_fp = os.path.join(base_dir, _camera_dir)
                     if os.path.isdir(_camera_dir_fp):
                         _camera_video_fns = sorted(os.listdir(_camera_dir_fp))
                         if not len(_camera_video_fns) > 3:

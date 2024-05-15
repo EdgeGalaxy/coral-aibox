@@ -89,8 +89,7 @@ export default function Home() {
     <>
       <ActiveModal isOpen={!isActived} />
       <div className="flex m-4 items-center">
-        <div className="flex m-3">
-          <p className="mr-2 font-mono font-bold text-center">选择视频类型: </p>
+          <p className="m-2 font-mono font-bold text-center">选择视频类型: </p>
           <Select
             className="text-center"
             defaultValue={selectItems[0]}
@@ -103,9 +102,7 @@ export default function Home() {
               </Option>
             ))}
           </Select>
-        </div>
-        <div className="flex m-3">
-        <p className="mr-2 font-mono font-bold text-center">选择摄像头(最多选{MAX_COUNT}个): </p>
+        <p className="m-2 font-mono font-bold text-center">选择摄像头(最多选{MAX_COUNT}个): </p>
           <Select
             mode="multiple"
             value={selectCameras}
@@ -120,9 +117,8 @@ export default function Home() {
               </Option>
             ))}
           </Select>
-        </div>
 
-          <div className="flex m-3">
+          <div>
             <ShowPerson wsUrl={wsUrl} />
           </div>
       </div>

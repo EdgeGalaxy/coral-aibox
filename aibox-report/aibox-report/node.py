@@ -188,10 +188,13 @@ class AIboxReport(CoralNode):
             _valid_person_count += self.cameras_frame_data[camera_id][0]
 
         # 验证此次统计的有效性
-        # ! 这种模式会存在如果有一个摄像头出现问题，则会一直无法正确统计的情况
-        if set(_valid_camera_ids) != set(camera_ids):
+        # ! 这种模式会存在如果有1/2的摄像头出现问题，则会一直无法正确统计的情况, 后续需要以某种方式通知摄像头问题
+        if (
+            set(_valid_camera_ids) != set(camera_ids)
+            and len(_valid_camera_ids) / len(camera_ids) >= 0.5
+        ):
             raise InvalidPersonCount(
-                "无效的一次统计，指定时间内没有统计出所有摄像头的人数"
+                "无效的一次统计，指定时间内没有统计出至少1/2的摄像头数的人数"
             )
         else:
             self.observations.append(_valid_person_count)
@@ -237,6 +240,7 @@ class AIboxReport(CoralNode):
             person_count = self.process_person_count(payload.raw_params["camera_ids"])
         except InvalidPersonCount as e:
             logger.warning(f"{e}")
+            web.person_count = None
         else:
             report_msg = {
                 "uuid": payload.raw_id,
@@ -284,8 +288,8 @@ class AIboxReport(CoralNode):
                     }
                 )
 
-        # 更新人数
-        web.person_count = person_count
+            # 更新人数
+            web.person_count = person_count
 
         return AIboxReportRTModel(
             person_count=person_count, objects_count=sum(pre_camera_count)

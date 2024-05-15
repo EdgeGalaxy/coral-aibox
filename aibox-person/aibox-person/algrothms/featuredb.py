@@ -81,7 +81,9 @@ class FeatureDB:
 
     def delete_fake_person(self, person_id: str):
         if person_id in self.fake_persons_image:
-            self.fake_persons_image.remove(person_id)
+            idx = self.fake_persons_image.index(person_id)
+            del self.fake_persons_image[idx]
+            del self.fake_persons_features[idx]
             os.remove(os.path.join(self.db_path, person_id + ".jpg"))
             os.remove(os.path.join(self.db_path, person_id + ".npy"))
 
@@ -108,9 +110,14 @@ class FeatureDB:
         # !此处主要考虑save为true时，尽量将差不多相似的误检照片放一起
         # !同时避免同一个人的误检一直存入库中，不一定严谨
         sim_thresh = 0.8 if save else self.sim_threshold
-
+        st = time.time()
         feature = self.model.feature(image)
+        et = time.time()
         match_key, above_count = self.compare(feature, sim_thresh)
+
+        logger.debug(
+            f"predict cost: {int((et - st) * 1000)} ms, feature compare cost: {int((time.time() - et) * 1000)} ms, feature count: {len(self.fake_persons_features)} "
+        )
 
         if save:
             self.save(image, feature, above_count)

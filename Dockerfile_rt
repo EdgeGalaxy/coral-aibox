@@ -1,10 +1,10 @@
-FROM node:20-alpine AS node-build
-# 前端
-WORKDIR /app/aibox-web
-COPY aibox-web/yarn.lock aibox-web/package*.json ./
-RUN yarn install --frozen-lockfile
-COPY aibox-web /app/aibox-web
-RUN yarn run build
+# FROM node:20-alpine AS node-build
+# # 前端
+# WORKDIR /app/aibox-web
+# COPY aibox-web/yarn.lock aibox-web/package*.json ./
+# RUN yarn install --frozen-lockfile
+# COPY aibox-web /app/aibox-web
+# RUN yarn run build
 
 
 FROM cash2020/ubuntu2004_rknn152_ros2_service:v1.0
@@ -18,9 +18,9 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 && \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
-RUN apt-get install -y supervisor curl
+RUN apt-get install -y supervisor curl ffmpeg 
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash
-RUN apt-get install -y nodejs
+RUN apt-get install -y nodejs 
 RUN npm install -g yarn next@latest react@latest react-dom@latest
 RUN mkdir -p /var/log/supervisor
 # 清理缓存
@@ -34,8 +34,16 @@ ENV LANG=C.UTF-8
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo 'Asia/Shanghai' >/etc/timezone
 
-WORKDIR /workspace
 
+# 前端构建
+WORKDIR /workspace/aibox-web
+COPY aibox-web/yarn.lock aibox-web/package*.json ./
+RUN yarn install --frozen-lockfile
+COPY aibox-web /workspace/aibox-web
+RUN yarn run build
+
+
+WORKDIR /workspace
 RUN python3 -m pip install -U pip setuptools wheel && \
     pip3 install poetry==1.8.2
 
@@ -48,6 +56,5 @@ ENV CONFIG_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/
 
 COPY . .
 
-COPY --from=node-build /app/aibox-web /workspace/aibox-web
 
 CMD ["/usr/bin/supervisord", "-c", "supervisord.conf"]

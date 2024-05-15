@@ -40,6 +40,6 @@
             "sim_threshold": 0.9
         },
         "is_record": false,
-        "is_open": true
+        "is_open": false
     }
 }

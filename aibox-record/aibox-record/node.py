@@ -1,3 +1,4 @@
+from functools import partial
 import os
 from typing import Dict
 
@@ -23,6 +24,7 @@ os.makedirs(MOUNT_NODE_PATH, exist_ok=True)
 @PTManager.register()
 class AIboxRecordParamsModel(BaseParamsModel):
     base_dir_name: str = Field(default="record", description="保存路径")
+    recycle_interval: int = Field(default=300, description="自动清理间隔时间")
     interval: int = Field(default=600, description="间隔时间")
     enable: bool = Field(default=True, description="是否开启")
     max_gb: int = Field(default=5, description="最大存储空间")
@@ -46,6 +48,15 @@ class AIboxRecord(CoralNode):
 
     def __init__(self):
         super().__init__()
+        self.recorders = {}
+        print(self.params.base_dir)
+        # 自动清理磁盘
+        self.bg_tasks.add_job(
+            Recorder.auto_recycle,
+            trigger="interval",
+            args=(self.params.base_dir, self.params.max_gb),
+            seconds=self.params.recycle_interval,
+        )
         web.async_run(self.config.node_id, self.params.base_dir)
 
     def init(self, index: int, context: dict):
@@ -54,14 +65,6 @@ class AIboxRecord(CoralNode):
 
         :param context: 上下文参数
         """
-        # 获取入参
-        recorder = Recorder(
-            base_dir=self.params.base_dir,
-            record_interval=self.params.interval,
-            auto_recycle_threshold=self.params.max_gb,
-            enable=self.params.enable,
-        )
-        context["recorder"] = recorder
 
         web.contexts[index] = {"context": context, "params": self.params}
 
@@ -73,7 +76,17 @@ class AIboxRecord(CoralNode):
         :param context: 上下文参数
         :return: 数据
         """
-        recorder: Recorder = context["recorder"]
+        if self.recorders.get(payload.source_id) is None:
+            recorder = Recorder(
+                base_dir=self.params.base_dir,
+                record_interval=self.params.interval,
+                auto_recycle_threshold=self.params.max_gb,
+                enable=self.params.enable,
+            )
+            self.recorders[payload.source_id] = recorder
+        else:
+            recorder: Recorder = self.recorders[payload.source_id]
+
         image = payload.raw.copy()
         report_data = payload.metas.get(self.meta.receivers[0].node_id)
         recorder.write(

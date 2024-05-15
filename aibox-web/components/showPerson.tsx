@@ -33,9 +33,9 @@ const showPerson = ( { wsUrl }: { wsUrl: string }) => {
 
   return (
     <div>
-        <div className="flex">
-          <p className="mr-2 font-mono font-bold text-center">上报人数: </p> 
-          <p className="font-bold text-rose-600 text-xl">{personCount != null ? personCount : '未检测'}</p>
+        <div className="flex mx-4">
+          <p className="mr-4 font-bold text-xl text-center">上报人数: </p> 
+          <p className="font-bold text-rose-600 text-xl text-center">{personCount != null ? personCount : '未检测'}</p>
         </div>
     </div>
   );
