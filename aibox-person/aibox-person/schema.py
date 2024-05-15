@@ -90,6 +90,7 @@ class AIboxPersonParamsModel(BaseParamsModel):
     is_record: bool = Field(
         default=False, description="是否记录当前获取的图像信息和特征"
     )
+    box_slice_count: int = Field(default=8, description="BOX框高度的切片数")
 
 
 ## ======= Web Schema ======= ##

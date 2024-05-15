@@ -67,7 +67,7 @@ const _CameraMask = ({ camera_id, baseUrl } : { camera_id: string, baseUrl: stri
     const maskUrl = BaseMaskUrl + `?points=${pointsStr}`
     console.log('maskurl', maskUrl)
     setSnapshotUrl(maskUrl)
-    handlePreviewClick()
+    // handlePreviewClick()
   }, [snapshotUrl]);
 
   const updateCoordinate = (newCoordinates: { x: number; y: number }) => {

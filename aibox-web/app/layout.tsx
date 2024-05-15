@@ -50,12 +50,12 @@ const menuItems = [
         url: "/preload/person",
         icon: <TeamOutlined />,
       },
-      {
-        label: "面部识别",
-        key: "/preload/face",
-        url: "/preload/face",
-        icon: <IdcardOutlined />,
-      }
+      // {
+      //   label: "面部识别",
+      //   key: "/preload/face",
+      //   url: "/preload/face",
+      //   icon: <IdcardOutlined />,
+      // }
     ]
   },
   {
@@ -70,12 +70,12 @@ const menuItems = [
     url: "/event",
     icon: <MessageOutlined />,
   },
-  {
-    label: "升级",
-    key: "/upgrade",
-    url: "/upgrade",
-    icon: <UpOutlined />,
-  },
+  // {
+  //   label: "升级",
+  //   key: "/upgrade",
+  //   url: "/upgrade",
+  //   icon: <UpOutlined />,
+  // },
 ];
 
 export default function RootLayout({

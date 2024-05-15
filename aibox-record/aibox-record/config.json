@@ -3,6 +3,11 @@
     "generic": {
         "enable_shared_memory": true
     },
+    "process": {
+        "enable_parallel": true,
+        "count": 1,
+        "max_qsize": 100
+    },
     "meta": {
         "receivers": [{ "node_id": "aibox_report" }]
     },

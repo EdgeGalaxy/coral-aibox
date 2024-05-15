@@ -5,8 +5,8 @@
     },
     "process": {
         "enable_parallel": true,
-        "count": 2,
-        "max_qsize": 5
+        "count": 5,
+        "max_qsize": 30
     },
     "meta": {
         "receivers": [

@@ -44,6 +44,7 @@ class Recorder:
         objects: List[ObjectPayload],
         target_dir_name: str,
         person_count: int,
+        crt_fps: int = 5,
         points: List[List[int]] = [],
     ):
         if not self._enable:
@@ -68,9 +69,9 @@ class Recorder:
             )
             self._writer = cv2.VideoWriter(
                 video_save_fp,
-                fourcc=cv2.VideoWriter_fourcc(*"vp80"),
+                fourcc=cv2.VideoWriter_fourcc(*"VP80"),
                 apiPreference=cv2.CAP_FFMPEG,
-                fps=12,
+                fps=crt_fps,
                 frameSize=(frame.shape[1], frame.shape[0]),
                 isColor=True,
             )

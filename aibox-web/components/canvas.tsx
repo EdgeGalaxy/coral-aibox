@@ -42,7 +42,7 @@ const _Mask = ({ url, updateCoordinate }: props) => {
       canvas.removeEventListener('mousedown', handleMouseDown);
       canvas.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDrawing, url]);
+  }, [isDrawing, url, ratio]);
 
   useEffect(() => {
 

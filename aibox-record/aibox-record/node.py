@@ -1,5 +1,6 @@
 from functools import partial
 import os
+import time
 from typing import Dict
 
 from pydantic import Field
@@ -49,7 +50,6 @@ class AIboxRecord(CoralNode):
     def __init__(self):
         super().__init__()
         self.recorders = {}
-        print(self.params.base_dir)
         # 自动清理磁盘
         self.bg_tasks.add_job(
             Recorder.auto_recycle,
@@ -87,11 +87,21 @@ class AIboxRecord(CoralNode):
         else:
             recorder: Recorder = self.recorders[payload.source_id]
 
-        image = payload.raw.copy()
+        # 获取运行时插入图片的帧率, 程序运行300s后代表帧率基本稳定,
+        # 因为插入是每个摄像头，当前fps计算是总的fps，因此需要除以摄像头数量
+        dynamic_fps = (
+            int(self.sender_fps / len(payload.raw_params["camera_ids"]))
+            if time.time() - self.run_time > 300
+            else 5
+        )
+
+        # 作为最后一个节点，为了节省内存，则直接用原numpy画图
+        image = payload.raw
         report_data = payload.metas.get(self.meta.receivers[0].node_id)
         recorder.write(
             image,
             payload.objects,
+            crt_fps=dynamic_fps,
             person_count=report_data["person_count"],
             target_dir_name=payload.source_id,
             points=payload.raw_params["points"],

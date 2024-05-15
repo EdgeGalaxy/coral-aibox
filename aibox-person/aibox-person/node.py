@@ -106,7 +106,9 @@ class AIboxPerson(CoralNode):
             objects = [ObjectPayload(**defect) for defect in defects]
             # 过滤与mask不重合的objects
             if mask is not None:
-                filter_objects = self.filter_objects(mask, objects, iou_thresh)
+                filter_objects = self.filter_objects(
+                    mask, objects, iou_thresh, self.params.box_slice_count
+                )
             else:
                 filter_objects = objects
         else:
@@ -128,13 +130,17 @@ class AIboxPerson(CoralNode):
 
     @classmethod
     def filter_objects(
-        cls, mask: np.ndarray, objects: List[ObjectPayload], iou_thresh: float
+        cls,
+        mask: np.ndarray,
+        objects: List[ObjectPayload],
+        iou_thresh: float,
+        slice_count: int,
     ):
         filter_objects = []
         for object in objects:
             x1, y1, x2, y2 = object.box.x1, object.box.y1, object.box.x2, object.box.y2
             # 取box下方1/4的区域
-            y1_4 = y1 + (y2 - y1) // 4
+            y1_4 = y1 + (y2 - y1) // slice_count
             box_in_mask = np.sum(mask[y1_4:y2, x1:x2])
             box_area = (x2 - x1 + 1) * (y2 - y1 + 1)
             if box_area > 0 and (box_in_mask / box_area) >= iou_thresh:
