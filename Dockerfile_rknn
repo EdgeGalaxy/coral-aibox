@@ -1,10 +1,10 @@
-FROM node:20-alpine AS node-build
-# 前端
-WORKDIR /app/aibox-web
-COPY aibox-web/yarn.lock aibox-web/package*.json ./
-RUN yarn install --frozen-lockfile
-COPY aibox-web /app/aibox-web
-RUN yarn run build
+# FROM node:20-alpine AS node-build
+# # 前端
+# WORKDIR /app/aibox-web
+# COPY aibox-web/yarn.lock aibox-web/package*.json ./
+# RUN yarn install --frozen-lockfile
+# COPY aibox-web /app/aibox-web
+# RUN yarn run build
 
 
 FROM bboyhanat/ubuntu2004-ros2foxy-rknn150:v1.4
