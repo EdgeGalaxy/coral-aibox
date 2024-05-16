@@ -87,20 +87,18 @@ class FeatureDB:
             os.remove(os.path.join(self.db_path, person_id + ".jpg"))
             os.remove(os.path.join(self.db_path, person_id + ".npy"))
 
-    def compare(self, feature: np.ndarray, sim_thresh: float = None):
+    def compare(self, feature: np.ndarray):
         if len(self.fake_persons_features) == 0:
             return None, 0
-
-        sim_thresh = sim_thresh if sim_thresh else self.sim_threshold
 
         index_cossims = self.cosine_similarity(
             feature, np.vstack(self.fake_persons_features).T
         )[0]
         s = np.argmax(index_cossims)
-        above_threshold_indices = np.where(index_cossims > sim_thresh)[0]
-        if index_cossims[s] > sim_thresh:
+        above_threshold_indices = np.where(index_cossims > self.sim_threshold)[0]
+        if index_cossims[s] > self.sim_threshold:
             logger.warning(
-                f"match fake person: {self.fake_persons_image[s]} threshold: {index_cossims[s]} above max threshold {sim_thresh}"
+                f"match fake person: {self.fake_persons_image[s]} threshold: {index_cossims[s]} above max threshold {self.sim_threshold}"
             )
             return self.fake_persons_image[s], len(above_threshold_indices)
 
@@ -109,11 +107,10 @@ class FeatureDB:
     def predict(self, image: np.ndarray, save: bool = False) -> bool:
         # !此处主要考虑save为true时，尽量将差不多相似的误检照片放一起
         # !同时避免同一个人的误检一直存入库中，不一定严谨
-        sim_thresh = 0.8 if save else self.sim_threshold
         st = time.time()
         feature = self.model.feature(image)
         et = time.time()
-        match_key, above_count = self.compare(feature, sim_thresh)
+        match_key, above_count = self.compare(feature)
 
         logger.debug(
             f"predict cost: {int((et - st) * 1000)} ms, feature compare cost: {int((time.time() - et) * 1000)} ms, feature count: {len(self.fake_persons_features)} "

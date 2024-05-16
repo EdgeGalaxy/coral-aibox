@@ -28,7 +28,7 @@
                 "person"
             ],
             "nms_thresh": 0.6,
-            "confidence_thresh": 0.4
+            "confidence_thresh": 0.3
         },
         "featuredb": {
             "weight_name": "resnet18-f37072fd",
@@ -40,6 +40,7 @@
             "sim_threshold": 1.0
         },
         "is_record": false,
-        "is_open": true
+        "is_open": true,
+        "box_slice_count": 8
     }
 }

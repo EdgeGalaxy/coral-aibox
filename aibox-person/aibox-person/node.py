@@ -118,7 +118,7 @@ class AIboxPerson(CoralNode):
 
         if filter_objects or objects:
             logger.info(
-                f"摄像头: {payload.source_id} 原始人物识别结果: {len(objects)} , 过滤后人物识别结果: {len(filter_objects)} 节点处理耗时: {(time.time() - st) * 1000} ms , 节点传输耗时: {(st - payload.timestamp) * 1000} ms"
+                f"摄像头: {payload.source_id} {payload.raw_id} 原始人物识别结果: {len(objects)} , 过滤后人物识别结果: {len(filter_objects)} 节点处理耗时: {(time.time() - st) * 1000} ms , 节点传输耗时: {(st - payload.timestamp) * 1000} ms"
             )
         return ObjectsPayload(objects=filter_objects, mode=InterfaceMode.APPEND)
 
@@ -141,8 +141,8 @@ class AIboxPerson(CoralNode):
         for object in objects:
             x1, y1, x2, y2 = object.box.x1, object.box.y1, object.box.x2, object.box.y2
             # 取box下方1/4的区域
-            y1_4 = y1 + (y2 - y1) // slice_count
-            box_in_mask = np.sum(mask[y1_4:y2, x1:x2])
+            y_slice = y2 - (y2 - y1) // slice_count
+            box_in_mask = np.sum(mask[y_slice:y2, x1:x2])
             box_area = (x2 - x1 + 1) * (y2 - y1 + 1)
             if box_area > 0 and (box_in_mask / box_area) >= iou_thresh:
                 filter_objects.append(object)

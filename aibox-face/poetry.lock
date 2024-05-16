@@ -533,13 +533,13 @@ dev = ["Sphinx (==7.2.5)", "colorama (==0.4.5)", "colorama (==0.4.6)", "exceptio
 
 [[package]]
 name = "loop-pycoral"
-version = "0.1.14"
+version = "0.1.16"
 description = ""
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "loop_pycoral-0.1.14-py3-none-any.whl", hash = "sha256:e65a5aa056efe2b23334016f3463a29c1ebcb50fafae84534e7c18bf0af5081a"},
-    {file = "loop_pycoral-0.1.14.tar.gz", hash = "sha256:9ae68ae46fd95761ed831cc15a097debd25fac073259c78272d28953b8b55ffb"},
+    {file = "loop_pycoral-0.1.16-py3-none-any.whl", hash = "sha256:ea9d167945193891d7295dc09402044f519ccaf42c671166e0587e4698f94cec"},
+    {file = "loop_pycoral-0.1.16.tar.gz", hash = "sha256:719fa7d4ceb4b9604c4c08673cef67e04560ad034933c6de0df3ba7bbc7fcf61"},
 ]
 
 [package.dependencies]

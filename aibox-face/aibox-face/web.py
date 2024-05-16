@@ -299,7 +299,6 @@ def get_frames(camera_id: str):
                 fps: int = message[1]
             except IndexError:
                 # 队列不存在值
-                time.sleep(0.01)
                 continue
 
             if stop_stream:

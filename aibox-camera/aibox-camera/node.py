@@ -99,7 +99,6 @@ class AIboxCamera(CoralNode):
         vc: VideoStreamer = context["vc"]
         ret, frame = vc.read()
         if not ret:
-            time.sleep(0.01)
             raise CoralSenderIgnoreException("读取频率过高, 队列为空")
 
         # 将摄像头拷贝数据web读取写入队列
