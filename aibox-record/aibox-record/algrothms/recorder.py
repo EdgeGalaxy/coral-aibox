@@ -44,6 +44,7 @@ class Recorder:
         objects: List[ObjectPayload],
         target_dir_name: str,
         person_count: int,
+        report_timestamp: float,
         crt_fps: int = 5,
         points: List[List[int]] = [],
     ):
@@ -78,7 +79,7 @@ class Recorder:
             logger.info(f"start write video: {video_save_fp}")
             self._last_record_at = datetime.now()
 
-        frame = self._draw_time_info(frame, person_count)
+        frame = self._draw_time_info(frame, report_timestamp, person_count)
         frame = self._draw_person_rect(frame, objects)
         if points:
             frame = self._draw_mask(frame, points)
@@ -121,8 +122,10 @@ class Recorder:
         return frame
 
     @staticmethod
-    def _draw_time_info(frame: np.ndarray, person_count: int):
-        time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    def _draw_time_info(frame: np.ndarray, report_timestamp: float, person_count: int):
+        time_str = datetime.fromtimestamp(report_timestamp).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
         frame = cv2.putText(
             frame,
             f"Total Person: {person_count}  Time: {time_str}",

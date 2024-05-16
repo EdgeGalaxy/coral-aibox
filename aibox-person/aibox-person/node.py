@@ -84,6 +84,7 @@ class AIboxPerson(CoralNode):
         :param context: 上下文参数
         :return: 数据
         """
+        st = time.time()
         if self.params.is_open:
             model: Inference = context["model"]
             iou_thresh = payload.raw_params["iou_scale"]
@@ -117,7 +118,7 @@ class AIboxPerson(CoralNode):
 
         if filter_objects or objects:
             logger.info(
-                f"摄像头: {payload.source_id} 原始人物识别结果: {len(objects)} , 过滤后人物识别结果: {len(filter_objects)} 节点处理耗时: {(time.time() - payload.timestamp) * 1000} ms"
+                f"摄像头: {payload.source_id} 原始人物识别结果: {len(objects)} , 过滤后人物识别结果: {len(filter_objects)} 节点处理耗时: {(time.time() - st) * 1000} ms , 节点传输耗时: {(st - payload.timestamp) * 1000} ms"
             )
         return ObjectsPayload(objects=filter_objects, mode=InterfaceMode.APPEND)
 

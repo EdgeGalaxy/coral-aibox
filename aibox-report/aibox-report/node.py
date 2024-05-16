@@ -63,7 +63,7 @@ class AIboxReportParamsModel(BaseParamsModel):
     mqtt: MQTTParamsModel = MQTTParamsModel()
     gpio: GpioParamsModel = GpioParamsModel()
     windows_interval: int = Field(
-        default=3, description="预测值人数窗口最大间隔时间，在这时间内的才做统计"
+        default=5, description="预测值人数窗口最大间隔时间，在这时间内的才做统计"
     )
     report_image: bool = False
     base_dir_name: str = Field(default="report", description="事件保存路径")
@@ -191,7 +191,7 @@ class AIboxReport(CoralNode):
         # ! 这种模式会存在如果有1/2的摄像头出现问题，则会一直无法正确统计的情况, 后续需要以某种方式通知摄像头问题
         if (
             set(_valid_camera_ids) != set(camera_ids)
-            and len(_valid_camera_ids) / len(camera_ids) >= 0.5
+            and len(set(_valid_camera_ids)) / len(camera_ids) >= 0.5
         ):
             raise InvalidPersonCount(
                 "无效的一次统计，指定时间内没有统计出至少1/2的摄像头数的人数"
@@ -235,11 +235,13 @@ class AIboxReport(CoralNode):
 
         mqtt_client: mqtt.Client = context["mqtt"]
         gpio_client: GpioControl = context["gpio"]
+        pre_camera_count = [count for count, _, _ in self.cameras_frame_data.values()]
         try:
             # 根据有效的统计人数来做反馈，若人数统计无效，则抛出异常，此次不做上报
             person_count = self.process_person_count(payload.raw_params["camera_ids"])
         except InvalidPersonCount as e:
             logger.warning(f"{e}")
+            person_count = -1
             web.person_count = None
         else:
             report_msg = {
@@ -270,9 +272,7 @@ class AIboxReport(CoralNode):
                 report_msg["extras"].update({"image_with_objects": image_with_objects})
 
             mqtt_client.publish(self.topic, json.dumps(report_msg))
-            pre_camera_count = [
-                count for count, _, _ in self.cameras_frame_data.values()
-            ]
+
             # 触发信号, 开
             if person_count:
                 with gpio_client:

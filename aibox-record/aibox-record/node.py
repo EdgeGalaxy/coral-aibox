@@ -1,8 +1,8 @@
-from functools import partial
 import os
 import time
 from typing import Dict
 
+import cv2
 from pydantic import Field
 from coral import (
     CoralNode,
@@ -11,7 +11,7 @@ from coral import (
     RawPayload,
     PTManager,
 )
-from loguru import logger
+from threading import Lock
 from coral.constants import MOUNT_PATH
 
 import web
@@ -57,6 +57,7 @@ class AIboxRecord(CoralNode):
             args=(self.params.base_dir, self.params.max_gb),
             seconds=self.params.recycle_interval,
         )
+        self.lock = Lock()
         web.async_run(self.config.node_id, self.params.base_dir)
 
     def init(self, index: int, context: dict):
@@ -76,16 +77,18 @@ class AIboxRecord(CoralNode):
         :param context: 上下文参数
         :return: 数据
         """
-        if self.recorders.get(payload.source_id) is None:
-            recorder = Recorder(
-                base_dir=self.params.base_dir,
-                record_interval=self.params.interval,
-                auto_recycle_threshold=self.params.max_gb,
-                enable=self.params.enable,
-            )
-            self.recorders[payload.source_id] = recorder
-        else:
-            recorder: Recorder = self.recorders[payload.source_id]
+        # 加锁确保同一时间只有一个节点写入
+        with self.lock:
+            if self.recorders.get(payload.source_id) is None:
+                recorder = Recorder(
+                    base_dir=self.params.base_dir,
+                    record_interval=self.params.interval,
+                    auto_recycle_threshold=self.params.max_gb,
+                    enable=self.params.enable,
+                )
+                self.recorders[payload.source_id] = recorder
+            else:
+                recorder: Recorder = self.recorders[payload.source_id]
 
         # 获取运行时插入图片的帧率, 程序运行300s后代表帧率基本稳定,
         # 因为插入是每个摄像头，当前fps计算是总的fps，因此需要除以摄像头数量
@@ -96,12 +99,20 @@ class AIboxRecord(CoralNode):
         )
 
         # 作为最后一个节点，为了节省内存，则直接用原numpy画图
-        image = payload.raw
+        frame = payload.raw
+        # 修改分辨率
+        camera_height = payload.raw_params.get("camera_height") or 360
+        if camera_height:
+            oh, ow = frame.shape[:2]
+            scale = camera_height / oh
+            frame = cv2.resize(frame, (int(ow * scale), int(camera_height)))
+
         report_data = payload.metas.get(self.meta.receivers[0].node_id)
         recorder.write(
-            image,
+            frame,
             payload.objects,
             crt_fps=dynamic_fps,
+            report_timestamp=report_data["timestamp"],
             person_count=report_data["person_count"],
             target_dir_name=payload.source_id,
             points=payload.raw_params["points"],
