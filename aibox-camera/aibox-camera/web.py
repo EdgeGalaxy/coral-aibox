@@ -227,7 +227,7 @@ def video_stream(camera_id: str):
                 frame = cameras_queue[camera_id].popleft()
             except IndexError:
                 # 队列不存在值
-                time.sleep(0.005)
+                time.sleep(0.01)
                 continue
 
             if stop_stream:
@@ -262,7 +262,7 @@ def draw_mask(camera_id: str, points: str = None):
             break
         except IndexError:
             # 队列不存在值
-            time.sleep(0.005)
+            time.sleep(0.01)
             continue
 
     if points:

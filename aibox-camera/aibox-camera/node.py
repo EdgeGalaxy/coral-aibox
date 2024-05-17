@@ -112,12 +112,6 @@ class AIboxCamera(CoralNode):
 
         return FirstPayload(source_id=context["name"], raw=frame, raw_params=raw_params)
 
-    def logger_fps(self):
-        # 每3秒打印一次FPS
-        if time.time() - self.logger_fps_time > 3:
-            super().logger_fps()
-            self.logger_fps_time = time.time()
-
 
 if __name__ == "__main__":
     AIboxCamera().run()

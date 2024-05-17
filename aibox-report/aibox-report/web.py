@@ -103,7 +103,7 @@ async def person_count_ws(websocket: WebSocket):
         while True:
             message = {"count": person_count}
             await websocket.send_json(message)
-            await asyncio.sleep(0.005)
+            await asyncio.sleep(0.01)
     except Exception as e:
         logger.warning(e)
     finally:
