@@ -75,7 +75,7 @@ class FeatureDBParamsModel(ModelParamsModel):
     def db_path(self):
         _dir = os.path.join(MOUNT_NODE_PATH, self.base_dir)
         if not os.path.exists(_dir):
-            os.makedirs(_dir, exist_ok=True)
+            os.makedirs(_dir, mode=0o777, exist_ok=True)
         return _dir
 
 

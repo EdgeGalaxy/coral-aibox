@@ -1,11 +1,3 @@
-.image-card-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.1); /* 透明色填充多余的宽或高 */
-    padding: 10px; /* 可根据需要调整 */
-  }
-  
   .image-card {
     width: 240px; /* 设置卡片宽度 */
     margin: 10px; /* 设置卡片间距 */

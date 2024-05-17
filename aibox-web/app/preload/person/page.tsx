@@ -1,36 +1,41 @@
 "use client";
 
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import type { InputNumberProps, UploadFile } from "antd";
+import type { UploadFile } from "antd";
 import {
   Switch,
   message,
   Popconfirm,
   Button,
-  Image,
   InputNumber,
   Slider,
   Row,
   Col,
+  Pagination,
+  Empty,
+  Spin,
 } from "antd";
 
 import { getInternalHost } from "@/components/api/utils";
-import { DeleteOutlined } from "@ant-design/icons";
 import { ImageCard } from "@/components/cardImage";
 
 
 export default function LoadPersonPage() {
   const [baseUrl, setBaseUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
   const [switchs, setSwitchs] = useState<{ [key: string]: boolean | number }>({
     is_record: false,
     is_open: true,
     confidence_thresh: 0.5,
     sim_threshold: 0.9,
   });
+  const [pageFileList, setPageFileList] = useState<UploadFile<any>[]>([]);
   const [personFileList, setPersonFileList] = useState<UploadFile<any>[]>([]);
   const [confidenceThresh, setConfidenceThresh] = useState(0.5);
   const [similarThresh, setSimilarThresh] = useState(0.9);
+  const [crtPage, setCrtPage] = useState(1);
+  const [crtPageSize, setCrtPageSize] = useState(10);
 
   useEffect(() => {
     const fetchInternalIP = async () => {
@@ -43,6 +48,7 @@ export default function LoadPersonPage() {
   }, []);
 
   useEffect(() => {
+    setPageLoading(true);
     const personConfigUrl = `${baseUrl}:8020/api/aibox_person/config`;
     const personImagesUrl = `${baseUrl}:8020/api/aibox_person/fake/persons`;
     // person fetch
@@ -77,7 +83,9 @@ export default function LoadPersonPage() {
           fakePersonFileList.push(personFile);
         }
         setPersonFileList(fakePersonFileList);
+        setPageFileList(fakePersonFileList.slice(0, 10));
       });
+      setPageLoading(false);
   }, [baseUrl]);
 
   useEffect(() => {
@@ -125,30 +133,48 @@ export default function LoadPersonPage() {
         const newFileList = personFileList.slice();
         newFileList.splice(index, 1);
         setPersonFileList(newFileList);
+        setPageFileList(newFileList.slice((crtPage - 1) * crtPageSize, crtPage * crtPageSize));
       } else {
         message.error("删除失败");
       }
     });
   };
 
-  // 自定义渲染上传列表项
-  const onRemove = (file: UploadFile<any>) => (
-    <Popconfirm
-      title="确定要删除这个文件吗？"
-      onConfirm={() => handleRemove(file)}
-      okText="是"
-      cancelText="否"
-    >
-      <Button size="small" className="text-red-500" icon={<DeleteOutlined />}>
-        删除
-      </Button>
-    </Popconfirm>
-  );
+  const handleRemoveAll = () => {
+    const deleteFakePersonUrl = `${baseUrl}:8020/api/aibox_person/fake/persons/prune/all`;
+    fetch(deleteFakePersonUrl, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      if (response.ok) {
+        console.log("删除成功");
+        message.success("删除成功");
+        setPersonFileList([]);
+        setPageFileList([]);
+      } else {
+        message.error("删除失败");
+      }
+    });
+  };
+
 
   const onSliderChange = (key: string, newValue: number, setFunc: Dispatch<SetStateAction<number>>) => {
     setFunc(newValue);
     onPersonSwitchChange(key, newValue);
   };
+
+  const onPageNumChange = (page: number, pageSize: number) => {
+    setCrtPage(page);
+    setCrtPageSize(pageSize);
+    const index = (page - 1) * pageSize
+    setPageFileList(personFileList.slice(index, index + pageSize));
+  }
+
+  if (pageLoading) {
+    return <Spin className="content-center" />;
+  }
 
   return (
     <div>
@@ -230,11 +256,27 @@ export default function LoadPersonPage() {
             </Col>
           </Row>
         </div>
+          <div className="m-8">
+            <Popconfirm
+              title="清空数据"
+              description="确认是否清空所有数据?"
+              onConfirm={handleRemoveAll}
+              okText="确认删除"
+              cancelText="取消"
+            >
+              <Button danger>清空录入数据</Button>
+            </Popconfirm>
+          </div>
       </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-        {personFileList.map((file, index) => (
-            <ImageCard key={index} imageUrl={file.url as string} handleDelete={() => handleRemove(file)} />
-        ))}
+      <div className="flex-col ">
+        {personFileList.length > 0 ? <div className="flex flex-wrap">
+          {pageFileList.map((file, index) => (
+              <ImageCard key={index} imageUrl={file.url as string} handleDelete={() => handleRemove(file)} />
+          ))}
+        </div>: <Empty className="content-center" image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+        <div className="mt-8 flex justify-center">
+          <Pagination defaultCurrent={crtPage} hideOnSinglePage total={personFileList.length} onChange={onPageNumChange}/>
+        </div>
       </div>
     </div>
   );

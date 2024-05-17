@@ -5,7 +5,7 @@
     },
     "process": {
         "enable_parallel": true,
-        "count": 5,
+        "count": 1,
         "max_qsize": 30
     },
     "meta": {
@@ -28,7 +28,7 @@
                 "person"
             ],
             "nms_thresh": 0.6,
-            "confidence_thresh": 0.3
+            "confidence_thresh": 0.45
         },
         "featuredb": {
             "weight_name": "resnet18-f37072fd",
@@ -37,9 +37,9 @@
             "device_id": 0,
             "base_dir": "db/person",
             "db_size": 1000,
-            "sim_threshold": 1.0
+            "sim_threshold": 0.85
         },
-        "is_record": false,
+        "is_record": true,
         "is_open": true,
         "box_slice_count": 8
     }

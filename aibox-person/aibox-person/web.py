@@ -1,7 +1,5 @@
 import os
 import json
-import shutil
-from typing import List
 from threading import Thread
 from urllib.parse import urljoin
 
@@ -13,7 +11,7 @@ from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 from algrothms.inference import Inference
-from schema import RecordFeatureModel, WebNodeParams, MOUNT_NODE_PATH
+from schema import RecordFeatureModel, WebNodeParams
 
 
 # 全局变量
@@ -106,6 +104,15 @@ def delete_fake_person(fake_person_id: str):
     inference: Inference = context["context"]["model"]
     featuredb = inference.featuredb
     featuredb.delete_fake_person(fake_person_id)
+    return {"result": "success"}
+
+
+@router.delete("/fake/persons/prune/all")
+def prune_all_fake_person():
+    context = contexts[0]
+    inference: Inference = context["context"]["model"]
+    featuredb = inference.featuredb
+    featuredb.db_instance.prune()
     return {"result": "success"}
 
 

@@ -58,10 +58,9 @@ class Inference:
                 xmin, ymin, xmax, ymax = det
                 person_img = image[ymin : ymax + 1, xmin : xmax + 1]
                 # 正常模式下，如果背景特征库为空时，不调用特征匹配
-                if len(self.featuredb.fake_persons_features) == 0 and not is_record:
+                if self.featuredb.db_instance.size == 0 and not is_record:
                     is_person = True
                 else:
-                    # todo 先匹配坐标IOU
                     is_person = self.featuredb.predict(person_img, is_record)
 
                 # 过滤掉特征匹配到的错误人物数据

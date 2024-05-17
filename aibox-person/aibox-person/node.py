@@ -16,7 +16,7 @@ from coral import (
 from loguru import logger
 
 import web
-from algrothms.featuredb import FeatureDB
+from algrothms.featuredb import FeatureDB, FeatureData
 from algrothms.inference import Inference
 from schema import AIboxPersonParamsModel
 
@@ -37,6 +37,10 @@ class AIboxPerson(CoralNode):
 
     def __init__(self):
         super().__init__()
+        # 主线程加载数据
+        self.db_instance = FeatureData.load(
+            self.params.featuredb.db_path, self.params.featuredb.db_size
+        )
         # 更新node_id变量，并启动web服务
         web.node_id = self.config.node_id
         web.async_run(self.config.node_id, self.params.featuredb.db_path)
@@ -57,9 +61,8 @@ class AIboxPerson(CoralNode):
             weight_path=feat_params.weight_path,
             model_type=feat_params.model_type,
             device_id=feat_params.device_id,
-            db_path=feat_params.db_path,
-            db_size=feat_params.db_size,
             sim_threshold=feat_params.sim_threshold,
+            db_instance=self.db_instance,
         )
         inference = Inference(
             featuredb=featuredb,
