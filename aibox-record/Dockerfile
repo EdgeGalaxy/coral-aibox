@@ -43,5 +43,4 @@ RUN pip3 uninstall -y opencv-python
 
 COPY . .
 
-# CMD cd aibox-record && poetry run python3 node.py
-CMD sleep 3600
+CMD cd aibox-record && python3 node.py

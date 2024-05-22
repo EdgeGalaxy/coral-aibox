@@ -46,6 +46,7 @@ class Recorder:
         person_count: int,
         report_timestamp: float,
         crt_fps: int = 5,
+        resize_ratio: float = 0.5,
         points: List[List[int]] = [],
     ):
         if not self._enable:
@@ -83,6 +84,7 @@ class Recorder:
         frame = self._draw_person_rect(frame, objects)
         if points:
             frame = self._draw_mask(frame, points)
+        frame = self._resize_frame(frame, resize_ratio=resize_ratio)
         self._writer.write(frame)
 
     @classmethod
@@ -113,13 +115,6 @@ class Recorder:
                 break
         _, _, done_free_b = shutil.disk_usage("/")
         logger.info(f"auto recycle done. crt free: {done_free_b / gb}GB")
-
-    def _resize(self, frame):
-        h, w = frame.shape[:2]
-        frame = cv2.resize(
-            frame, (int(w * self.resize_rate[0]), int(h * self.resize_rate[1]))
-        )
-        return frame
 
     @staticmethod
     def _draw_time_info(frame: np.ndarray, report_timestamp: float, person_count: int):
@@ -156,6 +151,13 @@ class Recorder:
             label_color,
             2,
         )
+
+    @staticmethod
+    def _resize_frame(frame: np.ndarray, resize_ratio: float):
+        if resize_ratio and resize_ratio != 1:
+            oh, ow = frame.shape[:2]
+            frame = cv2.resize(frame, (int(ow * resize_ratio), int(oh * resize_ratio)))
+        return frame
 
     def _draw_person_rect(self, frame: np.ndarray, objects: List[ObjectPayload]):
         for object in objects:

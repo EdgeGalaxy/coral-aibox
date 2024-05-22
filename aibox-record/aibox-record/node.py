@@ -2,7 +2,7 @@ import os
 import time
 from typing import Dict
 
-import cv2
+import numpy as np
 from pydantic import Field
 from coral import (
     CoralNode,
@@ -99,13 +99,14 @@ class AIboxRecord(CoralNode):
         )
 
         # 作为最后一个节点，为了节省内存，则直接用原numpy画图
-        frame = payload.raw
+        frame: np.ndarray = payload.raw
         # 修改分辨率
         camera_height = payload.raw_params.get("camera_height") or 360
         if camera_height:
-            oh, ow = frame.shape[:2]
-            scale = camera_height / oh
-            frame = cv2.resize(frame, (int(ow * scale), int(camera_height)))
+            oh, _ = frame.shape[:2]
+            resize_ratio = camera_height / oh
+        else:
+            resize_ratio = 1.0
 
         report_data = payload.metas.get(self.meta.receivers[0].node_id)
         recorder.write(
@@ -116,6 +117,7 @@ class AIboxRecord(CoralNode):
             person_count=report_data["person_count"],
             target_dir_name=payload.source_id,
             points=payload.raw_params["points"],
+            resize_ratio=resize_ratio,
         )
         return None
 
