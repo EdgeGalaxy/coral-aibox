@@ -10,7 +10,7 @@ GPIO = get_import_gpio(model_type)
 
 
 class GpioControl:
-    def __init__(self, pins: list, enable: bool = True, interval: float = 1):
+    def __init__(self, pins: list, enable: bool = True, interval: float = 2):
         try:
             self.enable = enable
             self.pins = pins

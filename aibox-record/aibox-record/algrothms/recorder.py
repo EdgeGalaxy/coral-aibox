@@ -66,11 +66,11 @@ class Recorder:
             self.release_writer()
 
             video_save_fp = os.path.join(
-                save_dir, f"{now.strftime('%Y-%m-%d-%H-%M')}.webm"
+                save_dir, f"{now.strftime('%Y-%m-%d-%H-%M')}.mp4"
             )
             self._writer = cv2.VideoWriter(
                 video_save_fp,
-                fourcc=cv2.VideoWriter_fourcc(*"VP80"),
+                fourcc=cv2.VideoWriter_fourcc(*"avc1"),
                 apiPreference=cv2.CAP_FFMPEG,
                 fps=crt_fps,
                 frameSize=(frame.shape[1], frame.shape[0]),
