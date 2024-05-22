@@ -74,7 +74,10 @@ class Recorder:
                 fourcc=cv2.VideoWriter_fourcc(*"avc1"),
                 apiPreference=cv2.CAP_FFMPEG,
                 fps=crt_fps,
-                frameSize=(frame.shape[1], frame.shape[0]),
+                frameSize=(
+                    frame.shape[1] * resize_ratio,
+                    frame.shape[0] * resize_ratio,
+                ),
                 isColor=True,
             )
             logger.info(f"start write video: {video_save_fp}")
