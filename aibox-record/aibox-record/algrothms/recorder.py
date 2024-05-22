@@ -75,8 +75,8 @@ class Recorder:
                 apiPreference=cv2.CAP_FFMPEG,
                 fps=crt_fps,
                 frameSize=(
-                    frame.shape[1] * resize_ratio,
-                    frame.shape[0] * resize_ratio,
+                    int(frame.shape[1] * resize_ratio),
+                    int(frame.shape[0] * resize_ratio),
                 ),
                 isColor=True,
             )
