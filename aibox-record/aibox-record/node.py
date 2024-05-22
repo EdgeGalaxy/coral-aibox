@@ -78,17 +78,22 @@ class AIboxRecord(CoralNode):
         :return: 数据
         """
         # 加锁确保同一时间只有一个节点写入
-        with self.lock:
-            if self.recorders.get(payload.source_id) is None:
-                recorder = Recorder(
-                    base_dir=self.params.base_dir,
-                    record_interval=self.params.interval,
-                    auto_recycle_threshold=self.params.max_gb,
-                    enable=self.params.enable,
-                )
-                self.recorders[payload.source_id] = recorder
-            else:
-                recorder: Recorder = self.recorders[payload.source_id]
+        if self.recorders.get(payload.source_id) is None:
+            # 锁放内部防止无效的多次获取锁逻辑
+            with self.lock:
+                # 防止A线程写入后B线程重复写入Recorder实例
+                if self.recorders.get(payload.source_id) is None:
+                    recorder = Recorder(
+                        base_dir=self.params.base_dir,
+                        record_interval=self.params.interval,
+                        auto_recycle_threshold=self.params.max_gb,
+                        enable=self.params.enable,
+                    )
+                    self.recorders[payload.source_id] = recorder
+                else:
+                    recorder = self.recorders[payload.source_id]
+        else:
+            recorder: Recorder = self.recorders[payload.source_id]
 
         # 获取运行时插入图片的帧率, 程序运行300s后代表帧率基本稳定,
         # 因为插入是每个摄像头，当前fps计算是总的fps，因此需要除以摄像头数量
