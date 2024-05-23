@@ -14,6 +14,7 @@ services:
       - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/nx/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-camera.json
       - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_SHARED_MEMORY_EXPIRE=${CORAL_NODE_SHARED_MEMORY_EXPIRE:-3}
     volumes:
       - /dev:/dev
       - $HOME/.coral:/root/.coral

@@ -9,6 +9,7 @@ services:
     privileged: true
     network_mode: host
     environment:
+      - CORAL_NODE_SHARED_MEMORY_EXPIRE=${CORAL_NODE_SHARED_MEMORY_EXPIRE:-5}
       - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
       - LOGURU_LEVEL=INFO
     volumes:
