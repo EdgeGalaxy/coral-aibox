@@ -92,7 +92,7 @@ export default function Home() {
           <p className="m-2 font-mono font-bold text-center">选择视频类型: </p>
           <Select
             className="text-center"
-            defaultValue={selectItems[0]}
+            defaultValue={selectItems[1]}
             style={{ width: 120, height: 40 }}
             onChange={onChange}
           >

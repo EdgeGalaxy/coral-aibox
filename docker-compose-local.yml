@@ -5,73 +5,77 @@ services:
     build:
       context: ./aibox-camera
       dockerfile: Dockerfile
-    image: ${USERNAME:-local}/aibox-camera:${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-camera:${IMAGE_TAG:-v0.1.0}
     privileged: true
     network_mode: host
     environment:
       - CORAL_NODE_SHARED_MEMORY_EXPIRE=${CORAL_NODE_SHARED_MEMORY_EXPIRE:-5}
-      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
       - LOGURU_LEVEL=INFO
     volumes:
       - /dev:/dev
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped # 如果服务退出，则除非手动停止，否则总是重启
 
   aibox-person:
     build:
       context: ./aibox-person
       dockerfile: Dockerfile
-    image: ${USERNAME:-local}/aibox-person:${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-person:${IMAGE_TAG:-v0.1.0}
     environment:
-      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
     privileged: true
     depends_on:
       - aibox-camera
     network_mode: host
     volumes:
       - /dev:/dev
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
 
   aibox-face:
     build:
       context: ./aibox-face
       dockerfile: Dockerfile
-    image: ${USERNAME:-local}/aibox-face:${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-face:${IMAGE_TAG:-v0.1.0}
     environment:
-      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
     privileged: true
     depends_on:
       - aibox-person
     network_mode: host
     volumes:
       - /dev:/dev
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
 
   aibox-record:
     build:
       context: ./aibox-record
       dockerfile: Dockerfile
-    image: ${USERNAME:-local}/aibox-record:${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-record:${IMAGE_TAG:-v0.1.0}
     environment:
-      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
     privileged: true
     depends_on:
       - aibox-person
     network_mode: host
     volumes:
       - /dev:/dev
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
 
   aibox-report:
     build:
       context: ./aibox-report
       dockerfile: Dockerfile
-    image: ${USERNAME:-local}/aibox-report:${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-report:${IMAGE_TAG:-v0.1.0}
     environment:
-      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
     privileged: true
     depends_on:
       - aibox-face
@@ -79,14 +83,15 @@ services:
     network_mode: host
     volumes:
       - /dev:/dev
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
 
   aibox-web:
     build:
       context: ./aibox-web
       dockerfile: Dockerfile
-    image: ${USERNAME:-local}/aibox-web:${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-web:${IMAGE_TAG:-v0.1.0}
     privileged: true
     environment:
       - MQTT_BROKER=${MQTT_BROKER:-127.0.0.1}
@@ -96,5 +101,6 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped

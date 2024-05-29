@@ -24,4 +24,4 @@ RUN poetry install --only main && \
 
 COPY . .
 
-CMD cd aibox-report && poetry run python3 node.py
+CMD cd aibox-report && sleep 5 && poetry run python3 node.py

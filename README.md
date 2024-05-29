@@ -82,12 +82,12 @@ docker compose -f docker-compose-local.yml up -d --build
 ### Rknn盒子
 
 ```
-docker compose -f docker-compose-rknn.yml up -d --build
+DOCKER_USERNAME=loopeai IMAGE_TAG=<tag> MQTT_BROKER=<ip> MQTT_PORT=<port> MQTT_USERNAME=<username> MQTT_PASSWORD=<password> docker compose -f docker-compose-rknn.yml up -d
 ```
 
 ### Jetson盒子
 ```
-docker compose -f docker-compose-rt.yml up -d --build
+DOCKER_USERNAME=loopeai IMAGE_TAG=<tag> MQTT_BROKER=<ip> MQTT_PORT=<port> MQTT_USERNAME=<username> MQTT_PASSWORD=<password> docker compose -f docker-compose-rknn.yml up -d
 ```
 
 

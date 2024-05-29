@@ -5,7 +5,7 @@ services:
     build:
       context: ./aibox-camera
       dockerfile: Dockerfile_rknn
-    image: ${USERNAME:-local}/aibox-camera:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-camera:rknn-${IMAGE_TAG:-v0.1.0}
     privileged: true
     platform: linux/arm64
     network_mode: host
@@ -14,18 +14,19 @@ services:
       - LOGURU_LEVEL=INFO
       - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-camera.json
-      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
       - CORAL_NODE_SHARED_MEMORY_EXPIRE=${CORAL_NODE_SHARED_MEMORY_EXPIRE:-3}
     volumes:
       - /dev:/dev
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
 
   aibox-person:
     build:
       context: ./aibox-person
       dockerfile: Dockerfile_rknn
-    image: ${USERNAME:-local}/aibox-person:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-person:rknn-${IMAGE_TAG:-v0.1.0}
     privileged: true
     platform: linux/arm64
     depends_on:
@@ -36,18 +37,19 @@ services:
       - LOGURU_LEVEL=INFO
       - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-person.json
-      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
     volumes:
       - /dev:/dev
       - /proc/device-tree/compatible:/proc/device-tree/compatible
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
 
   aibox-face:
     build:
       context: ./aibox-face
       dockerfile: Dockerfile_rknn
-    image: ${USERNAME:-local}/aibox-face:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-face:rknn-${IMAGE_TAG:-v0.1.0}
     privileged: true
     platform: linux/arm64
     depends_on:
@@ -58,18 +60,19 @@ services:
       - LOGURU_LEVEL=INFO
       - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-face.json
-      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
     volumes:
       - /dev:/dev
       - /proc/device-tree/compatible:/proc/device-tree/compatible
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
 
   aibox-record:
     build:
       context: ./aibox-record
       dockerfile: Dockerfile
-    image: ${USERNAME:-local}/aibox-record:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-record:rknn-${IMAGE_TAG:-v0.1.0}
     privileged: true
     platform: linux/arm64
     depends_on:
@@ -80,18 +83,19 @@ services:
       - LOGURU_LEVEL=INFO
       - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-record.json
-      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
     volumes:
       - /dev:/dev
       - /proc/device-tree/compatible:/proc/device-tree/compatible
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
 
   aibox-report:
     build:
       context: ./aibox-report
       dockerfile: Dockerfile_rknn
-    image: ${USERNAME:-local}/aibox-report:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-report:rknn-${IMAGE_TAG:-v0.1.0}
     privileged: true
     platform: linux/arm64
     environment:
@@ -99,7 +103,7 @@ services:
       - LOGURU_LEVEL=INFO
       - CONFIG_REMOTE_HOST=${CONFIG_REMOTE_HOST:-https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/rknn/}
       - CORAL_NODE_CONFIG_PATH=/root/.coral/aibox/configs/aibox-report.json
-      - CORAL_NODE_ACTIVATION_CODE=${CORAL_NODE_ACTIVATION_CODE:-}
+      - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
       - MQTT_BROKER=${MQTT_BROKER:-127.0.0.1}
       - MQTT_PORT=${MQTT_PORT:-1883}
       - MQTT_USERNAME=${MQTT_USERNAME:-admin}
@@ -110,18 +114,21 @@ services:
     network_mode: host
     volumes:
       - /dev:/dev
+      - /sys/class/gpio:/sys/class/gpio
       - /proc/device-tree/compatible:/proc/device-tree/compatible
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
 
   aibox-web:
     build:
       context: ./aibox-web
       dockerfile: Dockerfile
-    image: ${USERNAME:-local}/aibox-web:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_USERNAME:-local}/aibox-web:rknn-${IMAGE_TAG:-v0.1.0}
     platform: linux/arm64
     network_mode: host
     privileged: true
     volumes:
-      - $HOME/.coral:/root/.coral
+      - $HOME/.coral:/root/.coral 
+      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped

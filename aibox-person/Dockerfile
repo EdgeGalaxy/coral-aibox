@@ -24,4 +24,4 @@ RUN poetry install --without rt,rknn && \
 
 COPY . .
 
-CMD cd aibox-person && poetry run python3 node.py
+CMD cd aibox-person && sleep 5 && poetry run python3 node.py
