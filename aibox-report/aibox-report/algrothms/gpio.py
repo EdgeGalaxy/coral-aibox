@@ -16,6 +16,7 @@ class GpioControl:
             self.pins = pins
             self.interval = interval
             self.trigger_time = time.time()
+            self.gpio = GPIO(pins)
             GPIO.setwarnings(False)
             GPIO.setmode(GPIO.BOARD)
             GPIO.setup(self.pins, GPIO.OUT, initial=GPIO.LOW)

@@ -50,6 +50,7 @@ class RknnGPIO(BaseGPIO):
         import gpio_control as gpio
 
         gpio.gpio_setup()
+        logger.info(f"gpio init pins: {self.pins}")
 
     @classmethod
     def output(cls, pins: list, value: int):
