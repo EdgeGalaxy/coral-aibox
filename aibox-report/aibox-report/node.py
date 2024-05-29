@@ -274,7 +274,7 @@ class AIboxReport(CoralNode):
             mqtt_client.publish(self.topic, json.dumps(report_msg))
 
             # 触发信号, 开
-            if person_count:
+            if person_count and person_count != -1:
                 with gpio_client:
                     gpio_client.trigger_on()
 
