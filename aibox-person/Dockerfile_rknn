@@ -26,4 +26,4 @@ RUN cp aarch64/usr/bin/* /usr/bin && cp aarch64/usr/libs/* /usr/lib && restart_r
 
 COPY . .
 
-CMD cd aibox-person && sleep 5 && poetry run python3 node.py
+CMD cd aibox-person && sleep 10 && poetry run python3 node.py

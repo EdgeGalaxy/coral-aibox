@@ -23,4 +23,4 @@ RUN poetry install --only main && \
 
 COPY . .
 
-CMD cd aibox-camera && sleep 5 && poetry run python3 node.py
+CMD cd aibox-camera && sleep 10 && poetry run python3 node.py

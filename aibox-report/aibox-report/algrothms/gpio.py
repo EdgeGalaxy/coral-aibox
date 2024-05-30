@@ -50,6 +50,6 @@ class GpioControl:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        time.sleep(self.interval)
+        # time.sleep(self.interval)
         self.trigger_off()
         self.cleanup()

@@ -31,4 +31,4 @@ RUN poetry install --without onnx,rknn && \
 
 COPY . .
 
-CMD cd aibox-person && sleep 5 && poetry run python3 node.py
+CMD cd aibox-person && sleep 10 && poetry run python3 node.py
