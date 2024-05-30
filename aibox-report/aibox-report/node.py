@@ -55,7 +55,7 @@ class MQTTParamsModel(BaseParamsModel):
 class GpioParamsModel(BaseParamsModel):
     enable: bool = True
     pins: list = [7, 29, 31]
-    interval: float = Field(default=1, description="触发gpio on的间隔时间")
+    interval: float = Field(default=3, description="触发gpio on的间隔时间")
 
 
 @PTManager.register()
