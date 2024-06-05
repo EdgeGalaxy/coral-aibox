@@ -17,6 +17,7 @@ services:
       - CORAL_NODE_SHARED_MEMORY_EXPIRE=${CORAL_NODE_SHARED_MEMORY_EXPIRE:-3}
     volumes:
       - /dev:/dev
+      - /sys/class/net/wlan0/address:/host_sys/class/net/wlan0/address
       - $HOME/.coral:/root/.coral 
       - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped # 如果服务退出，则除非手动停止，否则总是重启
@@ -37,6 +38,7 @@ services:
       - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
     volumes:
       - /dev:/dev
+      - /sys/class/net/wlan0/address:/host_sys/class/net/wlan0/address
       - $HOME/.coral:/root/.coral 
       - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
@@ -58,6 +60,7 @@ services:
       - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
     volumes:
       - /dev:/dev
+      - /sys/class/net/wlan0/address:/host_sys/class/net/wlan0/address
       - $HOME/.coral:/root/.coral 
       - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
@@ -79,6 +82,7 @@ services:
       - CORAL_NODE_ACTIVATION_CODE_PATH=/root/.rock/activate_code/device
     volumes:
       - /dev:/dev
+      - /sys/class/net/wlan0/address:/host_sys/class/net/wlan0/address
       - $HOME/.coral:/root/.coral 
       - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
@@ -105,6 +109,7 @@ services:
     network_mode: host
     volumes:
       - /dev:/dev
+      - /sys/class/net/wlan0/address:/host_sys/class/net/wlan0/address
       - $HOME/.coral:/root/.coral 
       - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
