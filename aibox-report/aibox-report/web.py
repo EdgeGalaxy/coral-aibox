@@ -7,6 +7,7 @@ from threading import Thread
 from urllib.parse import urljoin
 
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 import requests
 import uvicorn
 from loguru import logger
@@ -29,6 +30,12 @@ web接口实现
 """
 
 router = APIRouter()
+
+
+class ReportWebModel(BaseModel):
+    report_scene: float = Field(
+        description="上报场景, 越小表示场景遮挡越多，越相信历史数据", ge=0, le=1
+    )
 
 
 def async_run(_node_id: str, mount_path: str) -> None:
@@ -94,6 +101,31 @@ def get_gpio_events():
     context = contexts[0]
     event: EventRecord = context["context"]["event"]
     return event.events
+
+
+@router.get("/config")
+def get_config():
+    context = contexts[0]
+    params = context["params"]
+    return {"report_scene": params.report_scene}
+
+
+@router.post("/config")
+def set_config(item: ReportWebModel):
+    for idx in contexts:
+        context = contexts[idx]
+        params = context["params"]
+        kf = context["kf"]
+        # 更新运行时数据
+        params.report_scene = item.report_scene
+        kf.Q = params.kf_Q
+        kf.R = params.kf_R
+
+    logger.info(f"{node_id} set config: {item.model_dump()}")
+    # 更新数据
+    new_params = contexts[0]["params"].model_dump()
+    durable_config(new_params)
+    return {"result": "success"}
 
 
 @router.websocket("/ws/person_count")

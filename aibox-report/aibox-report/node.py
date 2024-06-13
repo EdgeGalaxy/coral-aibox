@@ -66,6 +66,12 @@ class AIboxReportParamsModel(BaseParamsModel):
         default=5, description="预测值人数窗口最大间隔时间，在这时间内的才做统计"
     )
     report_image: bool = False
+    report_scene: float = Field(
+        default=0.5,
+        description="上报场景, 越小表示场景遮挡越多，越相信历史数据",
+        ge=0,
+        le=1,
+    )
     base_dir_name: str = Field(default="report", description="事件保存路径")
 
     @property
@@ -73,6 +79,14 @@ class AIboxReportParamsModel(BaseParamsModel):
         _dir = os.path.join(MOUNT_NODE_PATH, self.base_dir_name)
         os.makedirs(_dir, exist_ok=True)
         return _dir
+
+    @property
+    def kf_Q(self):
+        return 0.001 * pow(100, self.report_scene)
+
+    @property
+    def kf_R(self):
+        return 10 / pow(100, self.report_scene)
 
 
 @RTManager.register()
@@ -126,7 +140,7 @@ class AIboxReport(CoralNode):
         context["gpio"] = gpio_client
         context["event"] = self.event
 
-        web.contexts[index] = {"context": context, "params": self.params}
+        web.contexts[index] = {"context": context, "params": self.params, "kf": self.kf}
 
     @property
     def topic(self):
@@ -140,8 +154,10 @@ class AIboxReport(CoralNode):
         kf.H = np.array([[1, 0]])  # 观测矩阵
 
         # 定义过程噪声协方差和观测噪声协方差
-        kf.Q = np.eye(2) * 0.01  # 过程噪声协方差
-        kf.R = np.array([[1]])  # 观测噪声协方差
+        kf.Q = np.eye(2) * self.params.kf_Q  # 过程噪声协方差
+        kf.R = np.array([[self.params.kf_R]])  # 观测噪声协方差
+
+        logger.info(f"init kalman filter: {self.params.kf_Q}, {self.params.kf_R}")
 
         # 初始化状态和协方差矩阵
         kf.x = np.array([0, 0])  # 初始状态

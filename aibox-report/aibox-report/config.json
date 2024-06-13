@@ -37,6 +37,7 @@
             "interval": 1.0
         },
         "windows_interval": 3,
-        "base_dir_name": "report"
+        "base_dir_name": "report",
+        "report_scene": 0.0
     }
 }

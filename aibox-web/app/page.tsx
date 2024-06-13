@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Image, Select } from "antd";
+import { Col, Image, InputNumber, Row, Select, Slider, Tooltip } from "antd";
 
 import { AddCamera } from "@/components/addCamera";
 import { DeleteCamera } from "@/components/deleteCamera";
@@ -21,6 +21,7 @@ export default function Home() {
   const [ prefixPath, setPrefixPath ] = useState<string>("8030/api/aibox_face/cameras");
   const [ isActived, setIsActived ] = useState<boolean>(true);
   const [ defaultLevel, setDefaultLevel ] = useState<LevelKeys>("low");
+  const [ reportSenceThresh, setReportSenceThresh] = useState(0.5);
   const [ wsUrl, setWsUrl ] = useState<string>("");
 
   const selectItems = ["原视频", "推理视频"];
@@ -79,7 +80,29 @@ export default function Home() {
     fetch(`${baseUrl}:8010/api/aibox_camera/cameras/resolution`)
       .then((response) => response.json())
       .then((level) => setDefaultLevel(level));
+    
+    fetch(`${baseUrl}:8040/api/aibox_report/config`)
+      .then((response) => response.json())
+      .then((data) => setReportSenceThresh(data.report_scene));
   }, [baseUrl]);
+
+  const onReportSenceSliderChange = (newValue: number) => {
+    const personRecordUrl = `${baseUrl}:8040/api/aibox_report/config`;
+    fetch(personRecordUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        report_scene: newValue,
+      }),
+    }).then(() => {
+        setReportSenceThresh(newValue);
+        console.log("onReportSenceSliderChange", newValue, "更新成功");
+      }).catch((error: any) => {
+        console.error("onReportSenceSliderChange", newValue, "Error:", error);
+      })
+  };
 
   if (wsUrl === "") {
     return <div>Loading...</div>; // 显示加载状态
@@ -121,6 +144,34 @@ export default function Home() {
           <div>
             <ShowPerson wsUrl={wsUrl} />
           </div>
+          <div className="flex m-2">
+            <Tooltip title="表示视野内环境遮挡程度，影响上报人数的敏感度，值越小，越依赖历史区间数据推测人数(最近5s内的历史上报人数数据)">
+              <p className="mr-2 font-mono font-bold text-xl text-center">环境空旷度</p>
+            </Tooltip>
+            <Row>
+              <Col span={12}>
+                <Slider
+                  min={0}
+                  max={1}
+                  onChange={(value) => onReportSenceSliderChange(value)}
+                  value={typeof reportSenceThresh === "number" ? reportSenceThresh : 0}
+                  step={0.1}
+                />
+              </Col>
+              <Col span={4}>
+              <InputNumber
+                min={0}
+                max={1}
+                style={{ margin: "0 16px" }}
+                step={0.05}
+                value={reportSenceThresh}
+                onChange={(value) =>
+                  onReportSenceSliderChange(value as number)
+                }
+              />
+            </Col>
+            </Row>
+        </div>
       </div>
       <div className="flex my-8 mx-4 justify-end">
         <div className="mr-2">
