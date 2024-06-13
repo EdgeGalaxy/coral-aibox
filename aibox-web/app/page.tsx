@@ -18,7 +18,7 @@ export default function Home() {
   const [ baseUrl, setBaseUrl ] = useState<string>("");
   const [ cameras, SetCameras ] = useState<string[]>([]);
   const [ selectCameras, setSelectCameras ] = useState<string[]>([]);
-  const [ prefixPath, setPrefixPath ] = useState<string>("8010/api/aibox_camera/cameras");
+  const [ prefixPath, setPrefixPath ] = useState<string>("8030/api/aibox_face/cameras");
   const [ isActived, setIsActived ] = useState<boolean>(true);
   const [ defaultLevel, setDefaultLevel ] = useState<LevelKeys>("low");
   const [ wsUrl, setWsUrl ] = useState<string>("");
