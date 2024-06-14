@@ -140,9 +140,9 @@ export default function RootLayout({
     .filter(item => currentPath === item.key)
     .map(item => item.key);
   
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  // if (isLoading) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <html lang="en">
