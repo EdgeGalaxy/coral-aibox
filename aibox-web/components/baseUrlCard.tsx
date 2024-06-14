@@ -23,7 +23,11 @@ const _baseUrlCard = ({ isVisible, baseUrl }: { isVisible: boolean, baseUrl: str
     form
       .validateFields()
       .then((values: FormValues) => {
-        window.localStorage.setItem("frpHost", values['baseUrl']);
+        let url = values['baseUrl'];
+        if (url.endsWith("/")) {
+          url = url.slice(0, -1);
+        }
+        window.localStorage.setItem("frpHost", url);
         message.success("切换成功");
         window.location.reload()
       }).catch((error) => {

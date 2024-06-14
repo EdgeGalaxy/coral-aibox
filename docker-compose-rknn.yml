@@ -139,7 +139,7 @@ services:
     restart: unless-stopped
   
   aibox-nginx:
-    image: ${DOCKER_MIRROR:-docker.io}/nginx
+    image: ${DOCKER_MIRROR:-docker.io}/library/nginx:latest
     network_mode: host
     volumes:
       - ./aibox-nginx.conf:/etc/nginx/conf.d/aibox.conf

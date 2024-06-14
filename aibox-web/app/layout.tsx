@@ -86,9 +86,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [ isLoading, setIsLoading ] = useState<boolean>(true);
   const [ baseUrl, setBaseUrl] = useState<string>("");
-  const [collapsed, setCollapsed] = useState<boolean>(false);
-  const [visible, setVisible] = useState<boolean>(false);
+  const [ collapsed, setCollapsed ] = useState<boolean>(false);
+  const [ visible, setVisible ] = useState<boolean>(false);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -98,6 +99,7 @@ export default function RootLayout({
   const currentPath = usePathname()
 
   useLayoutEffect(() => {
+    setIsLoading(true);
     if (typeof window !== "undefined" && window.localStorage) {
         const _baseUrl = window.localStorage.getItem("frpHost") || "";
         setBaseUrl(_baseUrl);
@@ -107,7 +109,8 @@ export default function RootLayout({
     } else {
       setVisible(true);
     }
-  })
+    setIsLoading(false);
+  }, [])
 
   useEffect(() => {
     fetch(`${baseUrl}/api/aibox_camera/cameras/is_actived`)
@@ -133,6 +136,10 @@ export default function RootLayout({
   const selectedKeys = menuItems
     .filter(item => currentPath === item.key)
     .map(item => item.key);
+  
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <html lang="en">
