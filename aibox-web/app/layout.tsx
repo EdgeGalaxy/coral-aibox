@@ -113,6 +113,9 @@ export default function RootLayout({
   }, [])
 
   useEffect(() => {
+    if (baseUrl === "") {
+      return;
+    }
     fetch(`${baseUrl}/api/aibox_camera/cameras/is_actived`)
       .then((response) => response.json())
       .then((isActived) => setIsActived(isActived));
@@ -177,7 +180,7 @@ export default function RootLayout({
                  <BaseUrlCard isVisible={ visible } baseUrl={ baseUrl } /> 
             </Header>
             <Content style={{ margin: "0 16px" }}>
-              { baseUrl && 
+              { baseUrl !== "" && 
               <>
                 <ActiveModal isOpen={!isActived} />
                 <GlobalContext.Provider value={{ baseUrl }}>
