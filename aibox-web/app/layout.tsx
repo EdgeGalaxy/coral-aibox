@@ -86,7 +86,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [ isLoading, setIsLoading ] = useState<boolean>(true);
   const [ baseUrl, setBaseUrl] = useState<string>("");
   const [ collapsed, setCollapsed ] = useState<boolean>(false);
   const [ visible, setVisible ] = useState<boolean>(false);
@@ -99,7 +98,6 @@ export default function RootLayout({
   const currentPath = usePathname()
 
   useLayoutEffect(() => {
-    setIsLoading(true);
     if (typeof window !== "undefined" && window.localStorage) {
         const _baseUrl = window.localStorage.getItem("frpHost") || "";
         setBaseUrl(_baseUrl);
@@ -109,7 +107,6 @@ export default function RootLayout({
     } else {
       setVisible(true);
     }
-    setIsLoading(false);
   }, [])
 
   useEffect(() => {
@@ -140,9 +137,6 @@ export default function RootLayout({
     .filter(item => currentPath === item.key)
     .map(item => item.key);
   
-  // if (isLoading) {
-  //   return <div>Loading...</div>;
-  // }
 
   return (
     <html lang="en">
@@ -180,7 +174,7 @@ export default function RootLayout({
                  <BaseUrlCard isVisible={ visible } baseUrl={ baseUrl } /> 
             </Header>
             <Content style={{ margin: "0 16px" }}>
-              { baseUrl !== "" && 
+              { baseUrl && 
               <>
                 <ActiveModal isOpen={!isActived} />
                 <GlobalContext.Provider value={{ baseUrl }}>
