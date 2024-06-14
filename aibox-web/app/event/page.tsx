@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { Timeline, TimelineItemProps } from 'antd';
 
-import { getInternalHost } from "@/components/api/utils";
+import { GlobalContext } from "@/components/api/context";
 
 
 type eventsData = {
@@ -16,22 +16,12 @@ type eventsData = {
 
 
 export default function EventPage() {
-  const [ baseUrl, setBaseUrl ] = useState("");
+  const baseUrl = useContext(GlobalContext).baseUrl
   const [ events, setEvents ] = useState<TimelineItemProps[]>([]);
 
   useEffect(() => {
-    const fetchInternalIP = async () => {
-      const internalHost = await getInternalHost();
-      console.log('internalHost', internalHost)
-      setBaseUrl(internalHost)
-      return internalHost
-    }
-    fetchInternalIP()
-  }, []);
-
-  useEffect(() => {
     console.log('base url', baseUrl)
-    fetch(`${baseUrl}:8040/api/aibox_report/event/trigger/gpio`)
+    fetch(`${baseUrl}/api/aibox_report/event/trigger/gpio`)
       .then((response) => response.json())
       .then((events_data: eventsData[]) => {
         console.log('data', events_data)

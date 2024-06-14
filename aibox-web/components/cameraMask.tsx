@@ -1,10 +1,8 @@
 
-import { Button, Spin, message } from "antd";
+import { Button, message } from "antd";
 import { memo, useEffect, useState } from "react";
 
 import { Mask } from "./canvas";
-
-import { getInternalHost } from "./api/utils";
 
 
 type CameraConfig = {
@@ -21,8 +19,8 @@ const _CameraMask = ({ camera_id, baseUrl } : { camera_id: string, baseUrl: stri
   const [ cameraConfig, setCameraConfig] = useState<CameraConfig>({} as CameraConfig);
 
   useEffect(() => {
-    setUrl(`${baseUrl}:8010/api/aibox_camera/cameras/${camera_id}/draw-mask`)
-    setCameraConfigUrl(`${baseUrl}:8010/api/aibox_camera/cameras/${camera_id}/config`)
+    setUrl(`${baseUrl}/api/aibox_camera/cameras/${camera_id}/draw-mask`)
+    setCameraConfigUrl(`${baseUrl}/api/aibox_camera/cameras/${camera_id}/config`)
     setCoordinates([])
   }, [camera_id]);
 

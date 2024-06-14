@@ -5,7 +5,7 @@ services:
     build:
       context: ./aibox-camera
       dockerfile: Dockerfile_rknn
-    image: ${DOCKER_USERNAME:-local}/aibox-camera:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-camera:rknn-${IMAGE_TAG:-main}
     privileged: true
     platform: linux/arm64
     network_mode: host
@@ -27,7 +27,7 @@ services:
     build:
       context: ./aibox-person
       dockerfile: Dockerfile_rknn
-    image: ${DOCKER_USERNAME:-local}/aibox-person:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-person:rknn-${IMAGE_TAG:-main}
     privileged: true
     platform: linux/arm64
     depends_on:
@@ -51,7 +51,7 @@ services:
     build:
       context: ./aibox-face
       dockerfile: Dockerfile_rknn
-    image: ${DOCKER_USERNAME:-local}/aibox-face:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-face:rknn-${IMAGE_TAG:-main}
     privileged: true
     platform: linux/arm64
     depends_on:
@@ -75,7 +75,7 @@ services:
     build:
       context: ./aibox-record
       dockerfile: Dockerfile
-    image: ${DOCKER_USERNAME:-local}/aibox-record:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-record:rknn-${IMAGE_TAG:-main}
     privileged: true
     platform: linux/arm64
     depends_on:
@@ -99,7 +99,7 @@ services:
     build:
       context: ./aibox-report
       dockerfile: Dockerfile_rknn
-    image: ${DOCKER_USERNAME:-local}/aibox-report:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-report:rknn-${IMAGE_TAG:-main}
     privileged: true
     platform: linux/arm64
     environment:
@@ -129,7 +129,7 @@ services:
     build:
       context: ./aibox-web
       dockerfile: Dockerfile
-    image: ${DOCKER_USERNAME:-local}/aibox-web:rknn-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-web:rknn-${IMAGE_TAG:-main}
     platform: linux/arm64
     network_mode: host
     privileged: true
@@ -137,3 +137,11 @@ services:
       - $HOME/.coral:/root/.coral 
       - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
+  
+  aibox-nginx:
+    image: ${DOCKER_MIRROR:-docker.io}/nginx
+    network_mode: host
+    volumes:
+      - ./aibox-nginx.conf:/etc/nginx/conf.d/aibox.conf
+    restart: unless-stopped
+  

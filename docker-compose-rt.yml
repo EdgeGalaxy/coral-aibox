@@ -5,7 +5,7 @@ services:
     build:
       context: ./aibox-camera
       dockerfile: Dockerfile
-    image: ${DOCKER_USERNAME:-local}/aibox-camera:rt-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-camera:rt-${IMAGE_TAG:-main}
     privileged: true
     network_mode: host
     environment:
@@ -26,7 +26,7 @@ services:
     build:
       context: ./aibox-person
       dockerfile: Dockerfile_rt
-    image: ${DOCKER_USERNAME:-local}/aibox-person:rt-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-person:rt-${IMAGE_TAG:-main}
     privileged: true
     depends_on:
       - aibox-camera
@@ -47,7 +47,7 @@ services:
     build:
       context: ./aibox-face
       dockerfile: Dockerfile_rt
-    image: ${DOCKER_USERNAME:-local}/aibox-face:rt-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-face:rt-${IMAGE_TAG:-main}
     privileged: true
     depends_on:
       - aibox-person
@@ -69,7 +69,7 @@ services:
     build:
       context: ./aibox-record
       dockerfile: Dockerfile
-    image: ${DOCKER_USERNAME:-local}/aibox-record:rt-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-record:rt-${IMAGE_TAG:-main}
     privileged: true
     depends_on:
       - aibox-person
@@ -91,7 +91,7 @@ services:
     build:
       context: ./aibox-report
       dockerfile: Dockerfile_rt
-    image: ${DOCKER_USERNAME:-local}/aibox-report:rt-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-report:rt-${IMAGE_TAG:-main}
     privileged: true
     environment:
       - MODEL_TYPE=rt
@@ -118,11 +118,18 @@ services:
     build:
       context: ./aibox-web
       dockerfile: Dockerfile
-    image: ${DOCKER_USERNAME:-local}/aibox-web:rt-${IMAGE_TAG:-v0.1.0}
+    image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-web:rt-${IMAGE_TAG:-main}
     privileged: true
     ports:
       - 3000:3000
     volumes:
       - $HOME/.coral:/root/.coral 
       - $HOME/.rock/activate_code:/root/.rock/activate_code
+    restart: unless-stopped
+  
+  aibox-nginx:
+    image: ${DOCKER_MIRROR:-docker.io}/nginx
+    network_mode: host
+    volumes:
+      - ./aibox-nginx.conf:/etc/nginx/conf.d/aibox.conf
     restart: unless-stopped

@@ -18,7 +18,8 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 && \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
-RUN apt-get install -y supervisor curl ffmpeg 
+RUN apt-get install -y supervisor curl ffmpeg nginx
+COPY aibox-nginx.conf /etc/nginx/conf.d/
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash
 RUN apt-get install -y nodejs 
 RUN npm install -g yarn next@latest react@latest react-dom@latest
@@ -57,4 +58,4 @@ ENV CONFIG_REMOTE_HOST=https://nbstore.oss-cn-shanghai.aliyuncs.com/coral-aibox/
 COPY . .
 
 
-CMD ["/usr/bin/supervisord", "-c", "supervisord.conf"]
+CMD ["service", "nginx", "restart", "&&", "/usr/bin/supervisord", "-c", "supervisord.conf"]

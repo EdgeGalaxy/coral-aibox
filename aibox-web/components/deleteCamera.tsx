@@ -27,7 +27,7 @@ const _deleteCamera = ({ baseUrl, cameraIds }: props) => {
       .validateFields()
       .then((values: FormValues) => {
         console.log("Received values of form:", values);
-        const url = `${baseUrl}:8010/api/aibox_camera/cameras/${values['name']}`;
+        const url = `${baseUrl}/api/aibox_camera/cameras/${values['name']}`;
         // 发送Form数据到后端
         fetch(url, {
           method: "DELETE",

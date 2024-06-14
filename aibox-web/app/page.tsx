@@ -1,25 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Col, Image, InputNumber, Row, Select, Slider, Tooltip } from "antd";
 
 import { AddCamera } from "@/components/addCamera";
 import { DeleteCamera } from "@/components/deleteCamera";
-import { getInternalHost } from "@/components/api/utils";
-import { ActiveModal } from "@/components/activeModel";
 import { ChangeResolution, LevelKeys } from "@/components/changeResolution";
 import { DownOutlined } from "@ant-design/icons";
 import { ShowPerson } from "@/components/showPerson";
+import { GlobalContext } from "@/components/api/context";
 
 const { Option } = Select;
 const MAX_COUNT = 4;
 
 export default function Home() {
-  const [ baseUrl, setBaseUrl ] = useState<string>("");
+  const baseUrl = useContext(GlobalContext).baseUrl
   const [ cameras, SetCameras ] = useState<string[]>([]);
   const [ selectCameras, setSelectCameras ] = useState<string[]>([]);
-  const [ prefixPath, setPrefixPath ] = useState<string>("8030/api/aibox_face/cameras");
-  const [ isActived, setIsActived ] = useState<boolean>(true);
+  const [ prefixPath, setPrefixPath ] = useState<string>("/api/aibox_face/cameras");
   const [ defaultLevel, setDefaultLevel ] = useState<LevelKeys>("low");
   const [ reportSenceThresh, setReportSenceThresh] = useState(0.5);
   const [ wsUrl, setWsUrl ] = useState<string>("");
@@ -28,15 +26,15 @@ export default function Home() {
 
   const onChange = (value: string) => {
     if (value === "原视频") {
-      setPrefixPath("8010/api/aibox_camera/cameras");
-      fetch(`${baseUrl}:8030/api/aibox_face/cameras/stop_stream`)
+      setPrefixPath("/api/aibox_camera/cameras");
+      fetch(`${baseUrl}/api/aibox_face/cameras/stop_stream`)
         .then((response) => response.json())
         .then((data) => {
           console.log('inference camera data', data)
         })
     } else if (value === "推理视频") {
-      setPrefixPath("8030/api/aibox_face/cameras");
-      fetch(`${baseUrl}:8010/api/aibox_camera/cameras/stop_stream`)
+      setPrefixPath("/api/aibox_face/cameras");
+      fetch(`${baseUrl}/api/aibox_camera/cameras/stop_stream`)
         .then((response) => response.json())
         .then((data) => {
           console.log('origin camera data', data)
@@ -54,40 +52,27 @@ export default function Home() {
   );
 
   useEffect(() => {
-    const fetchInternalIP = async () => {
-      const internalHost = await getInternalHost();
-      console.log('internalHost', internalHost)
-      setBaseUrl(internalHost)
-      const wsHost = internalHost.replace(/http/g, "ws")
-      setWsUrl(`${wsHost}:8040/api/aibox_report/ws/person_count`)
-      return internalHost
-    }
-    fetchInternalIP()
-  }, []);
+    const wsHost = baseUrl.replace(/http/g, "ws")
+    setWsUrl(`${wsHost}/api/aibox_report/ws/person_count`)
 
-  useEffect(() => {
-    fetch(`${baseUrl}:8010/api/aibox_camera/cameras`)
+    fetch(`${baseUrl}/api/aibox_camera/cameras`)
       .then((response) => response.json())
       .then((cameras) => {
         SetCameras(cameras)
         setSelectCameras(cameras.slice(0, MAX_COUNT))
     });
     
-    fetch(`${baseUrl}:8010/api/aibox_camera/cameras/is_actived`)
-      .then((response) => response.json())
-      .then((isActived) => setIsActived(isActived));
-    
-    fetch(`${baseUrl}:8010/api/aibox_camera/cameras/resolution`)
+    fetch(`${baseUrl}/api/aibox_camera/cameras/resolution`)
       .then((response) => response.json())
       .then((level) => setDefaultLevel(level));
     
-    fetch(`${baseUrl}:8040/api/aibox_report/config`)
+    fetch(`${baseUrl}/api/aibox_report/config`)
       .then((response) => response.json())
       .then((data) => setReportSenceThresh(data.report_scene));
   }, [baseUrl]);
 
   const onReportSenceSliderChange = (newValue: number) => {
-    const personRecordUrl = `${baseUrl}:8040/api/aibox_report/config`;
+    const personRecordUrl = `${baseUrl}/api/aibox_report/config`;
     fetch(personRecordUrl, {
       method: "POST",
       headers: {
@@ -110,7 +95,6 @@ export default function Home() {
 
   return (
     <>
-      <ActiveModal isOpen={!isActived} />
       <div className="flex m-4 items-center">
           <p className="m-2 font-mono font-bold text-center">选择视频类型: </p>
           <Select

@@ -1,7 +1,6 @@
 import React, { memo, useState } from "react";
 import { Button, Modal, Form, Input, message } from "antd";
 
-import { getInternalHost } from "./api/utils";
 
 type FormValues = {
   name: string;
@@ -26,7 +25,7 @@ const _addCamera = ( { baseUrl }: { baseUrl: string }) => {
       .validateFields()
       .then((values: FormValues) => {
         console.log("Received values of form:", values);
-        const url = `${baseUrl}:8010/api/aibox_camera/cameras/add`;
+        const url = `${baseUrl}/api/aibox_camera/cameras/add`;
         // 发送Form数据到后端
         fetch(url, {
           method: "POST",

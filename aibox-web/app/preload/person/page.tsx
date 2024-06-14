@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import type { UploadFile } from "antd";
 import {
   Switch,
@@ -16,12 +16,12 @@ import {
   Spin,
 } from "antd";
 
-import { getInternalHost } from "@/components/api/utils";
 import { ImageCard } from "@/components/cardImage";
+import { GlobalContext } from "@/components/api/context";
 
 
 export default function LoadPersonPage() {
-  const [baseUrl, setBaseUrl] = useState("");
+  const baseUrl = useContext(GlobalContext).baseUrl
   const [isLoading, setIsLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [switchs, setSwitchs] = useState<{ [key: string]: boolean | number }>({
@@ -38,19 +38,9 @@ export default function LoadPersonPage() {
   const [crtPageSize, setCrtPageSize] = useState(10);
 
   useEffect(() => {
-    const fetchInternalIP = async () => {
-      const internalHost = await getInternalHost();
-      console.log("internalHost", internalHost);
-      setBaseUrl(internalHost);
-      return internalHost;
-    };
-    fetchInternalIP();
-  }, []);
-
-  useEffect(() => {
     setPageLoading(true);
-    const personConfigUrl = `${baseUrl}:8020/api/aibox_person/config`;
-    const personImagesUrl = `${baseUrl}:8020/api/aibox_person/fake/persons`;
+    const personConfigUrl = `${baseUrl}/api/aibox_person/config`;
+    const personImagesUrl = `${baseUrl}/api/aibox_person/fake/persons`;
     // person fetch
     fetch(personConfigUrl)
       .then((response) => response.json())
@@ -71,7 +61,7 @@ export default function LoadPersonPage() {
       .then((persons) => {
         const fakePersonFileList: UploadFile<any>[] = [];
         for (const person of persons) {
-          const personImageUrl = `${baseUrl}:8020/static/${person}`;
+          const personImageUrl = `${baseUrl}/static/${person}`;
           const personFile: UploadFile = {
             // person形如： xxxx.jpg, uid 需要 xxxx
             uid: person.split(".")[0],
@@ -94,7 +84,7 @@ export default function LoadPersonPage() {
 
   const onPersonSwitchChange = (key: string, checked: boolean | number) => {
     setIsLoading(true);
-    const personRecordUrl = `${baseUrl}:8020/api/aibox_person/record/featuredb`;
+    const personRecordUrl = `${baseUrl}/api/aibox_person/record/featuredb`;
     let { [key]: _, ...otheSwitchs } = switchs;
     fetch(personRecordUrl, {
       method: "POST",
@@ -119,7 +109,7 @@ export default function LoadPersonPage() {
   };
 
   const handleRemove = (file: UploadFile<any>) => {
-    const deleteFakePersonUrl = `${baseUrl}:8020/api/aibox_person/fake/persons/${file.uid}`;
+    const deleteFakePersonUrl = `${baseUrl}/api/aibox_person/fake/persons/${file.uid}`;
     fetch(deleteFakePersonUrl, {
       method: "DELETE",
       headers: {
@@ -141,7 +131,7 @@ export default function LoadPersonPage() {
   };
 
   const handleRemoveAll = () => {
-    const deleteFakePersonUrl = `${baseUrl}:8020/api/aibox_person/fake/persons/prune/all`;
+    const deleteFakePersonUrl = `${baseUrl}/api/aibox_person/fake/persons/prune/all`;
     fetch(deleteFakePersonUrl, {
       method: "DELETE",
       headers: {

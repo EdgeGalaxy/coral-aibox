@@ -55,7 +55,7 @@ const _FileList = ({
 
   const handleChildrenDelete = () => {
     fetch(
-      `${baseUrl}:8030/api/aibox_face/users/${folderID}/faces/${childrenMenu.item?.name}`,
+      `${baseUrl}/api/aibox_face/users/${folderID}/faces/${childrenMenu.item?.name}`,
       {
         method: "DELETE",
       }
@@ -96,7 +96,7 @@ const _FileList = ({
 
   const handleAvatarClick = (faceID: string) => {
     setAvatarModalVisable(true);
-    setFacePreview(`${baseUrl}:8030/static/${folderID}/${faceID}.jpg`);
+    setFacePreview(`${baseUrl}/static/${folderID}/${faceID}.jpg`);
   };
 
   const handleSelectChange = (destFolderID: string) => {
@@ -105,7 +105,7 @@ const _FileList = ({
 
   const handleConfirmMove = (faceID: string) => {
     fetch(
-      `${baseUrl}:8030/api/aibox_face/users/${folderID}/move/${moveFolderID}`,
+      `${baseUrl}/api/aibox_face/users/${folderID}/move/${moveFolderID}`,
       {
         method: "POST",
         headers: {
@@ -220,7 +220,7 @@ const _FileList = ({
             <List.Item.Meta
               avatar={
                 <Avatar
-                  src={`${baseUrl}:8030/static/${folderID}/${item.name}.jpg`}
+                  src={`${baseUrl}/static/${folderID}/${item.name}.jpg`}
                   onClick={() => handleAvatarClick(item.name)}
                 />
               }

@@ -1,28 +1,17 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
-
-import { getInternalHost } from "@/components/api/utils";
 import { Collapse, CollapseProps } from "antd";
+import { GlobalContext } from "@/components/api/context";
 
 export default function RecordPage() {
-  const [ baseUrl, setBaseUrl ] = useState("");
+  const baseUrl = useContext(GlobalContext).baseUrl
   const [ camerasRecords, setCamerasRecords] = useState<{ [key: string]: [] }>({});
 
   useEffect(() => {
-    const fetchInternalIP = async () => {
-      const internalHost = await getInternalHost();
-      console.log('internalHost', internalHost)
-      setBaseUrl(internalHost)
-      return internalHost
-    }
-    fetchInternalIP()
-  }, []);
-
-  useEffect(() => {
     console.log('base url', baseUrl)
-    fetch(`${baseUrl}:8050/api/aibox_record/video/records`)
+    fetch(`${baseUrl}/api/aibox_record/video/records`)
       .then((response) => response.json())
       .then((data) => {
         setCamerasRecords(data)
@@ -34,7 +23,7 @@ export default function RecordPage() {
     label: key,
     children: <div className="grid grid-cols-4 m-8">{camerasRecords[key].map((record) => (
       <div className="m-8" key={record}>
-        <video controls src={`${baseUrl}:8050/static/${record}`} key={record} />
+        <video controls src={`${baseUrl}/static/${record}`} key={record} />
         <p className="text-center">{record}</p>
       </div>
     ))}</div>

@@ -64,7 +64,7 @@ const _UsersFaceList = ({
 
   const handleDelete = () => {
     fetch(
-      `${baseUrl}:8030/api/aibox_face/users/${contextMenu.item?.name}/faces`,
+      `${baseUrl}/api/aibox_face/users/${contextMenu.item?.name}/faces`,
       {
         method: "DELETE",
       }
@@ -82,7 +82,7 @@ const _UsersFaceList = ({
   };
 
   const handleRename = async () => {
-    const renameUrl = `${baseUrl}:8030/api/aibox_face/users/remark`;
+    const renameUrl = `${baseUrl}/api/aibox_face/users/remark`;
     fetch(renameUrl, {
       method: "POST",
       headers: {

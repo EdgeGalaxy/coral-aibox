@@ -1,29 +1,19 @@
 "use client";
 
 import { CameraMask } from "@/components/cameraMask";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Select } from "antd";
-import { getInternalHost } from "@/components/api/utils";
+import { GlobalContext } from "@/components/api/context";
 
 const { Option } = Select;
 
 export default function Configuration() {
-  const [ baseUrl, setBaseUrl ] = useState("");
+  const baseUrl = useContext(GlobalContext).baseUrl
   const [cameras, setCameras] = useState([]);
   const [selectCameraID, setSelectCameraID] = useState<string>("");
 
   useEffect(() => {
-    const fetchInternalIP = async () => {
-      const internalHost = await getInternalHost();
-      console.log('internalHost', internalHost)
-      setBaseUrl(internalHost)
-      return internalHost
-    }
-    fetchInternalIP()
-  }, []);
-
-  useEffect(() => {
-    fetch(`${baseUrl}:8010/api/aibox_camera/cameras`)
+    fetch(`${baseUrl}/api/aibox_camera/cameras`)
       .then((response) => response.json())
       .then((cameras) => {
         setCameras(cameras);

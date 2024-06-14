@@ -1,17 +1,17 @@
 'use client'
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import { Switch, Button, message, Row, Col, Slider, InputNumber } from 'antd';
 
-import { getInternalHost } from '@/components/api/utils'
 import { UsersFaceFolderList } from '@/components/usersFaceList'
 import { ItemData } from "@/components/types/type";
+import { GlobalContext } from "@/components/api/context";
 
 
 
 export default function PreloadFacePage() {
 
-  const [ baseUrl, setBaseUrl ] = useState("");
+  const baseUrl = useContext(GlobalContext).baseUrl
   const [isLoading, setIsLoading] = useState(false);
   const [switchs, setSwitchs] = useState<{ [key: string]: boolean | number }>({
     is_record: false,
@@ -24,18 +24,8 @@ export default function PreloadFacePage() {
   const [similarThresh, setSimilarThresh] = useState(0.9);
 
   useEffect(() => {
-    const fetchInternalIP = async () => {
-      const internalHost = await getInternalHost();
-      console.log('internalHost', internalHost)
-      setBaseUrl(internalHost)
-      return internalHost
-    }
-    fetchInternalIP()
-  }, []);
-
-  useEffect(() => {
-    const faceConfigUrl = `${baseUrl}:8030/api/aibox_face/config`;
-    const usersFaceUrl = `${baseUrl}:8030/api/aibox_face/users`;
+    const faceConfigUrl = `${baseUrl}/api/aibox_face/config`;
+    const usersFaceUrl = `${baseUrl}/api/aibox_face/users`;
     // face fetch
     fetch(faceConfigUrl)
       .then((response) => response.json())
@@ -79,7 +69,7 @@ export default function PreloadFacePage() {
 
   const onFaceRecordSwitchChange = (key: string, checked: boolean | number) => {
     setIsLoading(true)
-    const faceRecordUrl = `${baseUrl}:8030/api/aibox_face/record/featuredb`;
+    const faceRecordUrl = `${baseUrl}/api/aibox_face/record/featuredb`;
     let { [key]: _, ...otheSwitchs } = switchs
     fetch(faceRecordUrl, {
       method: 'POST',
@@ -102,7 +92,7 @@ export default function PreloadFacePage() {
 
   const onSyncButtonClick = () => {
     console.log('onSyncButtonClick')
-    fetch(`${baseUrl}:8030/api/aibox_face/users/sync`)
+    fetch(`${baseUrl}/api/aibox_face/users/sync`)
       .then((response) => {
         if (response.ok) {
             message.success('同步成功')
