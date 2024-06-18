@@ -114,6 +114,7 @@ class Recorder:
                         os.remove(_target_fp)
                         logger.info(f"auto delete success. remove file: {_target_fp}")
                         time.sleep(1)
+                _, _, free_b = shutil.disk_usage("/")
             else:
                 break
         _, _, done_free_b = shutil.disk_usage("/")
