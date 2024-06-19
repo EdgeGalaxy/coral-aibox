@@ -82,11 +82,16 @@ class AIboxReportParamsModel(BaseParamsModel):
 
     @property
     def kf_Q(self):
-        return 0.001 * pow(100, self.report_scene)
+        return 0.0001 * pow(100, self.report_scene)
 
     @property
     def kf_R(self):
-        return 10 / pow(100, self.report_scene)
+        return 100 / pow(100, self.report_scene)
+
+    @property
+    def predict_threshold(self):
+        """基于此值来判定人数是否向上还是向下取整"""
+        return 0.7 - self.report_scene * 0.4
 
 
 @RTManager.register()
@@ -223,7 +228,7 @@ class AIboxReport(CoralNode):
             pre_state_count.append(self.kf.x[0])
         count = (
             math.ceil(self.kf.x[0])
-            if self.kf.x[0] - math.floor(self.kf.x[0]) > 0.5
+            if self.kf.x[0] - math.floor(self.kf.x[0]) > self.params.predict_threshold
             else math.floor(self.kf.x[0])
         )
         logger.debug(
