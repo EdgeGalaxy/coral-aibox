@@ -25,7 +25,7 @@ const _baseUrlCard = ({ isVisible, baseUrl }: { isVisible: boolean, baseUrl: str
           url = url.slice(0, -1);
         }
         // 通过请求cameras接口判断url是否可用
-        fetch(`${baseUrl}/api/aibox_camera/cameras`)
+        fetch(`${url}/api/aibox_camera/cameras`)
           .then((response) => response.json())
           .then((cameras) => {
             window.localStorage.setItem("frpHost", url);
