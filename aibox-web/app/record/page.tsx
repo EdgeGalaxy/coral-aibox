@@ -15,7 +15,7 @@ export default function RecordPage() {
   );
   const [selectCameraRecords, setSelectCameraRecords] = useState<string[]>([]);
   const [crtPage, setCrtPage] = useState(1);
-  const [crtPageSize, setCrtPageSize] = useState(10);
+  const [crtPageSize, setCrtPageSize] = useState(8);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -23,8 +23,12 @@ export default function RecordPage() {
     fetch(`${baseUrl}/api/aibox_record/video/records`)
       .then((response) => response.json())
       .then((data) => {
-        setCamerasRecords(data);
-        setCameraID(Object.keys(data)[0]);
+        if (data) {
+          const defaultCameraID = Object.keys(data)[0];
+          setCamerasRecords(data);
+          setCameraID(defaultCameraID);
+          setSelectCameraRecords(data[defaultCameraID].slice(0, crtPageSize));
+        }
       })
       .finally(() => setIsLoading(false));
   }, []);
@@ -89,6 +93,7 @@ export default function RecordPage() {
       <div className="mt-8 flex justify-center">
         <Pagination
           defaultCurrent={crtPage}
+          defaultPageSize={crtPageSize}
           hideOnSinglePage
           total={camerasRecords[cameraID]?.length}
           onChange={onPageNumChange}
