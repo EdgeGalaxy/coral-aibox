@@ -45,7 +45,6 @@ const _Mask = ({ url, updateCoordinate }: props) => {
   }, [isDrawing, url, ratio]);
 
   useEffect(() => {
-
     const canvas = canvasRef.current;
     if (!canvas) return;
     const context = canvas.getContext('2d');

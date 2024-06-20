@@ -20,7 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from algrothms.inference import Inference
 from algrothms.gossip import GossipCommunicate
-from algrothms.utils import draw_image_with_boxes, BASE_URL, draw_mask
+from algrothms.utils import draw_image_with_boxes, draw_mask
 from schema import (
     RecordFeatureModel,
     WebNodeParams,

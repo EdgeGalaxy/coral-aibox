@@ -127,13 +127,12 @@ class Recorder:
         )
         frame = cv2.putText(
             frame,
-            f"Total Person: {person_count}  Time: {time_str}",
+            f"Report Person: {person_count}  Time: {time_str}",
             (20, 40),
             fontScale=1,
             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
             color=(0, 0, 0),
-            thickness=1,
-            lineType=4,
+            thickness=2,
         )
         return frame
 
@@ -148,7 +147,7 @@ class Recorder:
         cv2.rectangle(image, (x1, y1), (x2, y2), box_color, 2)
         cv2.putText(
             image,
-            object.label,
+            str(object.prob),
             (x1, y1 - 10),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,

@@ -44,7 +44,7 @@ def draw_mask(frame: np.ndarray, points: List[List[int]]):
 def draw_image_with_boxes(
     image: np.ndarray, objects: List[ObjectPayload], delay_time: float, fps: int
 ):
-    # 基于objects的box和label在图像上画对应的框和label标记
+    # 基于objects的box和label在图像上画对应的框和prob 标记
     def _draw(
         image: np.ndarray,
         object: ObjectPayload,
@@ -55,7 +55,7 @@ def draw_image_with_boxes(
         cv2.rectangle(image, (x1, y1), (x2, y2), box_color, 2)
         cv2.putText(
             image,
-            object.label,
+            str(object.prob),
             (x1, y1 - 10),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,
