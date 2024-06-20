@@ -61,7 +61,7 @@ export default function LoadPersonPage() {
       .then((persons) => {
         const fakePersonFileList: UploadFile<any>[] = [];
         for (const person of persons) {
-          const personImageUrl = `${baseUrl}/static/${person}`;
+          const personImageUrl = `${baseUrl}/api/aibox_person/static/${person}`;
           const personFile: UploadFile = {
             // person形如： xxxx.jpg, uid 需要 xxxx
             uid: person.split(".")[0],

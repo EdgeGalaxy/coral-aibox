@@ -23,7 +23,7 @@ export default function RecordPage() {
     label: key,
     children: <div className="grid grid-cols-4 m-8">{camerasRecords[key].map((record) => (
       <div className="m-8" key={record}>
-        <video controls src={`${baseUrl}/static/${record}`} key={record} />
+        <video controls src={`${baseUrl}/api/aibox_record/static/${record}`} key={record} />
         <p className="text-center">{record}</p>
       </div>
     ))}</div>

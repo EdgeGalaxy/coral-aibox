@@ -96,7 +96,7 @@ const _FileList = ({
 
   const handleAvatarClick = (faceID: string) => {
     setAvatarModalVisable(true);
-    setFacePreview(`${baseUrl}/static/${folderID}/${faceID}.jpg`);
+    setFacePreview(`${baseUrl}/api/aibox_face/static/${folderID}/${faceID}.jpg`);
   };
 
   const handleSelectChange = (destFolderID: string) => {
@@ -220,7 +220,7 @@ const _FileList = ({
             <List.Item.Meta
               avatar={
                 <Avatar
-                  src={`${baseUrl}/static/${folderID}/${item.name}.jpg`}
+                  src={`${baseUrl}/api/aibox_face/static/${folderID}/${item.name}.jpg`}
                   onClick={() => handleAvatarClick(item.name)}
                 />
               }

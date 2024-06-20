@@ -53,8 +53,9 @@ def async_run(_node_id: str, mount_path: str) -> None:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.include_router(router, prefix=f"/api/{_node_id}")
-    app.mount("/static", StaticFiles(directory=mount_path), name="static")
+    prefix = f"/api/{_node_id}"
+    app.include_router(router, prefix=prefix)
+    app.mount(f"{prefix}/static", StaticFiles(directory=mount_path), name="static")
     logger.info(f"{_node_id} start web server")
     Thread(
         target=uvicorn.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 8030}
@@ -135,8 +136,8 @@ def update_user_remark(item: UsersRemarkModel):
     user_faces_url = [
         {
             "face_key": user_face,
-            "image": f"{BASE_URL}/static/{user_face}.jpg",
-            "vector": f"{BASE_URL}/static/{user_face}.npy",
+            "image": f"api/{node_id}/static/{user_face}.jpg",
+            "vector": f"api/{node_id}/static/{user_face}.npy",
         }
         for user_face in user_faces
     ]
@@ -176,8 +177,8 @@ def move_user_faces(src_user_id: str, dest_user_id: str, item: UserFaceModel):
     # 更新gossip
     user_face_url = {
         "face_key": item.face,
-        "image": f"{BASE_URL}/static/{item.face}.jpg",
-        "vector": f"{BASE_URL}/static/{item.face}.npy",
+        "image": f"api/{node_id}/static/{item.face}.jpg",
+        "vector": f"api/{node_id}/static/{item.face}.npy",
     }
     gossip.user_faces_move(src_user_id, dest_user_id, faces=[user_face_url])
     return {"result": "success"}
@@ -204,8 +205,8 @@ def sync_users():
         user_faces_url = [
             {
                 "face_key": user_face,
-                "image": f"{BASE_URL}/static/{user_face}.jpg",
-                "vector": f"{BASE_URL}/static/{user_face}.npy",
+                "image": f"api/{node_id}/static/{user_face}.jpg",
+                "vector": f"api/{node_id}/static/{user_face}.npy",
             }
             for user_face in user_faces
         ]

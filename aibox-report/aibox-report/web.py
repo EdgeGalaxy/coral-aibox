@@ -47,8 +47,9 @@ def async_run(_node_id: str, mount_path: str) -> None:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.include_router(router, prefix=f"/api/{_node_id}")
-    app.mount("/static", StaticFiles(directory=mount_path), name="static")
+    prefix = f"/api/{_node_id}"
+    app.include_router(router, prefix=prefix)
+    app.mount(f"{prefix}/static", StaticFiles(directory=mount_path), name="static")
     logger.info(f"{_node_id} start web server")
     Thread(
         target=uvicorn.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 8040}
