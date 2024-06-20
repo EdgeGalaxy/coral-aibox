@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useEffect, useState } from "react";
+import LazyLoad from 'react-lazy-load';
 
 import { Empty, Pagination, Select } from "antd";
 import { GlobalContext } from "@/components/api/context";
@@ -86,11 +87,13 @@ export default function RecordPage() {
         <div className="grid grid-cols-4 m-8">
           {selectCameraRecords.map((record) => (
             <div className="m-8" key={record}>
-              <video
-                controls
-                src={`${baseUrl}/api/aibox_record/static/${record}`}
-                key={record}
-              />
+              <LazyLoad>
+                <video
+                  controls
+                  src={`${baseUrl}/api/aibox_record/static/${record}`}
+                  key={record}
+                />
+              </LazyLoad>
               <p className="text-center">{record}</p>
             </div>
           ))}
