@@ -7,30 +7,42 @@ import { GlobalContext } from "@/components/api/context";
 
 const { Option } = Select;
 
+type camerasRecordsType = {
+  [key: string]: string[];
+};
+
 export default function RecordPage() {
   const baseUrl = useContext(GlobalContext).baseUrl;
   const [cameraID, setCameraID] = useState<string>("");
-  const [camerasRecords, setCamerasRecords] = useState<{ [key: string]: [] }>(
+  const [camerasRecords, setCamerasRecords] = useState<camerasRecordsType>(
     {}
   );
   const [selectCameraRecords, setSelectCameraRecords] = useState<string[]>([]);
   const [crtPage, setCrtPage] = useState(1);
   const [crtPageSize, setCrtPageSize] = useState(8);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
+
     fetch(`${baseUrl}/api/aibox_record/video/records`)
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          const defaultCameraID = Object.keys(data)[0];
-          setCamerasRecords(data);
-          setCameraID(defaultCameraID);
-          setSelectCameraRecords(data[defaultCameraID].slice(0, crtPageSize));
+          fetch(`${baseUrl}/api/aibox_camera/cameras`)
+            .then((response) => response.json())
+            .then((cameras) => {
+              const usedCamerasRecords  = Object.entries(data).filter(([cameraID]) => cameras.includes(cameraID));
+              const usedCamerasRecordsObj = Object.fromEntries(usedCamerasRecords) as camerasRecordsType
+              const defaultCameraID = Object.keys(usedCamerasRecordsObj)[0];
+              setCamerasRecords(usedCamerasRecordsObj);
+              setCameraID(defaultCameraID);
+              setSelectCameraRecords(usedCamerasRecordsObj[defaultCameraID]?.slice(0, crtPageSize));
+          });
         }
       })
-      .finally(() => setIsLoading(false));
+
+    setIsLoading(false);
   }, []);
 
   const onCameraChange = (cameraID: string) => {
@@ -48,7 +60,7 @@ export default function RecordPage() {
     );
   };
 
-  if (isLoading) {
+  if (isLoading || !cameraID) {
     return <div>Loading...</div>; // 显示加载状态
   }
 
