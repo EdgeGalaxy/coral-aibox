@@ -5,7 +5,7 @@ import json
 import time
 import base64
 import shutil
-from typing import Dict, List
+from typing import Dict, List, Union
 from collections import deque
 
 import cv2
@@ -137,7 +137,12 @@ class AIboxReport(CoralNode):
         data = self.params.model_dump()
         gpio_cfg = data["gpio"]
 
-        mqtt_client = init_mqtt(data["mqtt"])
+        try:
+            mqtt_client = init_mqtt(data["mqtt"])
+        except Exception as e:
+            logger.error(f"mqtt init error: {e}")
+            mqtt_client = None
+
         gpio_client = GpioControl(
             gpio_cfg["pins"], gpio_cfg["enable"], gpio_cfg["interval"]
         )
@@ -254,7 +259,7 @@ class AIboxReport(CoralNode):
             payload.raw,
         ]
 
-        mqtt_client: mqtt.Client = context["mqtt"]
+        mqtt_client: Union[mqtt.Client, None] = context["mqtt"]
         gpio_client: GpioControl = context["gpio"]
         pre_camera_count = [count for count, _, _ in self.cameras_frame_data.values()]
         try:
@@ -291,8 +296,10 @@ class AIboxReport(CoralNode):
                     for _, obj, raw in self.cameras_frame_data.values()
                 ]
                 report_msg["extras"].update({"image_with_objects": image_with_objects})
-
-            mqtt_client.publish(self.topic, json.dumps(report_msg))
+            if mqtt_client:
+                mqtt_client.publish(self.topic, json.dumps(report_msg))
+            else:
+                logger.warning("mqtt client not init, report not send!!!")
 
             # 触发信号, 开
             if person_count and person_count != -1:

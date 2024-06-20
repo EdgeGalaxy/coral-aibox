@@ -17,10 +17,11 @@ import {
   BlockOutlined,
   
 } from "@ant-design/icons";
-import { Layout, Menu, theme } from "antd";
+import { Divider, Layout, Menu, theme } from "antd";
 import {  useEffect, useLayoutEffect, useState } from "react";
 import { BaseUrlCard } from "@/components/baseUrlCard";
 import { GlobalContext } from "@/components/api/context";
+import { MqttConfigCard } from "@/components/mqttCard";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -93,6 +94,13 @@ export default function RootLayout({
     token: { colorBgContainer },
   } = theme.useToken();
   const [ isActived, setIsActived ] = useState<boolean>(true);
+  const [ reportState, setReportState ] = useState<boolean>(false);
+  const [ mqttConfig, setMqttConfig ] = useState<any>({
+    broker: "",
+    port: 0,
+    username: "",
+    password: "",
+  });
 
   // 获取当前路径
   const currentPath = usePathname()
@@ -116,6 +124,13 @@ export default function RootLayout({
     fetch(`${baseUrl}/api/aibox_camera/cameras/is_actived`)
       .then((response) => response.json())
       .then((isActived) => setIsActived(isActived));
+
+    fetch(`${baseUrl}/api/aibox_report/config`)
+      .then((response) => response.json())
+      .then((data) => {
+        setReportState(data.report_status)
+        setMqttConfig(data.mqtt_config)
+      });
 
     if (currentPath != "/") {
       fetch(`${baseUrl}/api/aibox_camera/cameras/stop_stream`)
@@ -170,8 +185,11 @@ export default function RootLayout({
           </Sider>
           <Layout>
             <Header style={{ padding: '12px', background: colorBgContainer }} className="flex justify-end">
-                 <p className="mr-4">当前地址: <span className="text-green-400">{ baseUrl || '未设置' }</span></p>
+                 <p className="mr-4">当前地址: { baseUrl ? <span className="text-green-400">{ baseUrl }</span> : <span className="text-red-400">未配置</span> }</p>
                  <BaseUrlCard isVisible={ visible } baseUrl={ baseUrl } /> 
+                 <Divider type="vertical" className="mx-4" />
+                 <p className="mr-4">上报配置: { reportState ? <span className="text-green-400">已配置</span> : <span className="text-red-400">未配置</span> }</p>
+                 <MqttConfigCard isVisible={ visible } baseUrl={ baseUrl } defaultMqttConifg={ mqttConfig } setMqttConfig={ setMqttConfig } />
             </Header>
             <Content style={{ margin: "0 16px" }}>
               { baseUrl && 
@@ -183,9 +201,9 @@ export default function RootLayout({
                 </> 
               }
             </Content>
-            <Footer style={{ textAlign: "center" }}>
+            {/* <Footer style={{ textAlign: "center" }}>
               路谱智迅 ©{new Date().getFullYear()} Created by 路谱智迅
-            </Footer>
+            </Footer> */}
           </Layout>
         </Layout>
       </body>

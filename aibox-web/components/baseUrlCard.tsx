@@ -2,9 +2,6 @@ import React, { memo, useState } from "react";
 import { Button, Modal, Form, Input, message } from "antd";
 
 
-export type LevelKeys = "origin" | "midele" | "low"
-
-
 type FormValues = {
   baseUrl: string;
 };
@@ -27,13 +24,19 @@ const _baseUrlCard = ({ isVisible, baseUrl }: { isVisible: boolean, baseUrl: str
         if (url.endsWith("/")) {
           url = url.slice(0, -1);
         }
-        window.localStorage.setItem("frpHost", url);
-        message.success("切换成功");
-        window.location.reload()
+        // 通过请求cameras接口判断url是否可用
+        fetch(`${baseUrl}/api/aibox_camera/cameras`)
+          .then((response) => response.json())
+          .then((cameras) => {
+            window.localStorage.setItem("frpHost", url);
+            message.success("切换成功");
+            setVisible(false);
+            window.location.reload()
+          }).catch((error) => {
+            message.error("切换失败: [ url请求未通过 ]");
+          });
       }).catch((error) => {
-        message.error("切换失败");
-      }).finally(() => {
-        setVisible(false);
+        message.error("切换失败: " + error);
       })
   };
 

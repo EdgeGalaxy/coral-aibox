@@ -11,7 +11,8 @@ from pydantic import BaseModel, Field
 import requests
 import uvicorn
 from loguru import logger
-from fastapi import FastAPI, APIRouter, WebSocket
+from coral.metrics import init_mqtt, mqtt
+from fastapi import FastAPI, APIRouter, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
 from algrothms.event import EventRecord
@@ -36,6 +37,13 @@ class ReportWebModel(BaseModel):
     report_scene: float = Field(
         description="上报场景, 越小表示场景遮挡越多，越相信历史数据", ge=0, le=1
     )
+
+
+class ReportMqttModel(BaseModel):
+    broker: str
+    port: int
+    username: str = None
+    password: str = None
 
 
 def async_run(_node_id: str, mount_path: str) -> None:
@@ -107,8 +115,13 @@ def get_gpio_events():
 @router.get("/config")
 def get_config():
     context = contexts[0]
-    params = context["params"]
-    return {"report_scene": params.report_scene}
+    params = context["params"].model_dump()
+    context = context["context"]
+    return {
+        "report_scene": params["report_scene"],
+        "report_status": True if context["mqtt"] else False,
+        "mqtt_config": params["mqtt"],
+    }
 
 
 @router.post("/config")
@@ -123,6 +136,26 @@ def set_config(item: ReportWebModel):
         kf.R = params.kf_R
 
     logger.info(f"{node_id} set config: {item.model_dump()}")
+    # 更新数据
+    new_params = contexts[0]["params"].model_dump()
+    durable_config(new_params)
+    return {"result": "success"}
+
+
+@router.post("/config/mqtt")
+def set_mqtt_config(item: ReportMqttModel):
+    for idx in contexts:
+        context = contexts[idx]
+        params = context["params"]
+        # 更新运行时数据
+        params.mqtt.broker = item.broker
+        params.mqtt.port = item.port
+        params.mqtt.username = item.username
+        params.mqtt.password = item.password
+
+        context["context"]["mqtt"] = init_mqtt(item.model_dump())
+
+    logger.info(f"{node_id} set mqtt config: {item.model_dump()}")
     # 更新数据
     new_params = contexts[0]["params"].model_dump()
     durable_config(new_params)
