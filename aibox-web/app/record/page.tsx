@@ -58,7 +58,7 @@ export default function RecordPage() {
         <p className="m-2 font-mono font-bold text-center">摄像头ID: </p>
         <Select
           className="text-center"
-          defaultValue={Object.keys(camerasRecords)[1]}
+          defaultValue={cameraID}
           style={{ width: 120, height: 40 }}
           onChange={onCameraChange}
         >
