@@ -133,9 +133,6 @@ services:
     platform: linux/arm64
     network_mode: host
     privileged: true
-    volumes:
-      - $HOME/.coral:/root/.coral 
-      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
   
   aibox-nginx:

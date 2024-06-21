@@ -45,18 +45,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-camera
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-camera/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-camera:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aibox-camera:rknn-main
           cache-to: type=inline
-
- 
-
-
-
-
 
   person:
     runs-on: ubuntu-20.04
@@ -90,7 +84,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-person
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-person/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-person:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
@@ -130,18 +124,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-face
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-face/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-face:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aibox-face:rknn-main
           cache-to: type=inline
-
- 
-
-
-
-
 
   report:
     runs-on: ubuntu-20.04
@@ -175,17 +163,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-report
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-report/Dockerfile_rknn
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-report:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aibox-report:rknn-main
           cache-to: type=inline
-
- 
-
-
-
 
   record:
     runs-on: ubuntu-20.04
@@ -219,16 +202,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-record
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-record/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-record:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/aibox-record:rknn-main
           cache-to: type=inline
-
- 
-
-
   web:
     runs-on: ubuntu-20.04
     steps:
@@ -261,7 +240,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-web
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-web/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-web:rknn-${{ steps.extract_tag.outputs.TAG_NAME }}

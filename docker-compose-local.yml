@@ -92,17 +92,8 @@ services:
       context: ./aibox-web
       dockerfile: Dockerfile
     image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-web:${IMAGE_TAG:-main}
-    privileged: true
-    environment:
-      - MQTT_BROKER=${MQTT_BROKER:-127.0.0.1}
-      - MQTT_PORT=${MQTT_PORT:-1883}
-      - MQTT_USERNAME=${MQTT_USERNAME:-admin}
-      - MQTT_PASSWORD=${MQTT_PASSWORD:-amdin}
     ports:
       - 3000:3000
-    volumes:
-      - $HOME/.coral:/root/.coral 
-      - $HOME/.rock/activate_code:/root/.rock/activate_code
     restart: unless-stopped
 
   aibox-nginx:

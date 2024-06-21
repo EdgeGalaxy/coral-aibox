@@ -7,6 +7,39 @@ type FormValues = {
 };
 
 
+async function getAIboxFrpHosts() {
+  const frpBaseHost = process.env.FRP_SERVE_HOST
+  const frpAuthToken = process.env.FRP_SERVE_AUTH_TOKEN
+  const domainSuffix = process.env.DOMAIN_SUFFIX
+  if (frpBaseHost && domainSuffix && frpAuthToken) {
+    const url = `${frpBaseHost}/api/proxy/tcp`
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Basic ${frpAuthToken}`
+      },
+    })
+    if (response.ok) {
+      const data = await response.json()
+      const aiboxServerNames = data.proxies.filter((item: any) => {
+        if (item.name.includes("rknn-aibox")) {
+          return item
+        }
+      })
+      return aiboxServerNames.map((item: any) => {
+        return [item.name.split("-")[0], domainSuffix].join('.')
+      })
+    } else {
+      console.log("getAIboxFrpHosts error", response.status)
+      return []
+    }
+  } else {
+    return []
+  }
+}
+
+
 const _baseUrlCard = ({ isVisible, baseUrl }: { isVisible: boolean, baseUrl: string }) => {
 
   const [ visible, setVisible] = useState(isVisible);

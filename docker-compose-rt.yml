@@ -119,12 +119,8 @@ services:
       context: ./aibox-web
       dockerfile: Dockerfile
     image: ${DOCKER_MIRROR:-docker.io}/${DOCKER_USERNAME:-loopeai}/aibox-web:rt-${IMAGE_TAG:-main}
-    privileged: true
-    ports:
-      - 3000:3000
-    volumes:
-      - $HOME/.coral:/root/.coral 
-      - $HOME/.rock/activate_code:/root/.rock/activate_code
+    platform: linux/arm64,linux/amd64
+    network_mode: host
     restart: unless-stopped
   
   aibox-nginx:

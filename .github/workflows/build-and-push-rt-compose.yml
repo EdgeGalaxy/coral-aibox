@@ -46,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-camera
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-camera/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-camera:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
@@ -87,7 +87,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-person
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-person/Dockerfile_rt
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-person:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
@@ -127,7 +127,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-face
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-face/Dockerfile_rt
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-face:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
@@ -168,7 +168,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-report
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-report/Dockerfile_rt
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-report:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
@@ -209,7 +209,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-record
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-record/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-record:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
@@ -250,7 +250,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-web
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           file: ./aibox-web/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-web:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
