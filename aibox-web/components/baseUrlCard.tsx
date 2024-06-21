@@ -1,49 +1,34 @@
-import React, { memo, useState } from "react";
-import { Button, Modal, Form, Input, message } from "antd";
+import React, { memo, useEffect, useState } from "react";
+import { Button, Modal, Form, Input, message, Select } from "antd";
 
+import { getAIboxFrpHosts, serversMapProps } from "./api/utils";
 
 type FormValues = {
   baseUrl: string;
 };
 
+const Option = Select;
 
-async function getAIboxFrpHosts() {
-  const frpBaseHost = process.env.FRP_SERVE_HOST
-  const frpAuthToken = process.env.FRP_SERVE_AUTH_TOKEN
-  const domainSuffix = process.env.DOMAIN_SUFFIX
-  if (frpBaseHost && domainSuffix && frpAuthToken) {
-    const url = `${frpBaseHost}/api/proxy/tcp`
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Basic ${frpAuthToken}`
-      },
-    })
-    if (response.ok) {
-      const data = await response.json()
-      const aiboxServerNames = data.proxies.filter((item: any) => {
-        if (item.name.includes("rknn-aibox")) {
-          return item
-        }
-      })
-      return aiboxServerNames.map((item: any) => {
-        return [item.name.split("-")[0], domainSuffix].join('.')
-      })
-    } else {
-      console.log("getAIboxFrpHosts error", response.status)
-      return []
-    }
-  } else {
-    return []
-  }
-}
-
-
-const _baseUrlCard = ({ isVisible, baseUrl }: { isVisible: boolean, baseUrl: string }) => {
-
-  const [ visible, setVisible] = useState(isVisible);
+const _baseUrlCard = ({
+  isVisible,
+  baseUrl,
+}: {
+  isVisible: boolean;
+  baseUrl: string;
+}) => {
+  const [visible, setVisible] = useState(isVisible);
   const [form] = Form.useForm<FormValues>();
+  const [frpHosts, setFrpHosts] = useState<serversMapProps>({});
+
+  useEffect(() => {
+    getAIboxFrpHosts().then((data) => {
+      if (!data) {
+        return;
+      }
+      console.log("getAIboxFrpHosts", data);
+      setFrpHosts(data);
+    });
+  }, []);
 
   const showModal = () => {
     setVisible(true);
@@ -53,7 +38,7 @@ const _baseUrlCard = ({ isVisible, baseUrl }: { isVisible: boolean, baseUrl: str
     form
       .validateFields()
       .then((values: FormValues) => {
-        let url = values['baseUrl'];
+        let url = values["baseUrl"];
         if (url.endsWith("/")) {
           url = url.slice(0, -1);
         }
@@ -64,13 +49,15 @@ const _baseUrlCard = ({ isVisible, baseUrl }: { isVisible: boolean, baseUrl: str
             window.localStorage.setItem("frpHost", url);
             message.success("切换成功");
             setVisible(false);
-            window.location.reload()
-          }).catch((error) => {
+            window.location.reload();
+          })
+          .catch((error) => {
             message.error("切换失败: [ url请求未通过 ]");
           });
-      }).catch((error) => {
-        message.error("切换失败: " + error);
       })
+      .catch((error) => {
+        message.error("切换失败: " + error);
+      });
   };
 
   const handleCancel = () => {
@@ -95,10 +82,26 @@ const _baseUrlCard = ({ isVisible, baseUrl }: { isVisible: boolean, baseUrl: str
           <Form.Item
             name="baseUrl"
             label="域名地址"
-            initialValue={baseUrl}
-            rules={[{ required: true, message: "请输入对应的域名地址" }, { type: 'url', message: "请输入正确的域名, http开头" }]}
+            rules={[
+              { required: true, message: "请输入对应的域名地址" },
+              { type: "url", message: "请输入正确的域名, http开头" },
+            ]}
           >
-            <Input defaultValue={ baseUrl }/>
+            {Object.keys(frpHosts).length > 0 ? (
+              <Select>
+                {Object.keys(frpHosts).map((host) => (
+                  <Option
+                    key={host}
+                    value={host}
+                    disabled={frpHosts[host] !== "online"}
+                  >
+                    <p className={frpHosts[host] === "online" ? "": "text-gray-300"}>{host}</p>
+                  </Option>
+                ))}
+              </Select>
+            ) : (
+              <Input defaultValue={baseUrl} />
+            )}
           </Form.Item>
         </Form>
       </Modal>

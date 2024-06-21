@@ -209,7 +209,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./aibox-record
-          platforms: linux/arm64,linux/amd64
+          platforms: linux/arm64
           file: ./aibox-record/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/aibox-record:rt-${{ steps.extract_tag.outputs.TAG_NAME }}
