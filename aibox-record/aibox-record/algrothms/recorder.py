@@ -149,10 +149,10 @@ class Recorder:
             image,
             str(object.prob),
             (x1, y1 - 10),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            label_color,
-            2,
+            fontScale=1,
+            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            color=label_color,
+            thickness=2,
         )
 
     @staticmethod
@@ -173,7 +173,7 @@ class Recorder:
 
             # box为红色框，label为粉红色
             self._draw_infer_rect_text(
-                frame, object, box_color=(0, 0, 255), label_color=(255, 192, 203)
+                frame, object, box_color=(0, 0, 255), label_color=(0, 0, 255)
             )
 
         return frame

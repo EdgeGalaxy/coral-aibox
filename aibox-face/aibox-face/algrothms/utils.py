@@ -57,10 +57,10 @@ def draw_image_with_boxes(
             image,
             str(object.prob),
             (x1, y1 - 10),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            label_color,
-            2,
+            fontScale=1,
+            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            color=label_color,
+            thickness=2,
         )
 
     # 为图片右上角添加延时的时间标志
@@ -68,10 +68,10 @@ def draw_image_with_boxes(
         image,
         f"delay: {delay_time} ms fps: {fps}",
         (10, 20),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.5,
-        (0, 0, 255),
-        2,
+        fontScale=1,
+        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+        color=(0, 0, 255),
+        thickness=2,
     )
 
     for object in objects:
@@ -80,8 +80,8 @@ def draw_image_with_boxes(
         for sub_object in sub_objects:
             _draw(image, sub_object, box_color=(0, 255, 0), label_color=(0, 255, 0))
 
-        # box为红色框，label为粉红色
-        _draw(image, object, box_color=(0, 0, 255), label_color=(255, 192, 203))
+        # box为红色框，label为
+        _draw(image, object, box_color=(0, 0, 255), label_color=(0, 0, 255))
 
     return image
 
