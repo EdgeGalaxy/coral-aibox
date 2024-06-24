@@ -24,10 +24,10 @@ export async function getAIboxFrpHosts() {
   const frpBaseHost = process.env.FRP_SERVE_HOST
   const frpAuthToken = process.env.FRP_SERVE_AUTH_TOKEN
   const domainSuffix = process.env.DOMAIN_SUFFIX
-  const frpNameSuffix = process.env.frpNameSuffix || "aibox"
+  // const frpNameSuffix = process.env.frpNameSuffix || "aibox"
   let aiboxServerMapper: serversMapProps = {}
   if (frpBaseHost && domainSuffix && frpAuthToken) {
-    const url = `${frpBaseHost}/api/proxy/tcp`
+    const url = `${frpBaseHost}/api/proxy/http`
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -35,16 +35,24 @@ export async function getAIboxFrpHosts() {
         "Authorization": `Basic ${frpAuthToken}`
       },
     })
-    if (response.ok) {
+    const serverResponse = await fetch(`${frpBaseHost}/api/serverinfo`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Basic ${frpAuthToken}`
+      },
+    })
+    if (response.ok && serverResponse.ok) {
+      const serverData = await serverResponse.json()
       const data = await response.json()
       const aiboxServerNames = data.proxies.filter((item: any) => {
-        if (item.name.includes(frpNameSuffix)) {
+        if (item.conf?.type === 'http' && item.conf?.subdomain) {
           return item
         }
       })
 
       aiboxServerNames.map((item: any) => {
-        const host = 'http://' + [item.name.split("-")[0], domainSuffix].join(".")
+        const host = 'http://' + [item.conf.subdomain, serverData.subdomainHost || domainSuffix].join(".")
         aiboxServerMapper[host] = item.status
       })
       return aiboxServerMapper
