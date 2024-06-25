@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import LazyLoad from 'react-lazy-load';
 
 import { Empty, Pagination, Select } from "antd";
@@ -20,6 +20,7 @@ export default function RecordPage() {
   );
   const [ selectTimeFile, setSelectTimeFile ] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -53,6 +54,11 @@ export default function RecordPage() {
     setSelectTimeFile(timeFile);
   };
 
+  const handlePlay = () => {
+    if (!isPlaying) {
+      setIsPlaying(true);
+    }
+  };
 
   if (isLoading || !cameraID ) {
     return <div>Loading...</div>; // 显示加载状态
@@ -77,6 +83,7 @@ export default function RecordPage() {
 
         <p className="m-2 font-mono font-bold text-center">时间段: </p>
         <Select
+          showSearch
           defaultValue={camerasRecords[cameraID][0]}
           style={{ width: 300, height: 40 }}
           onChange={onTimeFileChange}
@@ -89,13 +96,13 @@ export default function RecordPage() {
         </Select>
       </div>
       <div className="flex-col items-center justify-center h-screen">
-        <LazyLoad>
-          <video
-            className="w-full h-auto"
-            controls
-            src={`${baseUrl}/api/aibox_record/static/${selectTimeFile}`}
-          />
-        </LazyLoad>
+        <video
+          className="w-full h-auto"
+          controls
+          src={`${baseUrl}/api/aibox_record/static/${selectTimeFile}`}
+          preload="none"
+          onPlay={handlePlay}
+        />
         <p className="text-center">{selectTimeFile}</p>
       </div>
     </>
