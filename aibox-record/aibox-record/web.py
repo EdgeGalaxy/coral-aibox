@@ -5,11 +5,13 @@ from typing import List
 from threading import Thread
 from urllib.parse import urljoin
 
+import aiofiles
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 import requests
 import uvicorn
 from loguru import logger
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -74,7 +76,7 @@ def check_config_fp_or_set_default(config_fp: str):
 
 
 @router.get("/video/records")
-def get_records():
+async def get_records():
     context = contexts[0]
     cameras_dir_fp = context["params"].base_dir
     results = {}
@@ -92,3 +94,19 @@ def get_records():
         )
         results[camera_dir_fn] = video_fns[1:]
     return results
+
+
+@router.get("/video/streaming/{camera_id}/{video_fn}")
+async def get_record(camera_id: str, video_fn: str):
+    context = contexts[0]
+    cameras_dir_fp = context["params"].base_dir
+    fn = os.path.join(cameras_dir_fp, camera_id, video_fn)
+    if not os.path.exists(fn):
+        return HTTPException(status_code=404, detail="视频文件不存在！")
+
+    async def file_sender(file_path: str):
+        async with aiofiles.open(file_path, mode="rb") as file_like:
+            while chunk := await file_like.read(1024 * 1024):  # 每次读取1MB的数据
+                yield chunk
+
+    return StreamingResponse(file_sender(fn), media_type="video/mp4")

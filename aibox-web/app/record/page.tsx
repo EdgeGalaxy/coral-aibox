@@ -99,7 +99,7 @@ export default function RecordPage() {
         <video
           className="w-full h-auto"
           controls
-          src={`${baseUrl}/api/aibox_record/static/${selectTimeFile}`}
+          src={`${baseUrl}/api/aibox_record/video/streaming/${selectTimeFile}`}
           preload="none"
           onPlay={handlePlay}
         />
