@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useEffect, useRef, useState } from "react";
-import LazyLoad from 'react-lazy-load';
+import ReactPlayer from 'react-player/lazy'
 
 import { Empty, Pagination, Select } from "antd";
 import { GlobalContext } from "@/components/api/context";
@@ -96,13 +96,11 @@ export default function RecordPage() {
         </Select>
       </div>
       <div className="flex-col items-center justify-center h-screen">
-        <video
-          className="w-full h-auto"
-          controls
-          src={`${baseUrl}/api/aibox_record/video/streaming/${selectTimeFile}`}
-          preload="none"
-          onPlay={handlePlay}
-        />
+        <ReactPlayer 
+         width="w-full"
+         height="h-auto"
+         controls
+         url={`${baseUrl}/api/aibox_record/video/streaming/${selectTimeFile}`} />
         <p className="text-center">{selectTimeFile}</p>
       </div>
     </>
