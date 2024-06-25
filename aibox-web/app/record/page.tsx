@@ -18,9 +18,7 @@ export default function RecordPage() {
   const [camerasRecords, setCamerasRecords] = useState<camerasRecordsType>(
     {}
   );
-  const [selectCameraRecords, setSelectCameraRecords] = useState<string[]>([]);
-  const [crtPage, setCrtPage] = useState(1);
-  const [crtPageSize, setCrtPageSize] = useState(8);
+  const [ selectTimeFile, setSelectTimeFile ] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -38,7 +36,7 @@ export default function RecordPage() {
               const defaultCameraID = Object.keys(usedCamerasRecordsObj)[0];
               setCamerasRecords(usedCamerasRecordsObj);
               setCameraID(defaultCameraID);
-              setSelectCameraRecords(usedCamerasRecordsObj[defaultCameraID]?.slice(0, crtPageSize));
+              setSelectTimeFile(usedCamerasRecordsObj[defaultCameraID][0]);
           });
         }
       })
@@ -48,20 +46,15 @@ export default function RecordPage() {
 
   const onCameraChange = (cameraID: string) => {
     setCameraID(cameraID);
-    setCrtPage(1);
-    setSelectCameraRecords(camerasRecords[cameraID].slice(0, crtPageSize));
+    setSelectTimeFile(camerasRecords[cameraID][0]);
   };
 
-  const onPageNumChange = (page: number, pageSize: number) => {
-    setCrtPage(page);
-    setCrtPageSize(pageSize);
-    const index = (page - 1) * pageSize;
-    setSelectCameraRecords(
-      camerasRecords[cameraID].slice(index, index + pageSize)
-    );
+  const onTimeFileChange = (timeFile: string) => {
+    setSelectTimeFile(timeFile);
   };
 
-  if (isLoading || !cameraID) {
+
+  if (isLoading || !cameraID ) {
     return <div>Loading...</div>; // 显示加载状态
   }
 
@@ -81,38 +74,29 @@ export default function RecordPage() {
             </Option>
           ))}
         </Select>
-      </div>
 
-      {camerasRecords[cameraID]?.length > 0 ? (
-        <div className="grid grid-cols-4 m-8">
-          {selectCameraRecords.map((record) => (
-            <div className="m-8" key={record}>
-              <LazyLoad>
-                <video
-                  controls
-                  src={`${baseUrl}/api/aibox_record/static/${record}`}
-                  key={record}
-                />
-              </LazyLoad>
-              <p className="text-center">{record}</p>
-            </div>
+        <p className="m-2 font-mono font-bold text-center">时间段: </p>
+        <Select
+          defaultValue={camerasRecords[cameraID][0]}
+          style={{ width: 300, height: 40 }}
+          onChange={onTimeFileChange}
+        >
+          {camerasRecords[cameraID].map((file) => (
+            <Option key={file} value={file}>
+              {file}
+            </Option>
           ))}
-          :{" "}
-        </div>
-      ) : (
-        <Empty
-          className="content-center"
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
-      )}
-      <div className="mt-8 flex justify-center">
-        <Pagination
-          defaultCurrent={crtPage}
-          defaultPageSize={crtPageSize}
-          hideOnSinglePage
-          total={camerasRecords[cameraID]?.length}
-          onChange={onPageNumChange}
-        />
+        </Select>
+      </div>
+      <div className="flex-col items-center justify-center h-screen">
+        <LazyLoad>
+          <video
+            className="w-full h-auto"
+            controls
+            src={`${baseUrl}/api/aibox_record/static/${selectTimeFile}`}
+          />
+        </LazyLoad>
+        <p className="text-center">{selectTimeFile}</p>
       </div>
     </>
   );

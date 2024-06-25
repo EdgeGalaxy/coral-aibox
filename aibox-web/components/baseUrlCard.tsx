@@ -88,7 +88,10 @@ const _baseUrlCard = ({
             ]}
           >
             {Object.keys(frpHosts).length > 0 ? (
-              <Select>
+              <Select
+               showSearch
+               defaultValue={ baseUrl }
+              >
                 {Object.keys(frpHosts).map((host) => (
                   <Option
                     key={host}
