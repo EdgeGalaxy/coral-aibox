@@ -100,7 +100,7 @@ export default function RecordPage() {
          width="w-full"
          height="h-auto"
          controls
-         url={`${baseUrl}/api/aibox_record/video/streaming/${selectTimeFile}`} />
+         url={`${baseUrl}/api/aibox_record/static/${selectTimeFile}`} />
         <p className="text-center">{selectTimeFile}</p>
       </div>
     </>
