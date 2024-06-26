@@ -77,7 +77,7 @@ download_configs() {
 
 # 检测设备型号并下载对应的docker-compose文件
 detect_device_and_download_compose() {
-    local MODEL=$(cat /proc/device-tree/model)
+    local MODEL=$(tr -d '\0' < /proc/device-tree/model)
 
     case "$MODEL" in 
         *"NEARDI"*)
