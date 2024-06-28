@@ -21,7 +21,7 @@ import { Divider, Layout, Menu, theme } from "antd";
 import {  useEffect, useLayoutEffect, useState } from "react";
 import { BaseUrlCard } from "@/components/baseUrlCard";
 import { GlobalContext } from "@/components/api/context";
-import { MqttConfigCard } from "@/components/mqttCard";
+import { ServerConfigCard } from "@/components/serverCard";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -95,11 +95,13 @@ export default function RootLayout({
   } = theme.useToken();
   const [ isActived, setIsActived ] = useState<boolean>(true);
   const [ reportState, setReportState ] = useState<boolean>(false);
-  const [ mqttConfig, setMqttConfig ] = useState<any>({
+  const [ serverConfig, setServerConfig ] = useState<any>({
     broker: "",
     port: 0,
     username: "",
     password: "",
+    report_image: true,
+    report_url: "https://iot.lhehs.com/iot-api/resource/uploadNoAuthor",
   });
 
   // 获取当前路径
@@ -129,7 +131,7 @@ export default function RootLayout({
       .then((response) => response.json())
       .then((data) => {
         setReportState(data.report_status)
-        setMqttConfig(data.mqtt_config)
+        setServerConfig(data.server_config)
       });
 
     if (currentPath != "/") {
@@ -189,7 +191,7 @@ export default function RootLayout({
                  <BaseUrlCard isVisible={ visible } baseUrl={ baseUrl } /> 
                  <Divider type="vertical" className="mx-4" />
                  <p className="mr-4">上报配置: { reportState ? <span className="text-green-400">已配置</span> : <span className="text-red-400">未配置</span> }</p>
-                 <MqttConfigCard isVisible={ visible } baseUrl={ baseUrl } defaultMqttConifg={ mqttConfig } setMqttConfig={ setMqttConfig } />
+                 <ServerConfigCard isVisible={ visible } baseUrl={ baseUrl } defaultServerConifg={ serverConfig } setServerConfig={ setServerConfig } />
             </Header>
             <Content style={{ margin: "0 16px" }}>
               { baseUrl && 

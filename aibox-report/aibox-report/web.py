@@ -1,8 +1,6 @@
 import asyncio
 import os
 import json
-import shutil
-from typing import List
 from threading import Thread
 from urllib.parse import urljoin
 
@@ -39,11 +37,13 @@ class ReportWebModel(BaseModel):
     )
 
 
-class ReportMqttModel(BaseModel):
+class ReportServerModel(BaseModel):
     broker: str
     port: int
     username: str = None
     password: str = None
+    report_image: bool
+    report_url: str
 
 
 def async_run(_node_id: str, mount_path: str) -> None:
@@ -120,7 +120,12 @@ def get_config():
     return {
         "report_scene": params["report_scene"],
         "report_status": True if context["mqtt"] else False,
-        "mqtt_config": params["mqtt"],
+        "server_config": {
+            **params["mqtt"],
+            "report_image": params["report_image"],
+            "report_url": params["report_url"],
+        },
+        "max_camera_invalid_stats": params["max_camera_invalid_stats"],
     }
 
 
@@ -135,25 +140,37 @@ def set_config(item: ReportWebModel):
         kf.Q = params.kf_Q
         kf.R = params.kf_R
 
-    logger.info(f"{node_id} set config: {item.model_dump()}")
+    logger.info(f"{node_id} set report scene config: {item.model_dump()}")
     # 更新数据
     new_params = contexts[0]["params"].model_dump()
     durable_config(new_params)
     return {"result": "success"}
 
 
-@router.post("/config/mqtt")
-def set_mqtt_config(item: ReportMqttModel):
+@router.post("/config/report")
+def set_mqtt_config(item: ReportServerModel):
     for idx in contexts:
         context = contexts[idx]
         params = context["params"]
+        image_report_thread = context["image_report_thread"]
         # 更新运行时数据
         params.mqtt.broker = item.broker
         params.mqtt.port = item.port
         params.mqtt.username = item.username
         params.mqtt.password = item.password
 
-        context["context"]["mqtt"] = init_mqtt(item.model_dump())
+        params.report_image = item.report_image
+        params.report_url = item.report_url
+
+        image_report_thread.url = item.report_url
+        context["context"]["mqtt"] = init_mqtt(
+            cfg={
+                "broker": item.broker,
+                "port": item.port,
+                "username": item.username,
+                "password": item.password,
+            }
+        )
 
     logger.info(f"{node_id} set mqtt config: {item.model_dump()}")
     # 更新数据

@@ -1,23 +1,26 @@
 import React, { Dispatch, memo, useState } from "react";
-import { Button, Modal, Form, Input, message } from "antd";
+import { Button, Modal, Form, Input, message, Switch, Divider } from "antd";
+
 
 type FormValues = {
   broker: string;
   port: string;
   username?: string;
   password?: string;
+  report_image: boolean;
+  report_url: string;
 };
 
-const _mqttConfigCard = ({
+const _reportServerConfigCard = ({
   isVisible,
   baseUrl,
-  defaultMqttConifg,
-  setMqttConfig,
+  defaultServerConifg,
+  setServerConfig,
 }: {
   isVisible: boolean;
   baseUrl: string;
-  defaultMqttConifg: FormValues;
-  setMqttConfig: Dispatch<any>;
+  defaultServerConifg: FormValues;
+  setServerConfig: Dispatch<any>;
 }) => {
   const [visible, setVisible] = useState(isVisible);
   const [form] = Form.useForm<FormValues>();
@@ -28,7 +31,7 @@ const _mqttConfigCard = ({
 
   const handleSubmit = () => {
     form.validateFields().then((values: FormValues) => {
-      fetch(`${baseUrl}/api/aibox_report/config/mqtt`, {
+      fetch(`${baseUrl}/api/aibox_report/config/report`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,7 +40,7 @@ const _mqttConfigCard = ({
       })
         .then((response) => response.json())
         .then((data) => {
-          setMqttConfig(values);
+          setServerConfig(values);
           setVisible(false);
           message.success("配置成功");
         })
@@ -57,7 +60,7 @@ const _mqttConfigCard = ({
         更新上报地址
       </Button>
       <Modal
-        title="Mqtt切换"
+        title="上报地址切换"
         keyboard={false}
         open={visible}
         onOk={handleSubmit}
@@ -68,35 +71,52 @@ const _mqttConfigCard = ({
         <Form form={form} layout="vertical" name="form_in_modal">
           <Form.Item
             name="broker"
-            label="地址"
-            initialValue={defaultMqttConifg.broker}
+            label="Mqtt地址"
+            initialValue={defaultServerConifg.broker}
             rules={[{ required: true, message: "请输入对应的mqtt地址" }]}
           >
-            <Input defaultValue={defaultMqttConifg.broker} />
+            <Input defaultValue={defaultServerConifg.broker} />
           </Form.Item>
           <Form.Item
             name="port"
-            label="端口"
-            initialValue={defaultMqttConifg.port}
+            label="Mqtt端口"
+            initialValue={defaultServerConifg.port}
             rules={[{ required: true, message: "请输入对应的mqtt端口" }]}
           >
-            <Input defaultValue={defaultMqttConifg.port} />
+            <Input defaultValue={defaultServerConifg.port} />
           </Form.Item>
           <Form.Item
             name="username"
-            label="账号"
-            initialValue={defaultMqttConifg.username}
+            label="Mqtt账号"
+            initialValue={defaultServerConifg.username}
             rules={[{ required: false }]}
           >
-            <Input defaultValue={defaultMqttConifg.username} />
+            <Input defaultValue={defaultServerConifg.username} />
           </Form.Item>
           <Form.Item
             name="password"
-            label="密码"
-            initialValue={defaultMqttConifg.password}
+            label="Mqtt密码"
+            initialValue={defaultServerConifg.password}
             rules={[{ required: false }]}
           >
-            <Input.Password defaultValue={defaultMqttConifg.password} />
+            <Input.Password defaultValue={defaultServerConifg.password} />
+          </Form.Item>
+          <Divider />
+          <Form.Item
+            name="report_image"
+            label="图片上报开关"
+            initialValue={defaultServerConifg.report_image}
+            rules={[{ required: true }]}
+          >
+            <Switch defaultValue={defaultServerConifg.report_image} />
+          </Form.Item>
+          <Form.Item
+            name="report_url"
+            label="图片上报地址"
+            initialValue={defaultServerConifg.report_url}
+            rules={[{ required: true }, { type: "url", message: "请输入正确的域名, http开头" }]}
+          >
+            <Input defaultValue={defaultServerConifg.report_url} />
           </Form.Item>
         </Form>
       </Modal>
@@ -104,4 +124,4 @@ const _mqttConfigCard = ({
   );
 };
 
-export const MqttConfigCard = memo(_mqttConfigCard);
+export const ServerConfigCard = memo(_reportServerConfigCard);

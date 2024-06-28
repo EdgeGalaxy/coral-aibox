@@ -19,7 +19,7 @@
         }
     },
     "params": {
-        "report_image": false,
+        "report_image": true,
         "mqtt": {
             "broker": "47.116.14.85",
             "port": 9022,
@@ -38,6 +38,7 @@
         },
         "windows_interval": 3,
         "base_dir_name": "report",
-        "report_scene": 0.0
+        "report_scene": 0.0,
+        "report_url": "https://iot.lhehs.com/iot-api/resource/uploadNoAuthor"
     }
 }

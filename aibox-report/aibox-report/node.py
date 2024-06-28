@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime
 import math
 import os
@@ -27,6 +28,7 @@ from coral.metrics import init_mqtt, mqtt
 from pydantic import Field
 
 import web
+from algrothms import report
 from algrothms.event import EventRecord
 from algrothms.gpio import GpioControl
 
@@ -66,11 +68,18 @@ class AIboxReportParamsModel(BaseParamsModel):
         default=5, description="预测值人数窗口最大间隔时间，在这时间内的才做统计"
     )
     report_image: bool = False
+    report_url: str = Field(
+        default="https://iot.lhehs.com/iot-api/resource/uploadNoAuthor",
+        description="图片上报地址",
+    )
     report_scene: float = Field(
         default=0.5,
         description="上报场景, 越小表示场景遮挡越多，越相信历史数据",
         ge=0,
         le=1,
+    )
+    max_camera_invalid_stats: int = Field(
+        default=300, description="最大摄像头无效统计次数, 触发预警"
     )
     base_dir_name: str = Field(default="report", description="事件保存路径")
 
@@ -127,6 +136,15 @@ class AIboxReport(CoralNode):
         web.async_run(self.config.node_id, self.params.base_dir)
         # 持久化数据
         web.durable_config(self.params.model_dump())
+        # 上报图片数据
+        report_images_dir = os.path.join(self.params.base_dir, "images")
+        os.makedirs(report_images_dir, exist_ok=True)
+        self.image_report_thread = report.ImageSnapshotReport(
+            url=self.params.report_url, report_image_dir=report_images_dir
+        )
+        self.image_report_thread.start()
+        # 无效统计次数统计
+        self.camera_invalid_stats = 0
 
     def init(self, index: int, context: dict):
         """
@@ -150,11 +168,20 @@ class AIboxReport(CoralNode):
         context["gpio"] = gpio_client
         context["event"] = self.event
 
-        web.contexts[index] = {"context": context, "params": self.params, "kf": self.kf}
+        web.contexts[index] = {
+            "context": context,
+            "params": self.params,
+            "kf": self.kf,
+            "image_report_thread": self.image_report_thread,
+        }
 
     @property
     def topic(self):
         return f"aibox/inference/{self.mac_addr}/{self.config.node_id}"
+
+    @property
+    def camera_droped_topic(self):
+        return f"aibox/camera_droped/{self.mac_addr}"
 
     def init_kalman_filter(self):
         kf = KalmanFilter(dim_x=2, dim_z=1)
@@ -219,10 +246,13 @@ class AIboxReport(CoralNode):
             set(_valid_camera_ids) != set(camera_ids)
             and len(set(_valid_camera_ids)) / len(camera_ids) >= 0.5
         ):
+            self.camera_invalid_stats += 1
             raise InvalidPersonCount(
-                "无效的一次统计，指定时间内没有统计出至少1/2的摄像头数的人数"
+                f"无效的摄像头: {set(camera_ids) - set(_valid_camera_ids)}"
             )
         else:
+            # 有一次正常则清零
+            self.camera_invalid_stats = 0
             self.observations.append(_valid_person_count)
 
         # 滤波统计
@@ -269,6 +299,13 @@ class AIboxReport(CoralNode):
             logger.warning(f"{e}")
             person_count = -1
             web.person_count = None
+            # !无效统计次数比较，判断是否触发警报，若警报表示摄像头可能存在问题，或者上层节点通信存在问题
+            if self.camera_invalid_stats >= self.params.max_camera_invalid_stats:
+                if mqtt_client:
+                    mqtt_client.publish(
+                        self.camera_droped_topic, json.dumps({"msg": f"{e}"})
+                    )
+                logger.error(f"严重错误，上游节点错误或者摄像头掉线, {e}")
         else:
             report_msg = {
                 "uuid": payload.raw_id,
@@ -284,20 +321,21 @@ class AIboxReport(CoralNode):
                 "report_time": int(time.time() * 1000),
                 "extras": {},
             }
-            if self.params.report_image:
-                image_with_objects = [
-                    {
-                        "objects": obj,
-                        # 图片数据按base64编码传输
-                        "image": (
-                            self.encode_frame(raw) if self.params.report_image else None
-                        ),
-                    }
-                    for _, obj, raw in self.cameras_frame_data.values()
-                ]
-                report_msg["extras"].update({"image_with_objects": image_with_objects})
+
             if mqtt_client:
-                mqtt_client.publish(self.topic, json.dumps(report_msg))
+                if person_count and person_count > 0:
+                    # 发布消息
+                    mqtt_client.publish(self.topic, json.dumps(report_msg))
+
+                    if self.params.report_image and self.cameras_frame_data:
+                        # 图片上报信息加入队列
+                        report.report_queue.append(
+                            (
+                                payload.raw_id,
+                                person_count,
+                                copy.deepcopy(self.cameras_frame_data),
+                            )
+                        )
             else:
                 logger.warning("mqtt client not init, report not send!!!")
 
