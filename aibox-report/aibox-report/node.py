@@ -122,7 +122,7 @@ class AIboxReport(CoralNode):
     def __init__(self):
         super().__init__()
         # 摄像头人数
-        self.cameras_frame_data: Dict[str, list] = {}
+        self.cameras_frame_data: Dict[str, RawPayload] = {}
         # 摄像头最后一次接收时间
         self.cameras_last_capture_time: Dict[str, float] = {}
         # 摄像头能合并一起计算的最大间隔时间
@@ -238,7 +238,7 @@ class AIboxReport(CoralNode):
             ):
                 continue
             _valid_camera_ids.append(camera_id)
-            _valid_person_count += self.cameras_frame_data[camera_id][0]
+            _valid_person_count += len(self.cameras_frame_data[camera_id].objects or [])
 
         # 验证此次统计的有效性
         # ! 这种模式会存在如果有1/2的摄像头出现问题，则会一直无法正确统计的情况, 后续需要以某种方式通知摄像头问题
@@ -280,18 +280,17 @@ class AIboxReport(CoralNode):
         :param context: 上下文参数
         :return: 数据
         """
-        objects = self.prepare_objects(payload.objects or [])
+        # objects = self.prepare_objects(payload.objects or [])
         # 记录每个摄像头的人数
         self.cameras_last_capture_time[payload.source_id] = time.time()
-        self.cameras_frame_data[payload.source_id] = [
-            len(payload.objects or []),
-            objects,
-            payload.raw,
-        ]
+        self.cameras_frame_data[payload.source_id] = payload.model_copy(deep=True)
 
         mqtt_client: Union[mqtt.Client, None] = context["mqtt"]
         gpio_client: GpioControl = context["gpio"]
-        pre_camera_count = [count for count, _, _ in self.cameras_frame_data.values()]
+        pre_camera_count = [
+            len(camera_payload.objects or [])
+            for camera_payload in self.cameras_frame_data.values()
+        ]
         try:
             # 根据有效的统计人数来做反馈，若人数统计无效，则抛出异常，此次不做上报
             person_count = self.process_person_count(payload.raw_params["camera_ids"])
@@ -333,7 +332,7 @@ class AIboxReport(CoralNode):
                             (
                                 payload.raw_id,
                                 person_count,
-                                copy.deepcopy(self.cameras_frame_data),
+                                self.cameras_frame_data,
                             )
                         )
             else:

@@ -13,7 +13,7 @@ import requests
 import numpy as np
 from retry import retry
 from loguru import logger
-from coral import ObjectPayload
+from coral import ObjectPayload, RawPayload
 from coral.types.payload import Box
 from requests.exceptions import ConnectionError
 
@@ -50,14 +50,15 @@ class ImageSnapshotReport(threading.Thread):
             self.concat_image_save(cameras, concat_image_fp)
             self.report_to_server(raw_id, concat_image_fp)
         except Exception as e:
-            logger.warning(
+            logger.exception(
                 f"uid: {raw_id} report count: {person_count} send failed: {e}!"
             )
         else:
             logger.debug(f"uid: {raw_id} report count: {person_count} send success!")
         finally:
-            if os.path.exists(concat_image_fp):
-                os.remove(concat_image_fp)
+            pass
+            # if os.path.exists(concat_image_fp):
+            #     os.remove(concat_image_fp)
 
     @staticmethod
     def _resize_frame(frame: np.ndarray, resize_ratio: float):
@@ -79,7 +80,12 @@ class ImageSnapshotReport(threading.Thread):
         raws = []
         camera_ids = sorted(list(cameras.keys()))
         for camera_id in camera_ids:
-            count, objects, raw = cameras[camera_id]
+            camera_payload: RawPayload = cameras[camera_id]
+            count, objects, raw = (
+                len(camera_payload.objects or []),
+                camera_payload.objects,
+                camera_payload.raw,
+            )
             self._draw_camera_id(raw, camera_id, count)
             self._draw_person_rect(raw, objects)
             resize_raw = self._resize_frame(raw, 360 / raw.shape[0])
@@ -194,66 +200,66 @@ if __name__ == "__main__":
                     )
                 ],
                 np.ones((480, 720, 3), dtype=np.uint8) * 255,
-            ],
-            "ahd2": [
-                1,
-                [
-                    ObjectPayload(
-                        label="person",
-                        box=Box(x1=0, y1=0, x2=100, y2=100),
-                        prob=0.9,
-                        class_id=0,
-                    )
-                ],
-                np.ones((480, 720, 3), dtype=np.uint8) * 255,
-            ],
-            "ahd3": [
-                1,
-                [
-                    ObjectPayload(
-                        label="person",
-                        box=Box(x1=0, y1=0, x2=100, y2=100),
-                        prob=0.9,
-                        class_id=0,
-                    )
-                ],
-                np.ones((480, 720, 3), dtype=np.uint8) * 255,
-            ],
-            "ahd4": [
-                1,
-                [
-                    ObjectPayload(
-                        label="person",
-                        box=Box(x1=0, y1=0, x2=100, y2=100),
-                        prob=0.9,
-                        class_id=0,
-                    )
-                ],
-                np.ones((480, 720, 3), dtype=np.uint8) * 255,
-            ],
-            "ahd5": [
-                1,
-                [
-                    ObjectPayload(
-                        label="person",
-                        box=Box(x1=0, y1=0, x2=100, y2=100),
-                        prob=0.9,
-                        class_id=0,
-                    )
-                ],
-                np.ones((480, 720, 3), dtype=np.uint8) * 255,
-            ],
-            "ahd6": [
-                1,
-                [
-                    ObjectPayload(
-                        label="person",
-                        box=Box(x1=0, y1=0, x2=100, y2=100),
-                        prob=0.9,
-                        class_id=0,
-                    )
-                ],
-                np.ones((480, 720, 3), dtype=np.uint8) * 255,
+                # ],
+                # "ahd2": [
+                #     1,
+                #     [
+                #         ObjectPayload(
+                #             label="person",
+                #             box=Box(x1=0, y1=0, x2=100, y2=100),
+                #             prob=0.9,
+                #             class_id=0,
+                #         )
+                #     ],
+                #     np.ones((480, 720, 3), dtype=np.uint8) * 255,
+                # ],
+                # "ahd3": [
+                #     1,
+                #     [
+                #         ObjectPayload(
+                #             label="person",
+                #             box=Box(x1=0, y1=0, x2=100, y2=100),
+                #             prob=0.9,
+                #             class_id=0,
+                #         )
+                #     ],
+                #     np.ones((480, 720, 3), dtype=np.uint8) * 255,
+                # ],
+                # "ahd4": [
+                #     1,
+                #     [
+                #         ObjectPayload(
+                #             label="person",
+                #             box=Box(x1=0, y1=0, x2=100, y2=100),
+                #             prob=0.9,
+                #             class_id=0,
+                #         )
+                #     ],
+                #     np.ones((480, 720, 3), dtype=np.uint8) * 255,
+                # ],
+                # "ahd5": [
+                #     1,
+                #     [
+                #         ObjectPayload(
+                #             label="person",
+                #             box=Box(x1=0, y1=0, x2=100, y2=100),
+                #             prob=0.9,
+                #             class_id=0,
+                #         )
+                #     ],
+                #     np.ones((480, 720, 3), dtype=np.uint8) * 255,
+                # ],
+                # "ahd6": [
+                #     1,
+                #     [
+                #         ObjectPayload(
+                #             label="person",
+                #             box=Box(x1=0, y1=0, x2=100, y2=100),
+                #             prob=0.9,
+                #             class_id=0,
+                #         )
+                #     ],
+                #     np.ones((480, 720, 3), dtype=np.uint8) * 255,
             ],
         },
     ]

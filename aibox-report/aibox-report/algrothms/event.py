@@ -24,8 +24,13 @@ class EventRecord:
                 data = []
         else:
             with open(self.event_fp, "r") as f:
-                # 只取前1000条
-                data = json.load(f)[:1000]
+                try:
+                    # 只取前1000条
+                    data = json.load(f)[:1000]
+                except Exception as e:
+                    logger.warning(f"init event buffer error: {e}")
+                    data = []
+
         logger.info(f"init event buffer: {self.event_fp}!")
         return data
 

@@ -38,7 +38,8 @@
         },
         "windows_interval": 3,
         "base_dir_name": "report",
-        "report_scene": 0.0,
-        "report_url": "https://iot.lhehs.com/iot-api/resource/uploadNoAuthor"
+        "report_scene": 1.0,
+        "report_url": "https://iot.lhehs.com/iot-api/resource/uploadNoAuthor",
+        "max_camera_invalid_stats": 300
     }
 }
