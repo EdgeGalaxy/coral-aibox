@@ -179,6 +179,11 @@ def set_mqtt_config(item: ReportServerModel):
     return {"result": "success"}
 
 
+@router.get("/detect/person_count")
+def detect_person_count():
+    return {"count": person_count}
+
+
 @router.websocket("/ws/person_count")
 async def person_count_ws(websocket: WebSocket):
     await websocket.accept()

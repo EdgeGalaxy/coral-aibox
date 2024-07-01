@@ -40,7 +40,7 @@ class ImageSnapshotReport(threading.Thread):
                 continue
             except Exception as e:
                 logger.warning(f"report error: {e}")
-                time.sleep(0.02)
+                time.sleep(0.05)
                 continue
 
     def report(self, payload):
@@ -56,9 +56,8 @@ class ImageSnapshotReport(threading.Thread):
         else:
             logger.debug(f"uid: {raw_id} report count: {person_count} send success!")
         finally:
-            pass
-            # if os.path.exists(concat_image_fp):
-            #     os.remove(concat_image_fp)
+            if os.path.exists(concat_image_fp):
+                os.remove(concat_image_fp)
 
     @staticmethod
     def _resize_frame(frame: np.ndarray, resize_ratio: float):

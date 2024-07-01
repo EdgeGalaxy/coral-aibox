@@ -142,3 +142,9 @@ services:
       - ./aibox-nginx.conf:/etc/nginx/conf.d/aibox.conf
     restart: unless-stopped
   
+  aibox-mqtt:
+    image: ${DOCKER_MIRROR:-docker.io}/library/eclipse-mosquitto:latest
+    network_mode: host
+    volumes:
+      - ./mosquitto:/mosquitto
+    restart: unless-stopped
